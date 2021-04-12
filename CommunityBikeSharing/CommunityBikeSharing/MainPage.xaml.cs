@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using System;
+using Xamarin.Forms;
 
 namespace CommunityBikeSharing
 {
@@ -8,7 +9,14 @@ namespace CommunityBikeSharing
         {
             InitializeComponent();
 
-            Label.Text = $"Wilkommen beim Community Bike Sharing, {App.User.Email}!";
+            Label.Text = $"Hallo {App.User.Email}.";
+        }
+
+        private void Logout(object sender, EventArgs e)
+        {
+	        App.User = null;
+
+	        Application.Current.MainPage = new RegistrationPage();
         }
     }
 }

@@ -21,6 +21,8 @@ namespace CommunityBikeSharing
 			{ AuthErrorReason.MissingEmail, "Bitte Email eingeben." },
 			{ AuthErrorReason.InvalidEmailAddress, "Email ist ungültig." },
 			{ AuthErrorReason.EmailExists, "Die Email wird bereits verwendet." },
+			{ AuthErrorReason.WrongPassword, "Password ist falsch." },
+			{ AuthErrorReason.UnknownEmailAddress, "Email ist nicht registriert." },
 			{ AuthErrorReason.WeakPassword, "Das Password muss mindestens 6 Zeichen umfassen."},
 			{ AuthErrorReason.Undefined, "Unbekannter Fehler." },
 		};
@@ -51,6 +53,30 @@ namespace CommunityBikeSharing
 				App.User = auth.User;
 
 				Application.Current.MainPage = new MainPage();
+			}
+			catch (FirebaseAuthException e)
+			{
+				await DisplayAuthErrorNotification(e.Reason);
+			}
+		}
+
+		private async void ResetPassword(object sender, EventArgs args)
+		{
+			var email = EmailField.Text;
+
+			var authProvider = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyAgXY1X3_FvHFinrAFkTKvpL-wo052R1i0"));
+
+			if (string.IsNullOrEmpty(email))
+			{
+				await DisplayAuthErrorNotification(AuthErrorReason.MissingEmail);
+				return;
+			}
+
+			try
+			{
+				await authProvider.SendPasswordResetEmailAsync(email);
+
+				await DisplayAlert("Email gesendet", $"Eine Email zum Zurücksetzen des Passwortes wurde an {email} gesendet.", "Ok");
 			}
 			catch (FirebaseAuthException e)
 			{

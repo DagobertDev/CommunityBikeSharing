@@ -9,11 +9,13 @@
         <Label Text="Email eingeben:" Margin="30,0,30,0"/>
         <Entry x:Name="EmailField" Keyboard="Email" Margin="30,0,30,0"/>
 
-        <Label Text="Password eingeben:" Margin="30,0,30,0"/>
+        <Label Text="Passwort eingeben:" Margin="30,0,30,0"/>
         <Entry x:Name="PasswordField" IsPassword="True" Margin="30,0,30,0"/>
+
+        <Button Text="Passwort zurücksetzen" Clicked="ResetPassword" Margin="30,0,30,0"/>
 
         <Button Text="Login" Clicked="Login" Margin="30,0,30,0"/>
 
-        <Button Text="Noch kein Account? Hier registrieren" Clicked="RedirectToRegistration" Margin="30,0,30,0"/>
+        <Button Text="Noch keinen Account? Hier registrieren" Clicked="RedirectToRegistration" Margin="30,0,30,0"/>
     </StackLayout>
 </ContentPage>
