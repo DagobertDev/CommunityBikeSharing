@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace CommunityBikeSharing
 {
@@ -13,6 +7,8 @@ namespace CommunityBikeSharing
         public MainPage()
         {
             InitializeComponent();
+
+            Label.Text = $"Wilkommen beim Community Bike Sharing, {App.User.Email}!";
         }
     }
 }

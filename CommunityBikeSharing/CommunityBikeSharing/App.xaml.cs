@@ -1,16 +1,17 @@
-﻿using System;
+﻿using Firebase.Auth;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace CommunityBikeSharing
 {
     public partial class App : Application
     {
+	    public static User User;
+
         public App()
         {
             InitializeComponent();
 
-            MainPage = new MainPage();
+            MainPage = new RegistrationPage();
         }
 
         protected override void OnStart()

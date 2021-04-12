@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CommunityBikeSharing.RegistrationPage">
+    <StackLayout>
+        <Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
+            <Label Text="Wilkommen beim Community Bike Sharing" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
+        </Frame>
+        <Label Text="Registrieren" FontSize="Title" Padding="30,10,30,10"/>
+
+        <Label Text="Email eingeben:" Margin="30,0,30,0"/>
+        <Entry x:Name="EmailField" Keyboard="Email" Margin="30,0,30,0"/>
+
+        <Label Text="Password eingeben:" Margin="30,0,30,0"/>
+        <Entry x:Name="PasswordField" IsPassword="True" Margin="30,0,30,0"/>
+
+        <Label Text="Password wiederholen:" Margin="30,0,30,0"/>
+        <Entry x:Name="RepeatedPasswordField" IsPassword="True" Margin="30,0,30,0"/>
+
+        <Button Text="Registrieren" Clicked="Register" Margin="30,0,30,0"/>
+
+        <Button Text="Bereits registriert? Hier einloggen" Clicked="RedirectToLogin" Margin="30,0,30,0"/>
+    </StackLayout>
+</ContentPage>
