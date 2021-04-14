@@ -7,9 +7,13 @@ namespace CommunityBikeSharing
     {
 	    public static User User;
 
+	    private const string FirebaseApiKey = "AIzaSyAgXY1X3_FvHFinrAFkTKvpL-wo052R1i0";
+
         public App()
         {
             InitializeComponent();
+
+            DependencyService.RegisterSingleton<IFirebaseAuthProvider>(new FirebaseAuthProvider(new FirebaseConfig(FirebaseApiKey)));
 
             MainPage = new RegistrationPage();
         }

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Firebase.Auth;
+using CommunityBikeSharing.ViewModels;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -13,90 +11,11 @@ namespace CommunityBikeSharing
 		public LoginPage()
 		{
 			InitializeComponent();
-		}
 
-		private readonly IReadOnlyDictionary<AuthErrorReason, string> _errorMessages = new Dictionary<AuthErrorReason, string>()
-		{
-			{ AuthErrorReason.MissingPassword, "Bitte Password eingeben." },
-			{ AuthErrorReason.MissingEmail, "Bitte Email eingeben." },
-			{ AuthErrorReason.InvalidEmailAddress, "Email ist ungültig." },
-			{ AuthErrorReason.EmailExists, "Die Email wird bereits verwendet." },
-			{ AuthErrorReason.WrongPassword, "Password ist falsch." },
-			{ AuthErrorReason.UnknownEmailAddress, "Email ist nicht registriert." },
-			{ AuthErrorReason.WeakPassword, "Das Password muss mindestens 6 Zeichen umfassen."},
-			{ AuthErrorReason.Undefined, "Unbekannter Fehler." },
-		};
-
-		private async void Login(object sender, EventArgs args)
-		{
-			var email = EmailField.Text;
-			var password = PasswordField.Text;
-
-			var authProvider = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyAgXY1X3_FvHFinrAFkTKvpL-wo052R1i0"));
-
-			if (string.IsNullOrEmpty(email))
+			BindingContext = new LoginViewModel
 			{
-				await DisplayAuthErrorNotification(AuthErrorReason.MissingEmail);
-				return;
-			}
-
-			if (string.IsNullOrEmpty(password))
-			{
-				await DisplayAuthErrorNotification(AuthErrorReason.MissingPassword);
-				return;
-			}
-
-			try
-			{
-				var auth = await authProvider.SignInWithEmailAndPasswordAsync(email, password);
-
-				App.User = auth.User;
-
-				Application.Current.MainPage = new MainPage();
-			}
-			catch (FirebaseAuthException e)
-			{
-				await DisplayAuthErrorNotification(e.Reason);
-			}
-		}
-
-		private async void ResetPassword(object sender, EventArgs args)
-		{
-			var email = EmailField.Text;
-
-			var authProvider = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyAgXY1X3_FvHFinrAFkTKvpL-wo052R1i0"));
-
-			if (string.IsNullOrEmpty(email))
-			{
-				await DisplayAuthErrorNotification(AuthErrorReason.MissingEmail);
-				return;
-			}
-
-			try
-			{
-				await authProvider.SendPasswordResetEmailAsync(email);
-
-				await DisplayAlert("Email gesendet", $"Eine Email zum Zurücksetzen des Passwortes wurde an {email} gesendet.", "Ok");
-			}
-			catch (FirebaseAuthException e)
-			{
-				await DisplayAuthErrorNotification(e.Reason);
-			}
-		}
-
-		private Task DisplayAuthErrorNotification(AuthErrorReason reason)
-		{
-			if (!_errorMessages.TryGetValue(reason, out var errorMessage))
-			{
-				_errorMessages.TryGetValue(AuthErrorReason.Undefined, out errorMessage);
-			}
-
-			return DisplayErrorNotification(errorMessage);
-		}
-
-		private Task DisplayErrorNotification(string errorMessage)
-		{
-			return DisplayAlert("Registrierung fehlgeschlagen", errorMessage, "Ok");
+				AfterLogin = () => Application.Current.MainPage = new MainPage()
+			};
 		}
 
 		private void RedirectToRegistration(object sender, EventArgs args)

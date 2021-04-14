@@ -2,7 +2,9 @@
 
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="CommunityBikeSharing.RegistrationPage">
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             x:Class="CommunityBikeSharing.RegistrationPage"
+             x:DataType="viewModels:RegistrationViewModel">
     <StackLayout>
         <Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
             <Label Text="Willkommen beim Community Bike-Sharing" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
@@ -10,15 +12,15 @@
         <Label Text="Registrieren" FontSize="Title" Padding="30,10,30,10"/>
 
         <Label Text="Email eingeben:" Margin="30,0,30,0"/>
-        <Entry x:Name="EmailField" Keyboard="Email" Margin="30,0,30,0"/>
+        <Entry Text="{Binding Email}" Keyboard="Email" Margin="30,0,30,0"/>
 
         <Label Text="Passwort eingeben:" Margin="30,0,30,0"/>
-        <Entry x:Name="PasswordField" IsPassword="True" Margin="30,0,30,0"/>
+        <Entry Text="{Binding Password}" IsPassword="True" Margin="30,0,30,0"/>
 
         <Label Text="Passwort wiederholen:" Margin="30,0,30,0"/>
-        <Entry x:Name="RepeatedPasswordField" IsPassword="True" Margin="30,0,30,0"/>
+        <Entry Text="{Binding RepeatedPassword}" IsPassword="True" Margin="30,0,30,0"/>
 
-        <Button Text="Registrieren" Clicked="Register" Margin="30,0,30,0"/>
+        <Button Text="Registrieren" Command="{Binding RegisterCommand}" Margin="30,0,30,0"/>
 
         <Button Text="Bereits registriert? Hier einloggen" Clicked="RedirectToLogin" Margin="30,0,30,0"/>
     </StackLayout>

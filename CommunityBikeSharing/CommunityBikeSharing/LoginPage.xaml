@@ -2,19 +2,21 @@
 
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="CommunityBikeSharing.LoginPage">
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             x:Class="CommunityBikeSharing.LoginPage"
+             x:DataType="viewModels:LoginViewModel">
     <StackLayout>
         <Label Text="Login" FontSize="Title" Padding="30,10,30,10"/>
 
         <Label Text="Email eingeben:" Margin="30,0,30,0"/>
-        <Entry x:Name="EmailField" Keyboard="Email" Margin="30,0,30,0"/>
+        <Entry Text="{Binding Email}" Keyboard="Email" Margin="30,0,30,0"/>
 
         <Label Text="Passwort eingeben:" Margin="30,0,30,0"/>
-        <Entry x:Name="PasswordField" IsPassword="True" Margin="30,0,30,0"/>
+        <Entry Text="{Binding Password}" IsPassword="True" Margin="30,0,30,0"/>
 
-        <Button Text="Passwort zurücksetzen" Clicked="ResetPassword" Margin="30,0,30,0"/>
+        <Button Text="Passwort zurücksetzen" Command="{Binding ResetPasswordCommand}" Margin="30,0,30,0"/>
 
-        <Button Text="Login" Clicked="Login" Margin="30,0,30,0"/>
+        <Button Text="Login" Command="{Binding LoginCommand}" Margin="30,0,30,0"/>
 
         <Button Text="Noch keinen Account? Hier registrieren" Clicked="RedirectToRegistration" Margin="30,0,30,0"/>
     </StackLayout>
