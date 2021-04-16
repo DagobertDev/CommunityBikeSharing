@@ -3,7 +3,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
-             x:Class="CommunityBikeSharing.LoginPage"
+             x:Class="CommunityBikeSharing.Views.LoginPage"
              x:DataType="viewModels:LoginViewModel">
     <StackLayout>
         <Label Text="Login" FontSize="Title" Padding="30,10,30,10"/>

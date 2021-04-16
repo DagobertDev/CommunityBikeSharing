@@ -2,7 +2,7 @@
 using CommunityBikeSharing.Services;
 using Xamarin.Forms;
 
-namespace CommunityBikeSharing
+namespace CommunityBikeSharing.Views
 {
     public partial class MainPage : ContentPage
     {

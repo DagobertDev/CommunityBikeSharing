@@ -1,4 +1,5 @@
 ﻿using CommunityBikeSharing.Services;
+using CommunityBikeSharing.Views;
 using Firebase.Auth;
 using Xamarin.Forms;
 
