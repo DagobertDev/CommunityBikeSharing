@@ -1,12 +1,11 @@
-﻿using Firebase.Auth;
+﻿using CommunityBikeSharing.Services;
+using Firebase.Auth;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing
 {
     public partial class App : Application
     {
-	    public static User User;
-
 	    private const string FirebaseApiKey = "AIzaSyAgXY1X3_FvHFinrAFkTKvpL-wo052R1i0";
 
         public App()
@@ -15,7 +14,7 @@ namespace CommunityBikeSharing
 
             DependencyService.RegisterSingleton<IFirebaseAuthProvider>(new FirebaseAuthProvider(new FirebaseConfig(FirebaseApiKey)));
 
-            MainPage = new RegistrationPage();
+            MainPage = DependencyService.Get<IAuthService>().SignedIn ? (Page)new MainPage() : new RegistrationPage();
         }
 
         protected override void OnStart()

@@ -10,7 +10,7 @@ namespace CommunityBikeSharing.ViewModels
 {
 	public class LoginViewModel : BaseViewModel
 	{
-		private readonly IFirebaseAuthProvider _authProvider;
+		private readonly IAuthService _authService;
 		private readonly IDialogService _dialogService;
 
 		private readonly IReadOnlyDictionary<AuthErrorReason, string> _errorMessages =
@@ -32,7 +32,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			LoginCommand = new Command(Login);
 			ResetPasswordCommand = new Command(ResetPassword);
-			_authProvider = DependencyService.Get<IFirebaseAuthProvider>();
+			_authService = DependencyService.Get<IAuthService>();
 			_dialogService = DependencyService.Get<IDialogService>();
 		}
 
@@ -77,9 +77,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			try
 			{
-				var auth = await _authProvider.SignInWithEmailAndPasswordAsync(Email, Password);
-
-				App.User = auth.User;
+				await _authService.SignIn(Email, Password);
 
 				AfterLogin?.Invoke();
 			}
@@ -99,7 +97,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			try
 			{
-				await _authProvider.SendPasswordResetEmailAsync(Email);
+				await _authService.ResetPassword(_email);
 
 				await _dialogService.ShowMessage("Passwort zurückgesetzt",
 					$"Eine Email zum Zurücksetzen des Passwortes wurde an {Email} gesendet.", "Ok");

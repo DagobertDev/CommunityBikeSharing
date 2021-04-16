@@ -1,20 +1,25 @@
 ﻿using System;
+using CommunityBikeSharing.Services;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing
 {
     public partial class MainPage : ContentPage
     {
+	    private readonly IAuthService _authService;
+
         public MainPage()
         {
             InitializeComponent();
 
-            Label.Text = $"Hallo {App.User.Email}.";
+            _authService = DependencyService.Get<IAuthService>();
+
+            Label.Text = $"Hallo {_authService.User.Username}.";
         }
 
-        private void Logout(object sender, EventArgs e)
+        private async void Logout(object sender, EventArgs e)
         {
-	        App.User = null;
+	        await _authService.SignOut();
 
 	        Application.Current.MainPage = new RegistrationPage();
         }

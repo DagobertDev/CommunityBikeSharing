@@ -10,7 +10,7 @@ namespace CommunityBikeSharing.ViewModels
 {
 	public class RegistrationViewModel : BaseViewModel
 	{
-		private readonly IFirebaseAuthProvider _authProvider;
+		private readonly IAuthService _authService;
 		private readonly IDialogService _dialogService;
 
 		private readonly IReadOnlyDictionary<AuthErrorReason, string> _errorMessages =
@@ -33,7 +33,7 @@ namespace CommunityBikeSharing.ViewModels
 		public RegistrationViewModel()
 		{
 			RegisterCommand = new Command(Register);
-			_authProvider = DependencyService.Get<IFirebaseAuthProvider>();
+			_authService = DependencyService.Get<IAuthService>();
 			_dialogService = DependencyService.Get<IDialogService>();
 		}
 
@@ -93,9 +93,8 @@ namespace CommunityBikeSharing.ViewModels
 
 			try
 			{
-				var auth = await _authProvider.CreateUserWithEmailAndPasswordAsync(Email, Password);
-
-				App.User = auth.User;
+				await _authService.Register(Email, Password);
+				await _authService.SignIn(Email, Password);
 
 				AfterRegistration?.Invoke();
 			}

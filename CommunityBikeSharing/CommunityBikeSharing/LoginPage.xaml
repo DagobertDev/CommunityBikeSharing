@@ -12,7 +12,7 @@
         <Entry Text="{Binding Email}" Keyboard="Email" Margin="30,0,30,0"/>
 
         <Label Text="Passwort eingeben:" Margin="30,0,30,0"/>
-        <Entry Text="{Binding Password}" IsPassword="True" Margin="30,0,30,0"/>
+        <Entry Text="{Binding Password}" ReturnCommand="{Binding LoginCommand}" IsPassword="True" Margin="30,0,30,0"/>
 
         <Button Text="Passwort zurücksetzen" Command="{Binding ResetPasswordCommand}" Margin="30,0,30,0"/>
 
