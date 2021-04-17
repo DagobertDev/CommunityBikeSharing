@@ -45,17 +45,17 @@ namespace CommunityBikeSharing.Services
 
 		private User _user;
 
-		public User User
-		{
-			get
-			{
-				if (_user == null && _authLink != null)
-				{
-					_user = new User {Email = _authLink?.User.Email};
-				}
+		public User User => _authLink == null ? null :
+			new User {Email = _authLink.User.Email, Id = _authLink.User.LocalId};
 
-				return _user;
+		public async Task<string> GetAccessToken()
+		{
+			if (_authLink.IsExpired())
+			{
+				_authLink = await _authLink.GetFreshAuthAsync();
 			}
+
+			return _authLink.FirebaseToken;
 		}
 
 		public bool SignedIn => User != null;

@@ -1,6 +1,7 @@
 ﻿using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Views;
 using Firebase.Auth;
+using Firebase.Database;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing
@@ -14,7 +15,9 @@ namespace CommunityBikeSharing
             InitializeComponent();
 
             DependencyService.RegisterSingleton<IFirebaseAuthProvider>(new FirebaseAuthProvider(new FirebaseConfig(FirebaseApiKey)));
-
+            DependencyService.RegisterSingleton(
+	            new FirebaseClient("https://bike-b33e3-default-rtdb.europe-west1.firebasedatabase.app/",
+	            new FirebaseOptions {AuthTokenAsyncFactory = () => DependencyService.Get<IAuthService>().GetAccessToken()}));
             MainPage = DependencyService.Get<IAuthService>().SignedIn ? (Page)new MainPage() : new RegistrationPage();
         }
 

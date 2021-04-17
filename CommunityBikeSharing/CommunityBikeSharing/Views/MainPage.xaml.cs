@@ -1,5 +1,6 @@
 ﻿using System;
 using CommunityBikeSharing.Services;
+using CommunityBikeSharing.ViewModels;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
@@ -12,9 +13,9 @@ namespace CommunityBikeSharing.Views
         {
             InitializeComponent();
 
-            _authService = DependencyService.Get<IAuthService>();
+            BindingContext = new MainPageViewModel();
 
-            Label.Text = $"Hallo {_authService.User.Username}.";
+            _authService = DependencyService.Get<IAuthService>();
         }
 
         private async void Logout(object sender, EventArgs e)
@@ -22,6 +23,11 @@ namespace CommunityBikeSharing.Views
 	        await _authService.SignOut();
 
 	        Application.Current.MainPage = new RegistrationPage();
+        }
+
+        protected override async void OnAppearing()
+        {
+	        await ((MainPageViewModel)BindingContext).InitializeAsync();
         }
     }
 }

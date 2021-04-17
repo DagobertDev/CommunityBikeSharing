@@ -11,5 +11,7 @@
 			get => _username ?? Email;
 			set => _username = value;
 		}
+
+		public string Id { get; set; }
 	}
 }

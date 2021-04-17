@@ -10,6 +10,8 @@ namespace CommunityBikeSharing.Services
 		Task SignOut();
 		Task ResetPassword(string email);
 		User User { get; }
+		Task<string> GetAccessToken();
 
-		bool SignedIn { get; } }
+		bool SignedIn { get; }
+	}
 }
