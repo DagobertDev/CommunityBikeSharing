@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "929800848517",
+    "firebase_url": "https://bike-b33e3-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "bike-b33e3",
+    "storage_bucket": "bike-b33e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929800848517:android:b1cda5cb7a98a4798395ec",
+        "android_client_info": {
+          "package_name": "com.companyname.communitybikesharing"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929800848517-lmq9gmafeqqc8c2mp62ln5lp6se8m6lc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY-uV12CQf9g7hsT5rVORnbI6JWZKQJyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929800848517-lmq9gmafeqqc8c2mp62ln5lp6se8m6lc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

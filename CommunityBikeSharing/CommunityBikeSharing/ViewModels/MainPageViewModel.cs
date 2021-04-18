@@ -12,7 +12,18 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IAuthService _authService;
 		private readonly FirebaseClient _firebaseClient;
 
-		private Message _message;
+		private readonly Message _message;
+
+		private string _welcomeMessage;
+
+		public MainPageViewModel()
+		{
+			_authService = DependencyService.Get<IAuthService>();
+			_firebaseClient = DependencyService.Get<FirebaseClient>();
+			_message = new Message();
+
+			SaveCommand = new Command(Save);
+		}
 
 		public string EditableText
 		{
@@ -24,24 +35,25 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		public string WelcomeMessage { get; private set; } = "Willkommen.";
-
-		public MainPageViewModel()
+		public string WelcomeMessage
 		{
-			_authService = DependencyService.Get<IAuthService>();
-			_firebaseClient = DependencyService.Get<FirebaseClient>();
-			_message = new Message();
-
-			SaveCommand = new Command(Save);
-		}
-
-		public async Task InitializeAsync()
-		{
-			EditableText = (await _firebaseClient.Child("users").Child(_authService.User.Id).OnceSingleAsync<Message>()).Text;
-			WelcomeMessage = $"Willkommen {_authService.User.Username}.";
+			get => _welcomeMessage;
+			private set
+			{
+				_welcomeMessage = value;
+				OnPropertyChanged();
+			}
 		}
 
 		public ICommand SaveCommand { get; }
+
+		public async Task InitializeAsync()
+		{
+			WelcomeMessage = $"Hallo {_authService.User.Username}.";
+			EditableText = (await _firebaseClient.Child("users")
+					.Child(_authService.User.Id)
+					.OnceSingleAsync<Message>())?.Text;
+		}
 
 		private async void Save()
 		{

@@ -8,7 +8,7 @@
 
 		public string Username
 		{
-			get => _username ?? Email;
+			get => string.IsNullOrEmpty(_username) ? Email : _username;
 			set => _username = value;
 		}
 

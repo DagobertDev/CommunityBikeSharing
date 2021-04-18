@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using Firebase.Auth;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -13,15 +13,15 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IAuthService _authService;
 		private readonly IDialogService _dialogService;
 
-		private readonly IReadOnlyDictionary<AuthErrorReason, string> _errorMessages =
-			new Dictionary<AuthErrorReason, string>
+		private readonly IReadOnlyDictionary<AuthError.AuthErrorReason, string> _errorMessages =
+			new Dictionary<AuthError.AuthErrorReason, string>
 			{
-				{AuthErrorReason.MissingPassword, "Bitte Passwort eingeben."},
-				{AuthErrorReason.MissingEmail, "Bitte Email eingeben."},
-				{AuthErrorReason.InvalidEmailAddress, "Email ist ungültig."},
-				{AuthErrorReason.EmailExists, "Die Email wird bereits verwendet."},
-				{AuthErrorReason.WeakPassword, "Das Passwort muss mindestens 6 Zeichen umfassen."},
-				{AuthErrorReason.Undefined, "Unbekannter Fehler."}
+				{AuthError.AuthErrorReason.MissingPassword, "Bitte Passwort eingeben."},
+				{AuthError.AuthErrorReason.MissingEmail, "Bitte Email eingeben."},
+				{AuthError.AuthErrorReason.InvalidEmailAddress, "Email ist ungültig."},
+				{AuthError.AuthErrorReason.EmailAlreadyUsed, "Die Email wird bereits verwendet."},
+				{AuthError.AuthErrorReason.WeakPassword, "Das Passwort muss mindestens 6 Zeichen umfassen."},
+				{AuthError.AuthErrorReason.Undefined, "Unbekannter Fehler."}
 			};
 
 		private string _email;
@@ -73,22 +73,11 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void Register()
 		{
-			if (string.IsNullOrEmpty(Email))
-			{
-				await ShowRegistrationError(AuthErrorReason.MissingEmail);
-				return;
-			}
-
-			if (string.IsNullOrEmpty(Password))
-			{
-				await ShowRegistrationError(AuthErrorReason.MissingPassword);
-				return;
-			}
-
 			if (Password != RepeatedPassword)
 			{
-				await _dialogService.ShowError("Registrierung fehlgeschlagen", "Passwörter stimmen nicht überein.",
+				await _dialogService.ShowError("Registrierung fehlgeschlagen", "Das Passwort wurde falsch wiederholt.",
 					"Ok");
+				return;
 			}
 
 			try
@@ -98,17 +87,17 @@ namespace CommunityBikeSharing.ViewModels
 
 				AfterRegistration?.Invoke();
 			}
-			catch (FirebaseAuthException e)
+			catch (AuthError e)
 			{
 				await ShowRegistrationError(e.Reason);
 			}
 		}
 
-		private Task ShowRegistrationError(AuthErrorReason reason)
+		private Task ShowRegistrationError(AuthError.AuthErrorReason reason)
 		{
 			if (!_errorMessages.TryGetValue(reason, out var errorMessage))
 			{
-				_errorMessages.TryGetValue(AuthErrorReason.Undefined, out errorMessage);
+				_errorMessages.TryGetValue(AuthError.AuthErrorReason.Undefined, out errorMessage);
 			}
 
 			return _dialogService.ShowError("Registrierung fehlgeschlagen", errorMessage, "Ok");

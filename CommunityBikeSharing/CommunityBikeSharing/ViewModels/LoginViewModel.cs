@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using Firebase.Auth;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -13,15 +13,15 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IAuthService _authService;
 		private readonly IDialogService _dialogService;
 
-		private readonly IReadOnlyDictionary<AuthErrorReason, string> _errorMessages =
-			new Dictionary<AuthErrorReason, string>
+		private readonly IReadOnlyDictionary<AuthError.AuthErrorReason, string> _errorMessages =
+			new Dictionary<AuthError.AuthErrorReason, string>
 			{
-				{AuthErrorReason.MissingPassword, "Bitte Passwort eingeben."},
-				{AuthErrorReason.MissingEmail, "Bitte Email eingeben."},
-				{AuthErrorReason.UnknownEmailAddress, "Email ist nicht registriert."},
-				{AuthErrorReason.InvalidEmailAddress, "Email ist nicht registriert."},
-				{AuthErrorReason.WrongPassword, "Passwort ist falsch."},
-				{AuthErrorReason.Undefined, "Unbekannter Fehler."}
+				{AuthError.AuthErrorReason.MissingPassword, "Bitte Passwort eingeben."},
+				{AuthError.AuthErrorReason.MissingEmail, "Bitte Email eingeben."},
+				{AuthError.AuthErrorReason.UnknownEmailAddress, "Email ist nicht registriert."},
+				{AuthError.AuthErrorReason.InvalidEmailAddress, "Email ist nicht registriert."},
+				{AuthError.AuthErrorReason.WrongPassword, "Passwort ist falsch."},
+				{AuthError.AuthErrorReason.Undefined, "Unbekannter Fehler."}
 			};
 
 		private string _email;
@@ -63,25 +63,13 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void Login()
 		{
-			if (string.IsNullOrEmpty(Email))
-			{
-				await ShowLoginError(AuthErrorReason.MissingEmail);
-				return;
-			}
-
-			if (string.IsNullOrEmpty(Password))
-			{
-				await ShowLoginError(AuthErrorReason.MissingPassword);
-				return;
-			}
-
 			try
 			{
 				await _authService.SignIn(Email, Password);
 
 				AfterLogin?.Invoke();
 			}
-			catch (FirebaseAuthException e)
+			catch (AuthError e)
 			{
 				await ShowLoginError(e.Reason);
 			}
@@ -89,12 +77,6 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void ResetPassword()
 		{
-			if (string.IsNullOrEmpty(Email))
-			{
-				await _dialogService.ShowError("Fehler", GetErrorMessage(AuthErrorReason.MissingEmail), "Ok");
-				return;
-			}
-
 			try
 			{
 				await _authService.ResetPassword(_email);
@@ -102,20 +84,20 @@ namespace CommunityBikeSharing.ViewModels
 				await _dialogService.ShowMessage("Passwort zurückgesetzt",
 					$"Eine Email zum Zurücksetzen des Passwortes wurde an {Email} gesendet.", "Ok");
 			}
-			catch (FirebaseAuthException e)
+			catch (AuthError e)
 			{
 				await _dialogService.ShowError("Fehler", GetErrorMessage(e.Reason), "Ok");
 			}
 		}
 
-		private Task ShowLoginError(AuthErrorReason reason) =>
+		private Task ShowLoginError(AuthError.AuthErrorReason reason) =>
 			_dialogService.ShowError("Login fehlgeschlagen", GetErrorMessage(reason), "Ok");
 
-		private string GetErrorMessage(AuthErrorReason reason)
+		private string GetErrorMessage(AuthError.AuthErrorReason reason)
 		{
 			if (!_errorMessages.TryGetValue(reason, out var errorMessage))
 			{
-				_errorMessages.TryGetValue(AuthErrorReason.Undefined, out errorMessage);
+				_errorMessages.TryGetValue(AuthError.AuthErrorReason.Undefined, out errorMessage);
 			}
 
 			return errorMessage;
