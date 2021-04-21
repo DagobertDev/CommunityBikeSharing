@@ -4,7 +4,6 @@ using CommunityBikeSharing.iOS.Services;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using Firebase.Auth;
-using Firebase.Database;
 using Xamarin.Forms;
 using User = CommunityBikeSharing.Models.User;
 
@@ -37,7 +36,7 @@ namespace CommunityBikeSharing.iOS.Services
 			{
 				await _firebaseAuth.CreateUserAsync(email, password);
 			}
-			catch (FirebaseException)
+			catch (Exception)
 			{
 				throw new AuthError(AuthError.AuthErrorReason.Undefined);
 			}
@@ -72,7 +71,7 @@ namespace CommunityBikeSharing.iOS.Services
 			{
 				await _firebaseAuth.SendPasswordResetAsync(email);
 			}
-			catch (FirebaseException)
+			catch (Exception)
 			{
 				throw new AuthError(AuthError.AuthErrorReason.Undefined);
 			}

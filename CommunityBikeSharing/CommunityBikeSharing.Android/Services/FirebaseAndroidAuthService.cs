@@ -3,8 +3,8 @@ using Android.Gms.Extensions;
 using CommunityBikeSharing.Droid.Services;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
+using Firebase;
 using Firebase.Auth;
-using Firebase.Database;
 using Xamarin.Forms;
 
 [assembly: Dependency(typeof(FirebaseAndroidAuthService))]

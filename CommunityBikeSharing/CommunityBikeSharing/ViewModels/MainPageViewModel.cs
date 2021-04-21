@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using Firebase.Database;
-using Firebase.Database.Query;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -10,7 +9,7 @@ namespace CommunityBikeSharing.ViewModels
 	public class MainPageViewModel : BaseViewModel
 	{
 		private readonly IAuthService _authService;
-		private readonly FirebaseClient _firebaseClient;
+		private readonly IMessageService _messageService;
 
 		private readonly Message _message;
 
@@ -19,7 +18,7 @@ namespace CommunityBikeSharing.ViewModels
 		public MainPageViewModel()
 		{
 			_authService = DependencyService.Get<IAuthService>();
-			_firebaseClient = DependencyService.Get<FirebaseClient>();
+			_messageService = DependencyService.Get<MessageService>();
 			_message = new Message();
 
 			SaveCommand = new Command(Save);
@@ -50,19 +49,12 @@ namespace CommunityBikeSharing.ViewModels
 		public async Task InitializeAsync()
 		{
 			WelcomeMessage = $"Hallo {_authService.User.Username}.";
-			EditableText = (await _firebaseClient.Child("users")
-					.Child(_authService.User.Id)
-					.OnceSingleAsync<Message>())?.Text;
+			EditableText = (await _messageService.GetMessage()).Text;
 		}
 
 		private async void Save()
 		{
-			await _firebaseClient.Child("users").Child(_authService.User.Id).PutAsync(_message);
-		}
-
-		private class Message
-		{
-			public string Text { set; get; }
+			await _messageService.SaveMessage(_message);
 		}
 	}
 }
