@@ -10,7 +10,7 @@ namespace CommunityBikeSharing
         {
             InitializeComponent();
 
-            MainPage = DependencyService.Get<IAuthService>().SignedIn ? (Page)new MainPage() : new RegistrationPage();
+            MainPage = new AppShell();
         }
 
         protected override void OnStart()

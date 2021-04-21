@@ -4,7 +4,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.RegistrationPage"
-             x:DataType="viewModels:RegistrationViewModel">
+             x:DataType="viewModels:RegistrationViewModel"
+             Shell.NavBarIsVisible="false">
     <StackLayout>
         <Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
             <Label Text="Willkommen beim Community Bike-Sharing" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>

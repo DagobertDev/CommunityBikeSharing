@@ -12,13 +12,13 @@ namespace CommunityBikeSharing.Views
 
 			BindingContext = new LoginViewModel
 			{
-				AfterLogin = () => Application.Current.MainPage = new MainPage()
+				AfterLogin = () => Shell.Current.GoToAsync("///main")
 			};
 		}
 
 		private void RedirectToRegistration(object sender, EventArgs args)
 		{
-			Application.Current.MainPage = new RegistrationPage();
+			Shell.Current.GoToAsync("///registration");
 		}
 	}
 }
