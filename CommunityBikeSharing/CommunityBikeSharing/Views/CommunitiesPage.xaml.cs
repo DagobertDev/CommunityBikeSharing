@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using CommunityBikeSharing.ViewModels;
+using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
 {
@@ -7,6 +8,13 @@ namespace CommunityBikeSharing.Views
 		public CommunitiesPage()
 		{
 			InitializeComponent();
+
+			BindingContext = new CommunitiesViewModel();
+		}
+
+		protected override async void OnAppearing()
+		{
+			await ((CommunitiesViewModel)BindingContext).InitializeAsync();
 		}
 	}
 }

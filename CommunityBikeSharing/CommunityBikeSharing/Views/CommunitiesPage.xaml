@@ -2,13 +2,23 @@
 
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             xmlns:models="clr-namespace:CommunityBikeSharing.Models;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.CommunitiesPage"
-             Title="Communities">
+             Title="Communities"
+             x:DataType="viewModels:CommunitiesViewModel">
     <ContentPage.Content>
         <StackLayout>
-            <Label Text="Hello, world!"
-                   VerticalOptions="CenterAndExpand"
-                   HorizontalOptions="CenterAndExpand" />
+            <ListView ItemsSource="{Binding Communities}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell x:DataType="models:Community"
+                                  Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Button Text="Community erstellen" Command="{Binding AddCommunityCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
