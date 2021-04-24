@@ -15,5 +15,8 @@ namespace CommunityBikeSharing.Services
 
 		public Task ShowError(string title, string message, string buttonText) =>
 			ShowMessage(title, message, buttonText);
+
+		public Task<string> ShowTextEditor(string title, string confirm, string cancel)
+			=> Application.Current.MainPage.DisplayPromptAsync(title, string.Empty, confirm, cancel);
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 
 namespace CommunityBikeSharing.Services
@@ -6,6 +7,7 @@ namespace CommunityBikeSharing.Services
 	public interface ICommunityRepository
 	{
 		ObservableCollection<Community> ObserveCommunities();
-		void AddCommunity(Community community);
+		Task<Community> GetCommunity(string id);
+		Task AddCommunity(Community community);
 	}
 }

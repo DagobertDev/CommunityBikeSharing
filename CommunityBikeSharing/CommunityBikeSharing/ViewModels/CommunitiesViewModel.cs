@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
@@ -23,20 +22,29 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		private readonly ICommunityRepository _communityRepository;
+		private readonly IDialogService _dialogService;
 
 		public CommunitiesViewModel()
 		{
 			_communityRepository = DependencyService.Get<ICommunityRepository>();
+			_dialogService = DependencyService.Get<IDialogService>();
 			AddCommunityCommand = new Command(AddCommunity);
 		}
 
 		public ICommand AddCommunityCommand { get; }
 
-		private void AddCommunity()
+		private async void AddCommunity()
 		{
-			_communityRepository.AddCommunity(new Community
+			var name = await _dialogService.ShowTextEditor("Name der Community", "Ok", "Abbrechen");
+
+			if (string.IsNullOrEmpty(name))
 			{
-				Name = "Test"
+				return;
+			}
+
+			await _communityRepository.AddCommunity(new Community
+			{
+				Name = name
 			});
 		}
 

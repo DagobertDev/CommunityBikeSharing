@@ -1,4 +1,5 @@
-﻿using CommunityBikeSharing.ViewModels;
+﻿using CommunityBikeSharing.Models;
+using CommunityBikeSharing.ViewModels;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
@@ -15,6 +16,13 @@ namespace CommunityBikeSharing.Views
 		protected override async void OnAppearing()
 		{
 			await ((CommunitiesViewModel)BindingContext).InitializeAsync();
+		}
+
+		private async void ListView_OnItemSelected(object sender, SelectedItemChangedEventArgs e)
+		{
+			var id = ((Community)e.SelectedItem).Id;
+
+			await Shell.Current.GoToAsync($"{nameof(CommunityOverviewPage)}?CommunityId={id}");
 		}
 	}
 }

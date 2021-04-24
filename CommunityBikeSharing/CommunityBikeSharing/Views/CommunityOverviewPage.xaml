@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             xmlns:views="clr-namespace:CommunityBikeSharing.Views;assembly=CommunityBikeSharing"
+             x:Class="CommunityBikeSharing.Views.CommunityOverviewPage"
+             Title="{Binding Name}"
+             x:DataType="viewModels:CommunityOverviewViewModel">
+
+    <TabbedPage.ToolbarItems>
+        <ToolbarItem Text="Einstellungen"
+                     Order="Primary"
+                     Priority="0"
+                     Clicked="OpenSettings"/>
+    </TabbedPage.ToolbarItems>
+
+    <views:CommunityUsersPage/>
+</TabbedPage>

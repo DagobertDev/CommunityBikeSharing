@@ -6,7 +6,7 @@
        x:Class="CommunityBikeSharing.AppShell">
 
     <ShellItem Route="loading">
-        <ShellContent ContentTemplate="{DataTemplate views:LoadingPage}" />
+        <ShellContent ContentTemplate="{DataTemplate views:LoadingPage}" FlyoutItemIsVisible="False"/>
     </ShellItem>
 
     <TabBar>
