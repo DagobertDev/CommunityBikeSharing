@@ -12,14 +12,19 @@ namespace CommunityBikeSharing.Services
 	public class CommunityRepository : ICommunityRepository
 	{
 		private readonly IAuthService _authService;
+		private readonly IFirestore _firestore;
 		private ObservableCollection<Community> _observedCommunities;
+
+		private ICollectionReference CommunityUsers => _firestore.Collection("communityUsers");
+		private ICollectionReference Communities => _firestore.Collection("communities");
 
 		public CommunityRepository()
 		{
 			_authService = DependencyService.Get<IAuthService>();
+			_firestore = DependencyService.Get<IFirestore>();
 		}
 
-		public ObservableCollection<Community> ObserveCommunities()
+		public async Task<ObservableCollection<Community>> GetCommunities()
 		{
 			if (_observedCommunities == null)
 			{
@@ -27,23 +32,14 @@ namespace CommunityBikeSharing.Services
 
 				var user = _authService.User;
 
-				CrossCloudFirestore.Current.Instance.Collection("communities")
-					.WhereArrayContains(nameof(Community.UserIds), user.Id)
+				var communityUsers = (await CommunityUsers
+					.WhereEqualsTo(nameof(CommunityMember.UserId), user.Id).GetAsync()).ToObjects<CommunityMember>();
 
-					.AddSnapshotListener((snapshot, error) =>
-					{
-						_observedCommunities.Clear();
-
-						if (snapshot == null)
-						{
-							return;
-						}
-
-						foreach (var data in snapshot.ToObjects<Community>())
-						{
-							_observedCommunities.Add(data);
-						}
-					});
+				foreach (var communityUser in communityUsers)
+				{
+					var community = (await Communities.Document(communityUser.CommunityId).GetAsync()).ToObject<Community>();
+					_observedCommunities.Add(community);
+				}
 			}
 
 			return _observedCommunities;
@@ -51,16 +47,54 @@ namespace CommunityBikeSharing.Services
 
 		public async Task<Community> GetCommunity(string id)
 		{
-			var result = await CrossCloudFirestore.Current.Instance.Collection("communities").Document(id).GetAsync();
+			var result = await Communities.Document(id).GetAsync();
 			return result.ToObject<Community>();
 		}
 
-		public Task AddCommunity(Community community)
+		public async Task CreateCommunity(string name)
 		{
-			var user = _authService.User;
+			var result = await Communities.AddAsync(new Community
+			{
+				Name = name
+			});
 
-			community.UserIds = new[] {user.Id};
-			return CrossCloudFirestore.Current.Instance.Collection("communities").AddAsync(community);
+			var community = (await result.GetAsync()).ToObject<Community>();
+
+			if (community == null)
+			{
+				return;
+			}
+
+			_observedCommunities.Add(community);
+
+			await AddUserToCommunity(_authService.User, community.Id, CommunityRole.CommunityAdmin);
+		}
+
+		public async Task AddUserToCommunity(User user, string communityId, CommunityRole role = CommunityRole.User)
+		{
+			var communityUser = new CommunityMember
+			{
+				UserId = user.Id,
+				CommunityId = communityId,
+				Name = user.Username,
+				Role = role
+			};
+
+			await CommunityUsers.AddAsync(communityUser);
+		}
+
+		public async Task<ObservableCollection<CommunityMember>> GetCommunityMembers(string communityId)
+		{
+			var result = new ObservableCollection<CommunityMember>();
+
+			var querySnapshot = await CommunityUsers.WhereEqualsTo(nameof(CommunityMember.CommunityId), communityId).GetAsync();
+
+			foreach (var communityUser in querySnapshot.ToObjects<CommunityMember>())
+			{
+				result.Add(communityUser);
+			}
+
+			return result;
 		}
 	}
 }

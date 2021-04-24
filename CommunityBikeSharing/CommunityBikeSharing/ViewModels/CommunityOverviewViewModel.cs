@@ -20,10 +20,22 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
+		private CommunityMembersViewModel _communitiesViewModel;
+		public CommunityMembersViewModel CommunityMembersViewModel
+		{
+			get => _communitiesViewModel;
+			private set
+			{
+				_communitiesViewModel = value;
+				OnPropertyChanged();
+			}
+		}
+
 		public CommunityOverviewViewModel(string id)
 		{
 			_id = id;
 			_communityRepository = DependencyService.Get<ICommunityRepository>();
+			CommunityMembersViewModel = new CommunityMembersViewModel(_id);
 		}
 
 		public async Task InitializeAsync()

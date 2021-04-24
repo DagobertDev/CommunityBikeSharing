@@ -15,5 +15,5 @@
                      Clicked="OpenSettings"/>
     </TabbedPage.ToolbarItems>
 
-    <views:CommunityUsersPage/>
+    <views:CommunityMembersPage BindingContext="{Binding CommunityMembersViewModel}"/>
 </TabbedPage>

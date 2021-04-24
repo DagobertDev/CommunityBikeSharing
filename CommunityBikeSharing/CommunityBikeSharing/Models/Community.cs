@@ -7,6 +7,5 @@ namespace CommunityBikeSharing.Models
 		[Id]
 		public string Id { get; set; }
 		public string Name { get; set; }
-		public string[] UserIds { get; set; }
 	}
 }

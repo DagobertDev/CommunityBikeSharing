@@ -42,15 +42,12 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _communityRepository.AddCommunity(new Community
-			{
-				Name = name
-			});
+			await _communityRepository.CreateCommunity(name);
 		}
 
 		public async Task InitializeAsync()
 		{
-			Communities = _communityRepository.ObserveCommunities();
+			Communities = await _communityRepository.GetCommunities();
 		}
 	}
 }
