@@ -82,16 +82,6 @@ namespace CommunityBikeSharing.iOS.Services
 				? new User {Email = _firebaseAuth.CurrentUser.Email, Id = _firebaseAuth.CurrentUser.Uid}
 				: new User();
 
-		public async Task<string> GetAccessToken()
-		{
-			if (_firebaseAuth.CurrentUser != null)
-			{
-				return await _firebaseAuth.CurrentUser.GetIdTokenAsync();
-			}
-
-			return string.Empty;
-		}
-
 		public bool SignedIn => _firebaseAuth.CurrentUser != null;
 	}
 }

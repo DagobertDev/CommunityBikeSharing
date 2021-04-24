@@ -126,17 +126,6 @@ namespace CommunityBikeSharing.Droid.Services
 			}
 		}
 
-		public async Task<string> GetAccessToken()
-		{
-			if (SignedIn)
-			{
-				var token = await _firebaseAuth.CurrentUser.GetIdToken(false).AsAsync<GetTokenResult>();
-				return token.Token;
-			}
-
-			return string.Empty;
-		}
-
 		public bool SignedIn => _firebaseAuth.CurrentUser != null;
 	}
 }
