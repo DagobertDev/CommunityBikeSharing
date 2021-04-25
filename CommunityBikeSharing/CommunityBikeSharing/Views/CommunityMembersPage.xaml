@@ -8,6 +8,8 @@
              Title="Mitglieder" x:DataType="viewModels:CommunityMembersViewModel">
     <ContentPage.Content>
         <StackLayout>
+            <Button Text="Mitglied hinzufügen" Command="{Binding AddMemberCommand}"/>
+
             <ListView ItemsSource="{Binding Members}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -16,8 +18,6 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-
-            <!--<Button Text="Community erstellen" Command="{Binding AddCommunityCommand}"/>-->
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
