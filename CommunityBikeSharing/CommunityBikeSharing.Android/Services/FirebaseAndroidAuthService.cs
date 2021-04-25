@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Android.Gms.Extensions;
 using CommunityBikeSharing.Droid.Services;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
@@ -20,7 +19,7 @@ namespace CommunityBikeSharing.Droid.Services
 			_firebaseAuth = FirebaseAuth.Instance;
 		}
 
-		public async Task Register(string email, string password)
+		public async Task<User> Register(string email, string password)
 		{
 			if (string.IsNullOrEmpty(email))
 			{
@@ -34,7 +33,8 @@ namespace CommunityBikeSharing.Droid.Services
 
 			try
 			{
-				await _firebaseAuth.CreateUserWithEmailAndPasswordAsync(email, password);
+				var result = await _firebaseAuth.CreateUserWithEmailAndPasswordAsync(email, password);
+				return new User {Email = result.User.Email, Id = result.User.Uid, Username = result.User.DisplayName};
 			}
 			catch (FirebaseAuthWeakPasswordException)
 			{
@@ -108,23 +108,7 @@ namespace CommunityBikeSharing.Droid.Services
 			}
 		}
 
-		public User User
-		{
-			get
-			{
-				if (SignedIn)
-				{
-					return new User
-					{
-						Email = _firebaseAuth.CurrentUser.Email,
-						Username = _firebaseAuth.CurrentUser.DisplayName,
-						Id = _firebaseAuth.CurrentUser.Uid
-					};
-				}
-
-				return new User();
-			}
-		}
+		public string GetCurrentUserId() => _firebaseAuth.CurrentUser?.Uid ?? string.Empty;
 
 		public bool SignedIn => _firebaseAuth.CurrentUser != null;
 	}

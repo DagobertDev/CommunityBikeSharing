@@ -12,6 +12,7 @@ namespace CommunityBikeSharing.ViewModels
 	{
 		private readonly IAuthService _authService;
 		private readonly IDialogService _dialogService;
+		private readonly IUserService _userService;
 
 		private readonly IReadOnlyDictionary<AuthError.AuthErrorReason, string> _errorMessages =
 			new Dictionary<AuthError.AuthErrorReason, string>
@@ -35,6 +36,7 @@ namespace CommunityBikeSharing.ViewModels
 			RegisterCommand = new Command(Register);
 			_authService = DependencyService.Get<IAuthService>();
 			_dialogService = DependencyService.Get<IDialogService>();
+			_userService = DependencyService.Get<IUserService>();
 		}
 
 		public Action AfterRegistration { get; set; }
@@ -82,7 +84,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			try
 			{
-				await _authService.Register(Email, Password);
+				await _userService.RegisterUser(Email, Password);
 				await _authService.SignIn(Email, Password);
 
 				AfterRegistration?.Invoke();

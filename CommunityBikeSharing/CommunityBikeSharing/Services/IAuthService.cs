@@ -5,12 +5,11 @@ namespace CommunityBikeSharing.Services
 {
 	public interface IAuthService
 	{
-		Task Register(string email, string password);
+		Task<User> Register(string email, string password);
 		Task SignIn(string email, string password);
 		Task SignOut();
 		Task ResetPassword(string email);
-		User User { get; }
-
+		string GetCurrentUserId();
 		bool SignedIn { get; }
 	}
 }

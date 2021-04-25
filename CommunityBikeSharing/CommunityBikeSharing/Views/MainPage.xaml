@@ -10,9 +10,6 @@
         <Label Text="Willkommen" FontSize="Title" Padding="30,10,30,10"/>
         <Label Text="{Binding WelcomeMessage}" FontSize="16" Padding="30,0,30,0"/>
 
-        <Entry Text="{Binding EditableText}" Margin="30,0,30,0"/>
-        <Button Text="Speichern" Command="{Binding SaveCommand}" Margin="30,0,30,0"/>
-
         <Button Text="Logout" Clicked="Logout" Margin="30,0,30,0"/>
     </StackLayout>
 

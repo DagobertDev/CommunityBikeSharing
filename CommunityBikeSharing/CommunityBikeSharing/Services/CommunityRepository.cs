@@ -11,7 +11,7 @@ namespace CommunityBikeSharing.Services
 {
 	public class CommunityRepository : ICommunityRepository
 	{
-		private readonly IAuthService _authService;
+		private readonly IUserService _userService;
 		private readonly IFirestore _firestore;
 		private ObservableCollection<Community> _observedCommunities;
 
@@ -20,7 +20,7 @@ namespace CommunityBikeSharing.Services
 
 		public CommunityRepository()
 		{
-			_authService = DependencyService.Get<IAuthService>();
+			_userService = DependencyService.Get<IUserService>();
 			_firestore = DependencyService.Get<IFirestore>();
 		}
 
@@ -30,7 +30,7 @@ namespace CommunityBikeSharing.Services
 			{
 				_observedCommunities = new ObservableCollection<Community>();
 
-				var user = _authService.User;
+				var user = await _userService.GetCurrentUser();
 
 				var communityUsers = (await CommunityUsers
 					.WhereEqualsTo(nameof(CommunityMember.UserId), user.Id).GetAsync()).ToObjects<CommunityMember>();
@@ -67,7 +67,7 @@ namespace CommunityBikeSharing.Services
 
 			_observedCommunities.Add(community);
 
-			await AddUserToCommunity(_authService.User, community.Id, CommunityRole.CommunityAdmin);
+			await AddUserToCommunity(await _userService.GetCurrentUser(), community.Id, CommunityRole.CommunityAdmin);
 		}
 
 		public async Task AddUserToCommunity(User user, string communityId, CommunityRole role = CommunityRole.User)

@@ -20,7 +20,7 @@ namespace CommunityBikeSharing.iOS.Services
 			_firebaseAuth = Auth.DefaultInstance;
 		}
 
-		public async Task Register(string email, string password)
+		public async Task<User> Register(string email, string password)
 		{
 			if (string.IsNullOrEmpty(email))
 			{
@@ -34,7 +34,8 @@ namespace CommunityBikeSharing.iOS.Services
 
 			try
 			{
-				await _firebaseAuth.CreateUserAsync(email, password);
+				var result = await _firebaseAuth.CreateUserAsync(email, password);
+				return new User {Email = result.User.Email, Id = result.User.Uid, Username = result.User.DisplayName};
 			}
 			catch (Exception)
 			{
@@ -77,11 +78,7 @@ namespace CommunityBikeSharing.iOS.Services
 			}
 		}
 
-		public User User =>
-			_firebaseAuth.CurrentUser != null
-				? new User {Email = _firebaseAuth.CurrentUser.Email, Id = _firebaseAuth.CurrentUser.Uid}
-				: new User();
-
+		public string GetCurrentUserId() => _firebaseAuth.CurrentUser?.Uid ?? string.Empty;
 		public bool SignedIn => _firebaseAuth.CurrentUser != null;
 	}
 }
