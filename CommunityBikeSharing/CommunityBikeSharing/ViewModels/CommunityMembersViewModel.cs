@@ -1,8 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -45,7 +48,9 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void AddMember()
 		{
-			var email = await _dialogService.ShowTextEditor("Nutzer hinzufügen", "Ok", "Abbrechen");
+			var email = await _dialogService.ShowTextEditor("Nutzer hinzufügen",
+				"Geben Sie die Email-Adresse des neuen Mitgliedes ein:",
+				"Hinzufügen");
 
 			if (string.IsNullOrEmpty(email))
 			{
@@ -56,11 +61,41 @@ namespace CommunityBikeSharing.ViewModels
 
 			if (user == null)
 			{
-				await _dialogService.ShowError("Nutzer nicht gefunden",
-					$"Der Nutzer mit der Email \"{email}\" konnte nicht gefunden werden", "Ok");
-			}
+				var sendMail = await _dialogService.ShowConfirmation("Nutzer nicht gefunden",
+					$"Es konnte kein Nutzer mit der Email \"{email}\" gefunden werden. " +
+					$"Möchten Sie eine Einladung an \"{email}\" versenden?", "Mail-App öffnen");
 
-			await _communityRepository.AddUserToCommunity(user, _communityId);
+				if (sendMail)
+				{
+					SendInvitationMail(email);
+				}
+			}
+			else
+			{
+				await _communityRepository.AddUserToCommunity(user, _communityId);
+			}
+		}
+
+		private async void SendInvitationMail(string mailAddress)
+		{
+			try
+			{
+				var message = new EmailMessage
+				{
+					Subject = "Einladung für Community-Bike Sharing",
+					Body = "Hallo,\n" +
+					       "um Teil der Bike-Sharing Community zu werden, " +
+					       "installieren Sie bitte Community Bike-Sharing App.",
+					To = new List<string>{mailAddress}
+				};
+
+				await Email.ComposeAsync(message);
+			}
+			catch (Exception)
+			{
+				await _dialogService.ShowError("Versand fehlgeschlagen",
+					"Es konnte keine Mail-App auf dem Gerät gefunden werden");
+			}
 		}
 	}
 }
