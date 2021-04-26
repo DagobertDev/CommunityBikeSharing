@@ -1,5 +1,4 @@
-﻿using Plugin.CloudFirestore;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace CommunityBikeSharing
 {
@@ -8,8 +7,6 @@ namespace CommunityBikeSharing
 	    public App()
         {
             InitializeComponent();
-
-            DependencyService.RegisterSingleton(CrossCloudFirestore.Current.Instance);
 
             MainPage = new AppShell();
         }

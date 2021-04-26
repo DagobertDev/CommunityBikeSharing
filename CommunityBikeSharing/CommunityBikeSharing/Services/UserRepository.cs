@@ -11,13 +11,13 @@ namespace CommunityBikeSharing.Services
 {
 	public class UserRepository : IUserRepository
 	{
-		private readonly IFirestore _firestore;
+		private readonly IFirestoreContext _firestore;
 
-		private ICollectionReference Users => _firestore.Collection("users");
+		private ICollectionReference Users => _firestore.Users;
 
 		public UserRepository()
 		{
-			_firestore = DependencyService.Get<IFirestore>();
+			_firestore = DependencyService.Get<IFirestoreContext>();
 		}
 
 		public async Task<User> GetUserByEmail(string email)

@@ -13,16 +13,16 @@ namespace CommunityBikeSharing.Services
 	public class CommunityRepository : ICommunityRepository
 	{
 		private readonly IUserService _userService;
-		private readonly IFirestore _firestore;
+		private readonly IFirestoreContext _firestore;
 		private ObservableCollection<Community> _observedCommunities;
 
-		private ICollectionReference CommunityUsers => _firestore.Collection("communityUsers");
-		private ICollectionReference Communities => _firestore.Collection("communities");
+		private ICollectionReference CommunityUsers => _firestore.CommunityUsers;
+		private ICollectionReference Communities => _firestore.Communities;
 
 		public CommunityRepository()
 		{
 			_userService = DependencyService.Get<IUserService>();
-			_firestore = DependencyService.Get<IFirestore>();
+			_firestore = DependencyService.Get<IFirestoreContext>();
 		}
 
 		public async Task<ObservableCollection<Community>> GetCommunities()
