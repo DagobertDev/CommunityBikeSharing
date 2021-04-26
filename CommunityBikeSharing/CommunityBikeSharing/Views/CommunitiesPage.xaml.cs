@@ -18,9 +18,9 @@ namespace CommunityBikeSharing.Views
 			await ((CommunitiesViewModel)BindingContext).InitializeAsync();
 		}
 
-		private async void ListView_OnItemSelected(object sender, SelectedItemChangedEventArgs e)
+		private async void OnCommunitySelected(object sender, ItemTappedEventArgs e)
 		{
-			var id = ((Community)e.SelectedItem).Id;
+			var id = ((Community)e.Item).Id;
 
 			await Shell.Current.GoToAsync($"{nameof(CommunityOverviewPage)}?CommunityId={id}");
 		}

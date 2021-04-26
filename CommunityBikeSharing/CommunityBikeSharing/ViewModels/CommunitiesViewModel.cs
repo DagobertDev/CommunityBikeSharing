@@ -35,7 +35,8 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void AddCommunity()
 		{
-			var name = await _dialogService.ShowTextEditor("Name der Community", "Ok", "Abbrechen");
+			var name = await _dialogService.ShowTextEditor("Name der Community",
+				"Bitte geben Sie den Namen der neuen Community ein");
 
 			if (string.IsNullOrEmpty(name))
 			{

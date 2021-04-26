@@ -12,7 +12,7 @@
         <ToolbarItem Text="Einstellungen"
                      Order="Primary"
                      Priority="0"
-                     Clicked="OpenSettings"/>
+                     Command="{Binding OpenSettingsCommand}"/>
     </TabbedPage.ToolbarItems>
 
     <views:CommunityMembersPage BindingContext="{Binding CommunityMembersViewModel}"/>

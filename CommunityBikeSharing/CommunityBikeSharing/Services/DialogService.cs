@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityBikeSharing.Services;
 using Xamarin.Forms;
 
@@ -8,21 +10,24 @@ namespace CommunityBikeSharing.Services
 {
 	public class DialogService : IDialogService
 	{
-		public async Task ShowMessage(string title, string message, string buttonText)
-		{
-			await Application.Current.MainPage.DisplayAlert(title, message, buttonText);
-		}
+		public Task ShowMessage(string title, string message, string buttonText)
+			=> Application.Current.MainPage.DisplayAlert(title, message, buttonText);
 
-		public Task ShowError(string title, string message, string buttonText) =>
-			ShowMessage(title, message, buttonText);
+		public Task ShowError(string title, string message, string buttonText)
+			=> ShowMessage(title, message, buttonText);
 
 		public Task<bool> ShowConfirmation(string title, string message, string confirm, string cancel)
 			=> Application.Current.MainPage.DisplayAlert(title, message, confirm, cancel);
 
-		public Task<string> ShowTextEditor(string title, string confirm, string cancel) =>
-			ShowTextEditor(title, string.Empty, confirm, cancel);
-
 		public Task<string> ShowTextEditor(string title, string message, string confirm, string cancel)
 			=> Application.Current.MainPage.DisplayPromptAsync(title, message, confirm, cancel);
+
+		public async Task ShowActionSheet(string title, string cancel, params (string, Action)[] actions)
+		{
+			var result = await Application.Current.MainPage.DisplayActionSheet(title, cancel, null,
+				actions.Select(a => a.Item1).ToArray());
+
+			actions.SingleOrDefault(action => action.Item1 == result).Item2?.Invoke();
+		}
 	}
 }

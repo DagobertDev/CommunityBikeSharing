@@ -11,7 +11,7 @@ namespace CommunityBikeSharing
 
 			var routes = new[]
 			{
-				typeof(CommunityOverviewPage), typeof(CommunitySettingsPage)
+				typeof(CommunityOverviewPage)
 			};
 
 			foreach (var route in routes)

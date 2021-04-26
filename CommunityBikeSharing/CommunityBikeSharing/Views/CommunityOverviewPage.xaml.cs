@@ -28,12 +28,6 @@ namespace CommunityBikeSharing.Views
 			BindingContext = new CommunityOverviewViewModel(CommunityId);
 			await ((CommunityOverviewViewModel)BindingContext).InitializeAsync();
 		}
-
-
-		private async void OpenSettings(object sender, EventArgs e)
-		{
-			await Shell.Current.GoToAsync($"{nameof(CommunitySettingsPage)}?{nameof(CommunitySettingsPage.CommunityId)}={CommunityId}");
-		}
 	}
 }
 

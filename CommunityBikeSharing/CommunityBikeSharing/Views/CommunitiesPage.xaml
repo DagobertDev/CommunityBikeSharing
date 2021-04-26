@@ -9,7 +9,8 @@
              x:DataType="viewModels:CommunitiesViewModel">
     <ContentPage.Content>
         <StackLayout>
-            <ListView ItemsSource="{Binding Communities}" ItemSelected="ListView_OnItemSelected">
+            <ListView ItemsSource="{Binding Communities}"
+                      ItemTapped="OnCommunitySelected">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <TextCell x:DataType="models:Community"

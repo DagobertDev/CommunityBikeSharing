@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
@@ -65,9 +66,37 @@ namespace CommunityBikeSharing.Services
 				return;
 			}
 
-			_observedCommunities.Add(community);
+			_observedCommunities?.Add(community);
 
 			await AddUserToCommunity(await _userService.GetCurrentUser(), community.Id, CommunityRole.CommunityAdmin);
+		}
+
+		public Task UpdateCommunity(Community community) => Communities.Document(community.Id).UpdateAsync(community);
+
+		public async Task DeleteCommunity(string id)
+		{
+			await Communities.Document(id).DeleteAsync();
+
+			var community = _observedCommunities?.FirstOrDefault(c => c.Id == id);
+
+			if (community != null)
+			{
+				_observedCommunities.Remove(community);
+			}
+		}
+
+		public async Task<CommunityMember> GetCommunityMember(string communityId, string userId)
+		{
+			var snapshot = await CommunityUsers.WhereEqualsTo(nameof(CommunityMember.CommunityId), communityId)
+				.WhereEqualsTo(nameof(CommunityMember.UserId), userId).GetAsync();
+
+			return snapshot.ToObjects<CommunityMember>().SingleOrDefault();
+		}
+
+		public async Task<CommunityMember> GetCommunityMember(string communityId)
+		{
+			var userId = (await _userService.GetCurrentUser()).Id;
+			return await GetCommunityMember(communityId, userId);
 		}
 
 		public async Task AddUserToCommunity(User user, string communityId, CommunityRole role = CommunityRole.User)
