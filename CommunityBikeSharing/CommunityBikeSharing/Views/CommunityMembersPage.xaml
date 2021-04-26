@@ -13,7 +13,7 @@
             <ListView ItemsSource="{Binding Members}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextCell x:DataType="models:CommunityMember"
+                        <TextCell x:DataType="models:CommunityMembership"
                                   Text="{Binding Name}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>

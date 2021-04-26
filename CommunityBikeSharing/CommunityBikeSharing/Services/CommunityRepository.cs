@@ -34,7 +34,7 @@ namespace CommunityBikeSharing.Services
 				var user = await _userService.GetCurrentUser();
 
 				var communityUsers = (await CommunityUsers
-					.WhereEqualsTo(nameof(CommunityMember.UserId), user.Id).GetAsync()).ToObjects<CommunityMember>();
+					.WhereEqualsTo(nameof(CommunityMembership.UserId), user.Id).GetAsync()).ToObjects<CommunityMembership>();
 
 				foreach (var communityUser in communityUsers)
 				{
@@ -85,45 +85,16 @@ namespace CommunityBikeSharing.Services
 			}
 		}
 
-		public async Task<CommunityMember> GetCommunityMember(string communityId, string userId)
+		public Task AddUserToCommunity(User user, string communityId, CommunityRole role = CommunityRole.User)
 		{
-			var snapshot = await CommunityUsers.WhereEqualsTo(nameof(CommunityMember.CommunityId), communityId)
-				.WhereEqualsTo(nameof(CommunityMember.UserId), userId).GetAsync();
+			var membershipRepo = DependencyService.Get<IMembershipRepository>();
 
-			return snapshot.ToObjects<CommunityMember>().SingleOrDefault();
-		}
-
-		public async Task<CommunityMember> GetCommunityMember(string communityId)
-		{
-			var userId = (await _userService.GetCurrentUser()).Id;
-			return await GetCommunityMember(communityId, userId);
-		}
-
-		public async Task AddUserToCommunity(User user, string communityId, CommunityRole role = CommunityRole.User)
-		{
-			var communityUser = new CommunityMember
+			var membership = new CommunityMembership
 			{
-				UserId = user.Id,
-				CommunityId = communityId,
-				Name = user.Username,
-				Role = role
+				Name = user.Username, Role = role, CommunityId = communityId, UserId = user.Id
 			};
 
-			await CommunityUsers.AddAsync(communityUser);
-		}
-
-		public async Task<ObservableCollection<CommunityMember>> GetCommunityMembers(string communityId)
-		{
-			var result = new ObservableCollection<CommunityMember>();
-
-			var querySnapshot = await CommunityUsers.WhereEqualsTo(nameof(CommunityMember.CommunityId), communityId).GetAsync();
-
-			foreach (var communityUser in querySnapshot.ToObjects<CommunityMember>())
-			{
-				result.Add(communityUser);
-			}
-
-			return result;
+			return membershipRepo.Add(membership);
 		}
 	}
 }

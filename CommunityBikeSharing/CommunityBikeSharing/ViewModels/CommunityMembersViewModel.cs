@@ -13,13 +13,13 @@ namespace CommunityBikeSharing.ViewModels
 	public class CommunityMembersViewModel : BaseViewModel
 	{
 		private readonly string _communityId;
-		private readonly ICommunityRepository _communityRepository;
+		private readonly IMembershipRepository _membershipRepository;
 		private readonly IDialogService _dialogService;
 		private readonly IUserRepository _userRepository;
 
-		private ObservableCollection<CommunityMember> _members;
+		private ObservableCollection<CommunityMembership> _members;
 
-		public ObservableCollection<CommunityMember> Members
+		public ObservableCollection<CommunityMembership> Members
 		{
 			get => _members;
 			set
@@ -32,7 +32,7 @@ namespace CommunityBikeSharing.ViewModels
 		public CommunityMembersViewModel(string communityId)
 		{
 			_communityId = communityId;
-			_communityRepository = DependencyService.Get<ICommunityRepository>();
+			_membershipRepository = DependencyService.Get<IMembershipRepository>();
 			_dialogService = DependencyService.Get<IDialogService>();
 			_userRepository = DependencyService.Get<IUserRepository>();
 
@@ -41,7 +41,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public async Task InitializeAsync()
 		{
-			Members = await _communityRepository.GetCommunityMembers(_communityId);
+			Members = await _membershipRepository.GetMembershipsByCommunity(_communityId);
 		}
 
 		public ICommand AddMemberCommand { get; }
@@ -72,7 +72,12 @@ namespace CommunityBikeSharing.ViewModels
 			}
 			else
 			{
-				await _communityRepository.AddUserToCommunity(user, _communityId);
+				await _membershipRepository.Add(new CommunityMembership
+				{
+					Name = user.Username,
+					CommunityId = _communityId,
+					UserId = user.Id
+				});
 			}
 		}
 

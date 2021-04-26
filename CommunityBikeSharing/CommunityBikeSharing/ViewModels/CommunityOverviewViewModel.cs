@@ -12,10 +12,11 @@ namespace CommunityBikeSharing.ViewModels
 	{
 		private readonly string _id;
 		private readonly ICommunityRepository _communityRepository;
+		private readonly IMembershipRepository _membershipRepository;
 		private readonly IDialogService _dialogService;
 
 		private Community _community;
-		private CommunityMember _member;
+		private CommunityMembership _membership;
 
 		private Community Community
 		{
@@ -54,6 +55,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			_id = id;
 			_communityRepository = DependencyService.Get<ICommunityRepository>();
+			_membershipRepository = DependencyService.Get<IMembershipRepository>();
 			_dialogService = DependencyService.Get<IDialogService>();
 			CommunityMembersViewModel = new CommunityMembersViewModel(_id);
 			OpenSettingsCommand = new Command(OpenSettings);
@@ -62,7 +64,10 @@ namespace CommunityBikeSharing.ViewModels
 		public async Task InitializeAsync()
 		{
 			Community = await _communityRepository.GetCommunity(_id);
-			_member = await _communityRepository.GetCommunityMember(_id);
+
+			var user = await DependencyService.Get<IUserService>().GetCurrentUser();
+
+			_membership = await _membershipRepository.Get(Community, user);
 		}
 
 		public ICommand OpenSettingsCommand { get; }
@@ -71,14 +76,14 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			var actions = new List<(string, Action)>();
 
-			if (_member.Role == CommunityRole.CommunityAdmin)
+			if (_membership.Role == CommunityRole.CommunityAdmin)
 			{
 				actions.Add(("Community umbenennen", RenameCommunity));
 			}
 
 			actions.Add(("Community verlassen", LeaveCommunity));
 
-			if (_member.Role == CommunityRole.CommunityAdmin)
+			if (_membership.Role == CommunityRole.CommunityAdmin)
 			{
 				actions.Add(("Community löschen", DeleteCommunity));
 			}
