@@ -8,10 +8,11 @@ namespace CommunityBikeSharing.Services
 {
 	public class FirestoreContext : IFirestoreContext
 	{
-		private static readonly IFirestore Firestore = CrossCloudFirestore.Current.Instance;
+		private static readonly IFirestore Instance = CrossCloudFirestore.Current.Instance;
 
-		public ICollectionReference Users { get; } = Firestore.Collection("users");
-		public ICollectionReference CommunityUsers { get; } = Firestore.Collection("communityUsers");
-		public ICollectionReference Communities { get; } = Firestore.Collection("communities");
+		public IFirestore Firestore { get; } = Instance;
+		public ICollectionReference Users { get; } = Instance.Collection("users");
+		public ICollectionReference CommunityUsers { get; } = Instance.Collection("communityUsers");
+		public ICollectionReference Communities { get; } = Instance.Collection("communities");
 	}
 }

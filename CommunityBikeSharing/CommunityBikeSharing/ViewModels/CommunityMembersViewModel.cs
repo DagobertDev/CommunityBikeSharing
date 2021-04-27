@@ -41,7 +41,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public async Task InitializeAsync()
 		{
-			Members = await _membershipRepository.GetMembershipsByCommunity(_communityId);
+			Members = _membershipRepository.ObserveMembershipsFromCommunity(_communityId);
 		}
 
 		public ICommand AddMemberCommand { get; }

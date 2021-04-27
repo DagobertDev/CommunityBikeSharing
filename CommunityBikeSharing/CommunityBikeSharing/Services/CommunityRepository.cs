@@ -1,9 +1,15 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using Plugin.CloudFirestore;
+using Plugin.CloudFirestore.Reactive;
 using Xamarin.Forms;
 
 [assembly: Dependency(typeof(CommunityRepository))]
@@ -14,8 +20,10 @@ namespace CommunityBikeSharing.Services
 	{
 		private readonly IUserService _userService;
 		private readonly IFirestoreContext _firestore;
-		private ObservableCollection<Community> _observedCommunities;
+		private ObservableCollection<Community> _userCommunities;
 
+		private readonly IDictionary<string, IObservable<Community>> _observableCommunities =
+			new ConcurrentDictionary<string, IObservable<Community>>();
 		private ICollectionReference CommunityUsers => _firestore.CommunityUsers;
 		private ICollectionReference Communities => _firestore.Communities;
 
@@ -27,24 +35,65 @@ namespace CommunityBikeSharing.Services
 
 		public async Task<ObservableCollection<Community>> GetCommunities()
 		{
-			if (_observedCommunities == null)
+			if (_userCommunities == null)
 			{
-				_observedCommunities = new ObservableCollection<Community>();
+				_userCommunities = new ObservableCollection<Community>();
 
 				var user = await _userService.GetCurrentUser();
+				var memberships = DependencyService.Get<IMembershipRepository>().ObserveMembershipsFromUser(user.Id);
 
-				var communityUsers = (await CommunityUsers
-					.WhereEqualsTo(nameof(CommunityMembership.UserId), user.Id).GetAsync()).ToObjects<CommunityMembership>();
-
-				foreach (var communityUser in communityUsers)
+				memberships.CollectionChanged += (sender, args) =>
 				{
-					var community = (await Communities.Document(communityUser.CommunityId).GetAsync()).ToObject<Community>();
-					_observedCommunities.Add(community);
-				}
+					foreach (var membership in memberships)
+					{
+						var observableCommunity = GetObservableCommunity(membership.CommunityId);
+
+						observableCommunity.Subscribe(
+							community => OnCommunityChanged(community, membership.CommunityId));
+					}
+				};
 			}
 
-			return _observedCommunities;
+			return _userCommunities;
+
+			void OnCommunityChanged(Community newCommunity, string id)
+			{
+				var oldCommunity =
+					_userCommunities.SingleOrDefault(c => c.Id == id);
+
+				if (newCommunity == null)
+				{
+					if (oldCommunity != null)
+					{
+						_userCommunities.Remove(oldCommunity);
+					}
+
+					return;
+				}
+
+				if (oldCommunity != null)
+				{
+					_userCommunities[_userCommunities.IndexOf(oldCommunity)] = newCommunity;
+				}
+				else
+				{
+					_userCommunities.Add(newCommunity);
+				}
+			}
 		}
+
+		public IObservable<Community> GetObservableCommunity(string id)
+		{
+			if (_observableCommunities.TryGetValue(id, out var result))
+			{
+				return result;
+			}
+
+			result = Communities.Document(id).AsObservable().Select(s => s.ToObject<Community>());
+			_observableCommunities[id] = result;
+			return result;
+		}
+
 
 		public async Task<Community> GetCommunity(string id)
 		{
@@ -66,23 +115,25 @@ namespace CommunityBikeSharing.Services
 				return;
 			}
 
-			_observedCommunities?.Add(community);
-
 			await AddUserToCommunity(await _userService.GetCurrentUser(), community.Id, CommunityRole.CommunityAdmin);
 		}
 
 		public Task UpdateCommunity(Community community) => Communities.Document(community.Id).UpdateAsync(community);
 
-		public async Task DeleteCommunity(string id)
+		public Task DeleteCommunity(string id)
 		{
-			await Communities.Document(id).DeleteAsync();
-
-			var community = _observedCommunities?.FirstOrDefault(c => c.Id == id);
-
-			if (community != null)
+			return _firestore.Firestore.RunTransactionAsync(async transaction =>
 			{
-				_observedCommunities.Remove(community);
-			}
+				transaction.Delete(Communities.Document(id));
+
+				var memberships = await CommunityUsers.WhereEqualsTo(nameof(CommunityMembership.CommunityId), id)
+					.GetAsync();
+
+				foreach (var document in memberships.Documents)
+				{
+					transaction.Delete(document.Reference);
+				}
+			});
 		}
 
 		public Task AddUserToCommunity(User user, string communityId, CommunityRole role = CommunityRole.User)
