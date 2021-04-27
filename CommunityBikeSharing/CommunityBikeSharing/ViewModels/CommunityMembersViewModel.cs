@@ -50,7 +50,8 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			var email = await _dialogService.ShowTextEditor("Nutzer hinzufügen",
 				"Geben Sie die Email-Adresse des neuen Mitgliedes ein:",
-				"Hinzufügen");
+				"Hinzufügen",
+				keyboard: IDialogService.KeyboardType.Email);
 
 			if (string.IsNullOrEmpty(email))
 			{

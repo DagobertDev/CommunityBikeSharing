@@ -19,8 +19,18 @@ namespace CommunityBikeSharing.Services
 		public Task<bool> ShowConfirmation(string title, string message, string confirm, string cancel)
 			=> Application.Current.MainPage.DisplayAlert(title, message, confirm, cancel);
 
-		public Task<string> ShowTextEditor(string title, string message, string confirm, string cancel)
-			=> Application.Current.MainPage.DisplayPromptAsync(title, message, confirm, cancel);
+		public Task<string> ShowTextEditor(string title, string message, string confirm, string cancel,
+			IDialogService.KeyboardType keyboardType)
+		{
+			var keyboard = keyboardType switch
+			{
+				IDialogService.KeyboardType.Default => Keyboard.Default,
+				IDialogService.KeyboardType.Email => Keyboard.Email,
+				_ => Keyboard.Default
+			};
+
+			return Application.Current.MainPage.DisplayPromptAsync(title, message, confirm, cancel, keyboard: keyboard);
+		}
 
 		public async Task ShowActionSheet(string title, string cancel, params (string, Action)[] actions)
 		{
