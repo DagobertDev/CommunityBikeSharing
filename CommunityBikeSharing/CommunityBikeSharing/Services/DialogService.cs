@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Services;
@@ -32,8 +33,15 @@ namespace CommunityBikeSharing.Services
 			return Application.Current.MainPage.DisplayPromptAsync(title, message, confirm, cancel, keyboard: keyboard);
 		}
 
-		public async Task ShowActionSheet(string title, string cancel, params (string, Action)[] actions)
+		public async Task ShowActionSheet(string title, string cancel, IEnumerable<(string, Action)> actionsEnumerable)
 		{
+			var actions = actionsEnumerable.ToArray();
+
+			if (actions.Length == 0)
+			{
+				return;
+			}
+
 			var result = await Application.Current.MainPage.DisplayActionSheet(title, cancel, null,
 				actions.Select(a => a.Item1).ToArray());
 

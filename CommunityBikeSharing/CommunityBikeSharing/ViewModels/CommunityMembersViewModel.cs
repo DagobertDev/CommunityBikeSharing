@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
@@ -13,9 +15,21 @@ namespace CommunityBikeSharing.ViewModels
 	public class CommunityMembersViewModel : BaseViewModel
 	{
 		private readonly string _communityId;
+		private CommunityMembership _currentUserMembership;
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly IDialogService _dialogService;
 		private readonly IUserRepository _userRepository;
+
+		private CommunityMembership CurrentUserMembership
+		{
+			get => _currentUserMembership;
+			set
+			{
+				_currentUserMembership = value;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(AddMemberVisible));
+			}
+		}
 
 		private ObservableCollection<CommunityMembership> _members;
 
@@ -24,9 +38,37 @@ namespace CommunityBikeSharing.ViewModels
 			get => _members;
 			set
 			{
+				if (_members != null)
+				{
+					_members.CollectionChanged -= _membersChanged;
+				}
+
 				_members = value;
+				_members.CollectionChanged += _membersChanged;
+
 				OnPropertyChanged();
+				_membersChanged(null, null);
 			}
+		}
+
+		private readonly NotifyCollectionChangedEventHandler _membersChanged;
+
+		public bool AddMemberVisible => CurrentUserMembership is {Role: CommunityRole.CommunityAdmin};
+
+		public IEnumerable<CommunityMembership> SortedMembers
+			=> Members?.OrderBy(m => m.Role).ThenBy(m => m.Name);
+
+		public ICommand EditMembershipCommand => new Command<CommunityMembership>(EditMembership);
+
+		private void EditMembership(CommunityMembership membership)
+		{
+			var actions = new []
+			{
+				("Zum Community-Admin machen", PromoteCommunityAdminCommand),
+				("Nutzer entfernen", RemoveMemberCommand)
+			};
+
+			_dialogService.ShowActionSheet(membership.Name, "Abbrechen", actions, membership);
 		}
 
 		public CommunityMembersViewModel(string communityId)
@@ -35,16 +77,18 @@ namespace CommunityBikeSharing.ViewModels
 			_membershipRepository = DependencyService.Get<IMembershipRepository>();
 			_dialogService = DependencyService.Get<IDialogService>();
 			_userRepository = DependencyService.Get<IUserRepository>();
-
-			AddMemberCommand = new Command(AddMember);
+			_membersChanged = (sender, args) => OnPropertyChanged(nameof(SortedMembers));
 		}
 
 		public async Task InitializeAsync()
 		{
 			Members = _membershipRepository.ObserveMembershipsFromCommunity(_communityId);
+
+			var user = await DependencyService.Get<IUserService>().GetCurrentUser();
+			CurrentUserMembership = Members.Single(m => m.UserId == user.Id);
 		}
 
-		public ICommand AddMemberCommand { get; }
+		public ICommand AddMemberCommand => new Command(AddMember);
 
 		private async void AddMember()
 		{
@@ -81,6 +125,30 @@ namespace CommunityBikeSharing.ViewModels
 				});
 			}
 		}
+
+		public ICommand PromoteCommunityAdminCommand => new Command<CommunityMembership>(
+			PromoteCommunityAdmin, CanPromoteCommunityAdmin);
+		public ICommand RemoveMemberCommand => new Command<CommunityMembership>(
+			RemoveMember, CanRemoveMember);
+
+		private async void PromoteCommunityAdmin(CommunityMembership membership)
+		{
+			membership.Role = CommunityRole.CommunityAdmin;
+			await _membershipRepository.Update(membership);
+		}
+
+		private bool CanPromoteCommunityAdmin(CommunityMembership membership) =>
+			membership.Role == CommunityRole.User && UserIsAdminAndEditsOtherUser(membership);
+
+		private async void RemoveMember(CommunityMembership membership)
+		{
+			await _membershipRepository.Delete(membership);
+		}
+
+		private bool CanRemoveMember(CommunityMembership membership) => UserIsAdminAndEditsOtherUser(membership);
+
+		private bool UserIsAdminAndEditsOtherUser(CommunityMembership membership) =>
+			CurrentUserMembership.Role == CommunityRole.CommunityAdmin && CurrentUserMembership.Id != membership.Id;
 
 		private async void SendInvitationMail(string mailAddress)
 		{

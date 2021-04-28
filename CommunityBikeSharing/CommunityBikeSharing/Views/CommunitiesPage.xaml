@@ -10,16 +10,21 @@
     <ContentPage.Content>
         <StackLayout>
             <ListView ItemsSource="{Binding Communities}"
+                      SelectionMode="None"
                       ItemTapped="OnCommunitySelected">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextCell x:DataType="models:Community"
-                                  Text="{Binding Name}"/>
+                        <ViewCell x:DataType="models:Community">
+                            <Label Text="{Binding Name}"
+                                   Margin="30, 10"/>
+                        </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
 
-            <Button Text="Community erstellen" Command="{Binding AddCommunityCommand}"/>
+            <Button Text="Community erstellen"
+                    Command="{Binding AddCommunityCommand}"
+                    Margin="30, 10"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

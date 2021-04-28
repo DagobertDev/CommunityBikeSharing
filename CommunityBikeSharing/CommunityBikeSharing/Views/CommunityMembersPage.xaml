@@ -8,16 +8,26 @@
              Title="Mitglieder" x:DataType="viewModels:CommunityMembersViewModel">
     <ContentPage.Content>
         <StackLayout>
-            <Button Text="Mitglied hinzufügen" Command="{Binding AddMemberCommand}"/>
-
-            <ListView ItemsSource="{Binding Members}">
+            <ListView ItemsSource="{Binding SortedMembers}"
+                      SelectionMode="None"
+                      ItemTapped="OnEditMembership">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextCell x:DataType="models:CommunityMembership"
-                                  Text="{Binding Name}" />
+                        <ViewCell x:DataType="models:CommunityMembership">
+                            <StackLayout Margin="30 ,10" Orientation="Horizontal">
+                                <Label Text="{Binding Name}"/>
+                                <Label Text="Admin"
+                                       IsVisible="{Binding IsCommunityAdmin}"
+                                       HorizontalOptions="EndAndExpand" TextColor="Green"/>
+                            </StackLayout>
+                        </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            <Button Text="Mitglied hinzufügen"
+                    Command="{Binding AddMemberCommand}"
+                    Margin="30, 10"
+                    IsVisible="{Binding AddMemberVisible}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

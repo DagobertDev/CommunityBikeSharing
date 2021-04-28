@@ -18,11 +18,10 @@ namespace CommunityBikeSharing.Views
 			await ((CommunitiesViewModel)BindingContext).InitializeAsync();
 		}
 
-		private async void OnCommunitySelected(object sender, ItemTappedEventArgs e)
+		private void OnCommunitySelected(object sender, ItemTappedEventArgs e)
 		{
-			var id = ((Community)e.Item).Id;
-
-			await Shell.Current.GoToAsync($"{nameof(CommunityOverviewPage)}?CommunityId={id}");
+			var community = (Community)e.Item;
+			((CommunitiesViewModel)BindingContext).OpenCommunityDetailCommand.Execute(community);
 		}
 	}
 }

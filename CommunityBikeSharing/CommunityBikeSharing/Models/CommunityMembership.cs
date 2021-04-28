@@ -19,6 +19,9 @@ namespace CommunityBikeSharing.Models
 		[DocumentConverter(typeof(EnumStringConverter))]
 		public CommunityRole Role { get; set; } = CommunityRole.User;
 
+		[Ignored]
+		public bool IsCommunityAdmin => Role == CommunityRole.CommunityAdmin;
+
 		public static string GetId(Community community, User user) => GetId(community.Id, user.Id);
 		public static string GetId(string communityId, string userId) => $"{userId}_{communityId}";
 	}

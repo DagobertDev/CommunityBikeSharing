@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
+using CommunityBikeSharing.Views;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -44,6 +45,13 @@ namespace CommunityBikeSharing.ViewModels
 			}
 
 			await _communityRepository.CreateCommunity(name);
+		}
+
+		public ICommand OpenCommunityDetailCommand => new Command<Community>(OpenCommunityDetail);
+
+		private async void OpenCommunityDetail(Community community)
+		{
+			await Shell.Current.GoToAsync($"{nameof(CommunityOverviewPage)}?CommunityId={community.Id}");
 		}
 
 		public async Task InitializeAsync()

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
@@ -74,21 +72,14 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void OpenSettings()
 		{
-			var actions = new List<(string, Action)>();
-
-			if (_membership.Role == CommunityRole.CommunityAdmin)
+			var commands = new (string, ICommand)[]
 			{
-				actions.Add(("Community umbenennen", RenameCommunity));
-			}
+				("Community umbenennen", new Command(RenameCommunity, CanRenameCommunity)),
+				("Community verlassen", new Command(LeaveCommunity, CanLeaveCommunity)),
+				("Community löschen", new Command(DeleteCommunity, CanDeleteCommunity))
+			};
 
-			actions.Add(("Community verlassen", LeaveCommunity));
-
-			if (_membership.Role == CommunityRole.CommunityAdmin)
-			{
-				actions.Add(("Community löschen", DeleteCommunity));
-			}
-
-			await _dialogService.ShowActionSheet("Einstellungen", "Abbrechen", actions.ToArray());
+			await _dialogService.ShowActionSheet("Einstellungen", "Abbrechen", commands);
 		}
 
 		private async void RenameCommunity()
@@ -105,23 +96,38 @@ namespace CommunityBikeSharing.ViewModels
 			await _communityRepository.UpdateCommunity(Community);
 		}
 
+		private bool CanRenameCommunity() => _membership.IsCommunityAdmin;
+
 		private async void DeleteCommunity()
 		{
-			var confirm = await _dialogService.ShowConfirmation("Community löschen",
+			var confirmed = await _dialogService.ShowConfirmation("Community löschen",
 				$"Möchten Sie die Community \"{Name}\" wirklich löschen?");
 
-			if (confirm)
+			if (!confirmed)
 			{
-				await _communityRepository.DeleteCommunity(Community.Id);
+				return;
 			}
+
+			await _communityRepository.DeleteCommunity(Community.Id);
+			await Shell.Current.Navigation.PopAsync();
 		}
+
+		private bool CanDeleteCommunity() => _membership.IsCommunityAdmin;
 
 		private async void LeaveCommunity()
 		{
-			var confirm = await _dialogService.ShowConfirmation("Community verlassen",
+			var confirmed = await _dialogService.ShowConfirmation("Community verlassen",
 				$"Möchten Sie die Community \"{Name}\" wirklich verlassen?");
 
-			// TODO: Allow leaving communities
+			if (!confirmed)
+			{
+				return;
+			}
+
+			await _membershipRepository.Delete(_membership);
+			await Shell.Current.Navigation.PopAsync();
 		}
+
+		private bool CanLeaveCommunity() => true;
 	}
 }

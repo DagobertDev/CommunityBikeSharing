@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -44,6 +43,8 @@ namespace CommunityBikeSharing.Services
 
 				memberships.CollectionChanged += (sender, args) =>
 				{
+					_userCommunities.Clear();
+
 					foreach (var membership in memberships)
 					{
 						var observableCommunity = GetObservableCommunity(membership.CommunityId);
@@ -63,11 +64,7 @@ namespace CommunityBikeSharing.Services
 
 				if (newCommunity == null)
 				{
-					if (oldCommunity != null)
-					{
-						_userCommunities.Remove(oldCommunity);
-					}
-
+					_userCommunities.Remove(oldCommunity);
 					return;
 				}
 
@@ -120,14 +117,14 @@ namespace CommunityBikeSharing.Services
 
 		public Task UpdateCommunity(Community community) => Communities.Document(community.Id).UpdateAsync(community);
 
-		public Task DeleteCommunity(string id)
+		public async Task DeleteCommunity(string id)
 		{
-			return _firestore.Firestore.RunTransactionAsync(async transaction =>
+			var memberships = await CommunityUsers.WhereEqualsTo(nameof(CommunityMembership.CommunityId), id)
+				.GetAsync();
+
+			await _firestore.Firestore.RunTransactionAsync(transaction =>
 			{
 				transaction.Delete(Communities.Document(id));
-
-				var memberships = await CommunityUsers.WhereEqualsTo(nameof(CommunityMembership.CommunityId), id)
-					.GetAsync();
 
 				foreach (var document in memberships.Documents)
 				{

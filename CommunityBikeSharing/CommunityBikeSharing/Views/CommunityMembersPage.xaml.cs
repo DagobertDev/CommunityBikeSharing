@@ -14,6 +14,11 @@ namespace CommunityBikeSharing.Views
 		{
 			await ((CommunityMembersViewModel)BindingContext).InitializeAsync();
 		}
+
+		private void OnEditMembership(object sender, ItemTappedEventArgs e)
+		{
+			((CommunityMembersViewModel)BindingContext).EditMembershipCommand.Execute(e.Item);
+		}
 	}
 }
 
