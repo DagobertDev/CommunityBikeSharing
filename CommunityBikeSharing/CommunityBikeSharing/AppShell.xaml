@@ -5,13 +5,13 @@
        xmlns:views="clr-namespace:CommunityBikeSharing.Views"
        x:Class="CommunityBikeSharing.AppShell">
 
-    <ShellItem Route="loading">
+    <ShellItem>
         <ShellContent ContentTemplate="{DataTemplate views:LoadingPage}" FlyoutItemIsVisible="False"/>
     </ShellItem>
 
     <TabBar>
-        <ShellContent Title="Übersicht"
-                      Route="main"
+        <ShellContent x:Name="MainPage"
+                      Title="Übersicht"
                       ContentTemplate="{DataTemplate views:MainPage}">
         </ShellContent>
         <ShellContent Title="Communities"
@@ -19,7 +19,13 @@
         </ShellContent>
     </TabBar>
 
-    <ShellContent Route="login" ContentTemplate="{DataTemplate views:LoginPage}" FlyoutItemIsVisible="False"/>
-    <ShellContent Route="registration" ContentTemplate="{DataTemplate views:RegistrationPage}" FlyoutItemIsVisible="False"/>
+    <ShellContent x:Name="Login"
+                  ContentTemplate="{DataTemplate views:LoginPage}"
+                  FlyoutItemIsVisible="False"
+                  Shell.NavBarIsVisible="false"/>
+    <ShellContent x:Name="Registration"
+                  ContentTemplate="{DataTemplate views:RegistrationPage}"
+                  FlyoutItemIsVisible="False"
+                  Shell.NavBarIsVisible="False"/>
 
 </Shell>

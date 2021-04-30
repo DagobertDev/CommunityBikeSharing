@@ -1,4 +1,5 @@
-﻿using CommunityBikeSharing.Views;
+﻿using CommunityBikeSharing.ViewModels;
+using CommunityBikeSharing.Views;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing
@@ -9,15 +10,10 @@ namespace CommunityBikeSharing
 		{
 			InitializeComponent();
 
-			var routes = new[]
-			{
-				typeof(CommunityOverviewPage)
-			};
-
-			foreach (var route in routes)
-			{
-				Routing.RegisterRoute(route.Name, route);
-			}
+			Routing.RegisterRoute(nameof(CommunityOverviewViewModel), typeof(CommunityOverviewPage));
+			MainPage.Route = nameof(MainPageViewModel);
+			Login.Route = nameof(LoginViewModel);
+			Registration.Route = nameof(RegistrationViewModel);
 		}
 	}
 }

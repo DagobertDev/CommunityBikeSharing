@@ -98,7 +98,7 @@ namespace CommunityBikeSharing.Services
 			return result.ToObject<Community>();
 		}
 
-		public async Task CreateCommunity(string name)
+		public async Task<Community> CreateCommunity(string name)
 		{
 			var result = await Communities.AddAsync(new Community
 			{
@@ -109,10 +109,11 @@ namespace CommunityBikeSharing.Services
 
 			if (community == null)
 			{
-				return;
+				return null;
 			}
 
 			await AddUserToCommunity(await _userService.GetCurrentUser(), community.Id, CommunityRole.CommunityAdmin);
+			return community;
 		}
 
 		public Task UpdateCommunity(Community community) => Communities.Document(community.Id).UpdateAsync(community);

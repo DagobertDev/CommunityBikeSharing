@@ -22,7 +22,7 @@ namespace CommunityBikeSharing.Views
         {
 	        await _authService.SignOut();
 
-	        await Shell.Current.GoToAsync("///login");
+	        await Shell.Current.GoToAsync($"///{nameof(RegistrationViewModel)}");
         }
 
         protected override async void OnAppearing()

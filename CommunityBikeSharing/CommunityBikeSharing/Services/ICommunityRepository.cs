@@ -7,7 +7,7 @@ namespace CommunityBikeSharing.Services
 {
 	public interface ICommunityRepository
 	{
-		Task CreateCommunity(string name);
+		Task<Community> CreateCommunity(string name);
 		Task<Community> GetCommunity(string id);
 		Task UpdateCommunity(Community community);
 		Task DeleteCommunity(string id);

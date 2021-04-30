@@ -17,11 +17,11 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			if (_authService.SignedIn)
 			{
-				await Shell.Current.GoToAsync("///main");
+				await Shell.Current.GoToAsync($"///{nameof(MainPageViewModel)}");
 			}
 			else
 			{
-				await Shell.Current.GoToAsync("///registration");
+				await Shell.Current.GoToAsync($"///{nameof(RegistrationViewModel)}");
 			}
 		}
 	}
