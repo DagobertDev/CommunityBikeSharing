@@ -12,6 +12,7 @@ namespace CommunityBikeSharing.ViewModels
 	{
 		private readonly IAuthService _authService;
 		private readonly IDialogService _dialogService;
+		private readonly INavigationService _navigationService;
 
 		private readonly IReadOnlyDictionary<AuthError.AuthErrorReason, string> _errorMessages =
 			new Dictionary<AuthError.AuthErrorReason, string>
@@ -34,9 +35,8 @@ namespace CommunityBikeSharing.ViewModels
 			ResetPasswordCommand = new Command(ResetPassword);
 			_authService = DependencyService.Get<IAuthService>();
 			_dialogService = DependencyService.Get<IDialogService>();
+			_navigationService = DependencyService.Get<INavigationService>();
 		}
-
-		public Action AfterLogin { get; set; }
 
 		public string Email
 		{
@@ -58,6 +58,9 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
+		public ICommand GoToRegistrationCommand => new Command(GoToRegistration);
+		private async void GoToRegistration() => await _navigationService.NavigateToRoot<RegistrationViewModel>();
+
 		public ICommand LoginCommand { get; }
 		public ICommand ResetPasswordCommand { get; }
 
@@ -67,7 +70,7 @@ namespace CommunityBikeSharing.ViewModels
 			{
 				await _authService.SignIn(Email, Password);
 
-				AfterLogin?.Invoke();
+				await _navigationService.NavigateToRoot<MainPageViewModel>();
 			}
 			catch (AuthError e)
 			{

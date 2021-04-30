@@ -4,7 +4,7 @@ using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
 {
-	[QueryProperty(nameof(CommunityId), nameof(CommunityId))]
+	[QueryProperty(nameof(CommunityId), "param")]
 	public partial class CommunityOverviewPage : TabbedPage
 	{
 		string _communityId = "";
@@ -26,7 +26,7 @@ namespace CommunityBikeSharing.Views
 		protected override async void OnAppearing()
 		{
 			BindingContext = new CommunityOverviewViewModel(CommunityId);
-			await ((CommunityOverviewViewModel)BindingContext).InitializeAsync();
+			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 	}
 }

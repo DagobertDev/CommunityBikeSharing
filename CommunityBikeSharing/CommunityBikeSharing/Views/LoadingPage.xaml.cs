@@ -8,12 +8,13 @@ namespace CommunityBikeSharing.Views
 		public LoadingPage()
 		{
 			InitializeComponent();
+
+			BindingContext = new LoadingViewModel();
 		}
 
 		protected override async void OnAppearing()
 		{
-			var viewModel = new LoadingViewModel();
-			await viewModel.InitializeAsync();
+			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 	}
 }

@@ -20,8 +20,12 @@
         <Label Text="Passwort wiederholen:" Margin="30,0,30,0"/>
         <Entry Text="{Binding RepeatedPassword}" IsPassword="True" Margin="30,0,30,0"/>
 
-        <Button Text="Registrieren" Command="{Binding RegisterCommand}" Margin="30,0,30,0"/>
+        <Button Text="Registrieren"
+                Command="{Binding RegisterCommand}"
+                Margin="30,0"/>
 
-        <Button Text="Bereits registriert? Hier einloggen" Clicked="RedirectToLogin" Margin="30,0,30,0"/>
+        <Button Text="Bereits registriert? Hier einloggen"
+                Command="{Binding GoToLoginCommand}"
+                Margin="30,0"/>
     </StackLayout>
 </ContentPage>

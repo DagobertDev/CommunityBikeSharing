@@ -23,11 +23,13 @@ namespace CommunityBikeSharing.ViewModels
 
 		private readonly ICommunityRepository _communityRepository;
 		private readonly IDialogService _dialogService;
+		private readonly INavigationService _navigationService;
 
 		public CommunitiesViewModel()
 		{
 			_communityRepository = DependencyService.Get<ICommunityRepository>();
 			_dialogService = DependencyService.Get<IDialogService>();
+			_navigationService = DependencyService.Get<INavigationService>();
 			AddCommunityCommand = new Command(AddCommunity);
 		}
 
@@ -51,10 +53,10 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void OpenCommunityDetail(Community community)
 		{
-			await Shell.Current.GoToAsync($"{nameof(CommunityOverviewViewModel)}?CommunityId={community.Id}");
+			await _navigationService.NavigateTo<CommunityOverviewViewModel>(community.Id);
 		}
 
-		public async Task InitializeAsync()
+		public override async Task InitializeAsync()
 		{
 			Communities = await _communityRepository.GetCommunities();
 		}

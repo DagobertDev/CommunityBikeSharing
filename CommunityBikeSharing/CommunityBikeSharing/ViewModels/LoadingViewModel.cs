@@ -7,21 +7,23 @@ namespace CommunityBikeSharing.ViewModels
 	public class LoadingViewModel : BaseViewModel
 	{
 		private readonly IAuthService _authService;
+		private readonly INavigationService _navigationService;
 
 		public LoadingViewModel()
 		{
 			_authService = DependencyService.Get<IAuthService>();
+			_navigationService = DependencyService.Get<INavigationService>();
 		}
 
-		public async Task InitializeAsync()
+		public override async Task InitializeAsync()
 		{
 			if (_authService.SignedIn)
 			{
-				await Shell.Current.GoToAsync($"///{nameof(MainPageViewModel)}");
+				await _navigationService.NavigateToRoot<MainPageViewModel>();
 			}
 			else
 			{
-				await Shell.Current.GoToAsync($"///{nameof(RegistrationViewModel)}");
+				await _navigationService.NavigateToRoot<RegistrationViewModel>();
 			}
 		}
 	}

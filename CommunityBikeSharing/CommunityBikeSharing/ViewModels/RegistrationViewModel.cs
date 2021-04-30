@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
@@ -13,6 +12,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IAuthService _authService;
 		private readonly IDialogService _dialogService;
 		private readonly IUserService _userService;
+		private readonly INavigationService _navigationService;
 
 		private readonly IReadOnlyDictionary<AuthError.AuthErrorReason, string> _errorMessages =
 			new Dictionary<AuthError.AuthErrorReason, string>
@@ -37,9 +37,8 @@ namespace CommunityBikeSharing.ViewModels
 			_authService = DependencyService.Get<IAuthService>();
 			_dialogService = DependencyService.Get<IDialogService>();
 			_userService = DependencyService.Get<IUserService>();
+			_navigationService = DependencyService.Get<INavigationService>();
 		}
-
-		public Action AfterRegistration { get; set; }
 
 		public string Email
 		{
@@ -71,14 +70,16 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
+		public ICommand GoToLoginCommand => new Command(GoToLogin);
+		private async void GoToLogin() => await _navigationService.NavigateToRoot<LoginViewModel>();
+
 		public ICommand RegisterCommand { get; }
 
 		private async void Register()
 		{
 			if (Password != RepeatedPassword)
 			{
-				await _dialogService.ShowError("Registrierung fehlgeschlagen", "Das Passwort wurde falsch wiederholt.",
-					"Ok");
+				await _dialogService.ShowError("Registrierung fehlgeschlagen", "Das Passwort wurde falsch wiederholt.");
 				return;
 			}
 
@@ -87,7 +88,7 @@ namespace CommunityBikeSharing.ViewModels
 				await _userService.RegisterUser(Email, Password);
 				await _authService.SignIn(Email, Password);
 
-				AfterRegistration?.Invoke();
+				await _navigationService.NavigateToRoot<MainPageViewModel>();
 			}
 			catch (AuthError e)
 			{
@@ -102,7 +103,7 @@ namespace CommunityBikeSharing.ViewModels
 				_errorMessages.TryGetValue(AuthError.AuthErrorReason.Undefined, out errorMessage);
 			}
 
-			return _dialogService.ShowError("Registrierung fehlgeschlagen", errorMessage, "Ok");
+			return _dialogService.ShowError("Registrierung fehlgeschlagen", errorMessage);
 		}
 	}
 }

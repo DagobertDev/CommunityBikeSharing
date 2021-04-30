@@ -15,7 +15,7 @@ namespace CommunityBikeSharing.Views
 
 		protected override async void OnAppearing()
 		{
-			await ((CommunitiesViewModel)BindingContext).InitializeAsync();
+			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 
 		private void OnCommunitySelected(object sender, ItemTappedEventArgs e)

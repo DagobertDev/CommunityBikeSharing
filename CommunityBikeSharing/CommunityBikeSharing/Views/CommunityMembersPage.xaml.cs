@@ -12,7 +12,7 @@ namespace CommunityBikeSharing.Views
 
 		protected override async void OnAppearing()
 		{
-			await ((CommunityMembersViewModel)BindingContext).InitializeAsync();
+			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 
 		private void OnEditMembership(object sender, ItemTappedEventArgs e)

@@ -80,7 +80,7 @@ namespace CommunityBikeSharing.ViewModels
 			_membersChanged = (sender, args) => OnPropertyChanged(nameof(SortedMembers));
 		}
 
-		public async Task InitializeAsync()
+		public override async Task InitializeAsync()
 		{
 			Members = _membershipRepository.ObserveMembershipsFromCommunity(_communityId);
 

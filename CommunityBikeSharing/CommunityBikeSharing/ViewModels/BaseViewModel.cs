@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -11,5 +12,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
+
+		public virtual Task InitializeAsync() => Task.CompletedTask;
 	}
 }

@@ -16,8 +16,12 @@
 
         <Button Text="Passwort zurücksetzen" Command="{Binding ResetPasswordCommand}" Margin="30,0,30,0"/>
 
-        <Button Text="Login" Command="{Binding LoginCommand}" Margin="30,0,30,0"/>
+        <Button Text="Login"
+                Command="{Binding LoginCommand}"
+                Margin="30,0"/>
 
-        <Button Text="Noch keinen Account? Hier registrieren" Clicked="RedirectToRegistration" Margin="30,0,30,0"/>
+        <Button Text="Noch keinen Account? Hier registrieren"
+                Command="{Binding GoToRegistrationCommand}"
+                Margin="30,0"/>
     </StackLayout>
 </ContentPage>

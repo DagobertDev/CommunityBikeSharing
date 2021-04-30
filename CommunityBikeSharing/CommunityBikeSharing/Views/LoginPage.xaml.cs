@@ -1,5 +1,4 @@
-﻿using System;
-using CommunityBikeSharing.ViewModels;
+﻿using CommunityBikeSharing.ViewModels;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
@@ -10,15 +9,12 @@ namespace CommunityBikeSharing.Views
 		{
 			InitializeComponent();
 
-			BindingContext = new LoginViewModel
-			{
-				AfterLogin = () => Shell.Current.GoToAsync($"///{nameof(MainPageViewModel)}")
-			};
+			BindingContext = new LoginViewModel();
 		}
 
-		private void RedirectToRegistration(object sender, EventArgs args)
+		protected override async void OnAppearing()
 		{
-			Shell.Current.GoToAsync($"///{nameof(RegistrationViewModel)}");
+			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 	}
 }

@@ -12,6 +12,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly ICommunityRepository _communityRepository;
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly IDialogService _dialogService;
+		private readonly INavigationService _navigationService;
 
 		private Community _community;
 		private CommunityMembership _membership;
@@ -55,11 +56,12 @@ namespace CommunityBikeSharing.ViewModels
 			_communityRepository = DependencyService.Get<ICommunityRepository>();
 			_membershipRepository = DependencyService.Get<IMembershipRepository>();
 			_dialogService = DependencyService.Get<IDialogService>();
+			_navigationService = DependencyService.Get<INavigationService>();
 			CommunityMembersViewModel = new CommunityMembersViewModel(_id);
 			OpenSettingsCommand = new Command(OpenSettings);
 		}
 
-		public async Task InitializeAsync()
+		public override async Task InitializeAsync()
 		{
 			Community = await _communityRepository.GetCommunity(_id);
 
@@ -109,7 +111,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 
 			await _communityRepository.DeleteCommunity(Community.Id);
-			await Shell.Current.Navigation.PopAsync();
+			await _navigationService.NavigateBack();
 		}
 
 		private bool CanDeleteCommunity() => _membership.IsCommunityAdmin;
@@ -125,7 +127,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 
 			await _membershipRepository.Delete(_membership);
-			await Shell.Current.Navigation.PopAsync();
+			await _navigationService.NavigateBack();
 		}
 
 		private bool CanLeaveCommunity() => true;
