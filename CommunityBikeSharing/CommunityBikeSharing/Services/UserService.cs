@@ -1,9 +1,5 @@
 ﻿using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
-using CommunityBikeSharing.Services;
-using Xamarin.Forms;
-
-[assembly: Dependency(typeof(UserService))]
 
 namespace CommunityBikeSharing.Services
 {
@@ -12,10 +8,10 @@ namespace CommunityBikeSharing.Services
 		private readonly IAuthService _authService;
 		private readonly IUserRepository _userRepository;
 
-		public UserService()
+		public UserService(IAuthService authService, IUserRepository userRepository)
 		{
-			_authService = DependencyService.Get<IAuthService>();
-			_userRepository = DependencyService.Get<IUserRepository>();
+			_authService = authService;
+			_userRepository = userRepository;
 		}
 
 		public Task<User> GetCurrentUser()

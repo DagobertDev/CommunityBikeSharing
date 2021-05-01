@@ -2,7 +2,10 @@
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
+using CommunityBikeSharing.Droid.Services;
+using CommunityBikeSharing.Services;
 using Firebase;
+using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms.Platform.Android;
 
 namespace CommunityBikeSharing.Droid
@@ -17,14 +20,20 @@ namespace CommunityBikeSharing.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             Xamarin.Forms.Forms.Init(this, savedInstanceState);
 
-            FirebaseApp.InitializeApp(Application.Context);
-            LoadApplication(new App());
+            LoadApplication(Startup.Init(ConfigureServices));
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        private void ConfigureServices(IServiceCollection services)
+        {
+	        FirebaseApp.InitializeApp(Application.Context);
+
+	        services.AddSingleton<IAuthService, FirebaseAndroidAuthService>();
         }
     }
 }

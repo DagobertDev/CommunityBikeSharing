@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CommunityBikeSharing.Services;
 using Xamarin.Forms;
-
-[assembly: Dependency(typeof(DialogService))]
 
 namespace CommunityBikeSharing.Services
 {

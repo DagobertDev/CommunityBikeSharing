@@ -4,12 +4,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
-using CommunityBikeSharing.Services;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Reactive;
-using Xamarin.Forms;
-
-[assembly: Dependency(typeof(MembershipRepository))]
 
 namespace CommunityBikeSharing.Services
 {
@@ -21,9 +17,9 @@ namespace CommunityBikeSharing.Services
 		private readonly IDictionary<string, ObservableCollection<CommunityMembership>> _cachedMemberships =
 			new ConcurrentDictionary<string, ObservableCollection<CommunityMembership>>();
 
-		public MembershipRepository()
+		public MembershipRepository(IFirestoreContext firestoreContext)
 		{
-			_firestore = DependencyService.Get<IFirestoreContext>();
+			_firestore = firestoreContext;
 		}
 
 		public async Task<CommunityMembership> Get(Community community, User user)

@@ -1,12 +1,8 @@
 ﻿using System.Threading.Tasks;
-using CommunityBikeSharing.Droid.Services;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using Firebase;
 using Firebase.Auth;
-using Xamarin.Forms;
-
-[assembly: Dependency(typeof(FirebaseAndroidAuthService))]
 
 namespace CommunityBikeSharing.Droid.Services
 {

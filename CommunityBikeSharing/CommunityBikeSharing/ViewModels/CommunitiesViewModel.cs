@@ -24,16 +24,24 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly ICommunityRepository _communityRepository;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
+		private readonly IMembershipRepository _membershipRepository;
+		private readonly IUserService _userService;
 
-		public CommunitiesViewModel()
+		public CommunitiesViewModel(
+			ICommunityRepository communityRepository,
+			IDialogService dialogService,
+			INavigationService navigationService,
+			IMembershipRepository membershipRepository,
+			IUserService userService)
 		{
-			_communityRepository = DependencyService.Get<ICommunityRepository>();
-			_dialogService = DependencyService.Get<IDialogService>();
-			_navigationService = DependencyService.Get<INavigationService>();
-			AddCommunityCommand = new Command(AddCommunity);
+			_communityRepository = communityRepository;
+			_dialogService = dialogService;
+			_navigationService = navigationService;
+			_membershipRepository = membershipRepository;
+			_userService = userService;
 		}
 
-		public ICommand AddCommunityCommand { get; }
+		public ICommand AddCommunityCommand => new Command(AddCommunity);
 
 		private async void AddCommunity()
 		{
@@ -58,7 +66,9 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override async Task InitializeAsync()
 		{
-			Communities = await _communityRepository.GetCommunities();
+			var user = await _userService.GetCurrentUser();
+			var memberships = _membershipRepository.ObserveMembershipsFromUser(user.Id);
+			Communities = await _communityRepository.GetCommunities(memberships);
 		}
 	}
 }

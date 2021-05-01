@@ -13,11 +13,11 @@ namespace CommunityBikeSharing.ViewModels
 
 		private string _welcomeMessage;
 
-		public MainPageViewModel()
+		public MainPageViewModel(IUserService userService, INavigationService navigationService, IAuthService authService)
 		{
-			_userService = DependencyService.Get<IUserService>();
-			_authService = DependencyService.Get<IAuthService>();
-			_navigationService = DependencyService.Get<INavigationService>();
+			_userService = userService;
+			_navigationService = navigationService;
+			_authService = authService;
 		}
 
 		public string WelcomeMessage

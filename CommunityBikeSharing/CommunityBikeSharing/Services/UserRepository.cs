@@ -1,11 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
-using CommunityBikeSharing.Services;
 using Plugin.CloudFirestore;
-using Xamarin.Forms;
-
-[assembly: Dependency(typeof(UserRepository))]
 
 namespace CommunityBikeSharing.Services
 {
@@ -15,9 +11,9 @@ namespace CommunityBikeSharing.Services
 
 		private ICollectionReference Users => _firestore.Users;
 
-		public UserRepository()
+		public UserRepository(IFirestoreContext firestoreContext)
 		{
-			_firestore = DependencyService.Get<IFirestoreContext>();
+			_firestore = firestoreContext;
 		}
 
 		public async Task<User> GetUserByEmail(string email)

@@ -1,9 +1,6 @@
 ﻿using System.Threading.Tasks;
-using CommunityBikeSharing.Services;
 using CommunityBikeSharing.ViewModels;
 using Xamarin.Forms;
-
-[assembly: Dependency(typeof(NavigationService))]
 
 namespace CommunityBikeSharing.Services
 {

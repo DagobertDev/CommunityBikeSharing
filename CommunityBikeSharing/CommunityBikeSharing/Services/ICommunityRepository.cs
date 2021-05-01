@@ -11,7 +11,7 @@ namespace CommunityBikeSharing.Services
 		Task<Community> GetCommunity(string id);
 		Task UpdateCommunity(Community community);
 		Task DeleteCommunity(string id);
-		Task<ObservableCollection<Community>> GetCommunities();
+		Task<ObservableCollection<Community>> GetCommunities(ObservableCollection<CommunityMembership> memberships);
 		IObservable<Community> GetObservableCommunity(string id);
 	}
 }

@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -13,6 +14,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
+		private readonly IUserService _userService;
 
 		private Community _community;
 		private CommunityMembership _membership;
@@ -50,27 +52,34 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		public CommunityOverviewViewModel(string id)
+		public CommunityOverviewViewModel(
+			ICommunityRepository communityRepository,
+			IMembershipRepository membershipRepository,
+			IDialogService dialogService,
+			INavigationService navigationService,
+			IUserService userService,
+			string id)
 		{
 			_id = id;
-			_communityRepository = DependencyService.Get<ICommunityRepository>();
-			_membershipRepository = DependencyService.Get<IMembershipRepository>();
-			_dialogService = DependencyService.Get<IDialogService>();
-			_navigationService = DependencyService.Get<INavigationService>();
-			CommunityMembersViewModel = new CommunityMembersViewModel(_id);
-			OpenSettingsCommand = new Command(OpenSettings);
+			_communityRepository = communityRepository;
+			_membershipRepository = membershipRepository;
+			_dialogService = dialogService;
+			_navigationService = navigationService;
+			_userService = userService;
+			CommunityMembersViewModel =
+				ActivatorUtilities.CreateInstance<CommunityMembersViewModel>(Startup.ServiceProvider, _id);
 		}
 
 		public override async Task InitializeAsync()
 		{
 			Community = await _communityRepository.GetCommunity(_id);
 
-			var user = await DependencyService.Get<IUserService>().GetCurrentUser();
+			var user = await _userService.GetCurrentUser();
 
 			_membership = await _membershipRepository.Get(Community, user);
 		}
 
-		public ICommand OpenSettingsCommand { get; }
+		public ICommand OpenSettingsCommand => new Command(OpenSettings);
 
 		private async void OpenSettings()
 		{

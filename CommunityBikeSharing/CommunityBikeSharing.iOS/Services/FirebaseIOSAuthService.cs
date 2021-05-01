@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CommunityBikeSharing.iOS.Services;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using Firebase.Auth;
-using Xamarin.Forms;
 using User = CommunityBikeSharing.Models.User;
-
-[assembly: Dependency(typeof(FirebaseIOSAuthService))]
 
 namespace CommunityBikeSharing.iOS.Services
 {

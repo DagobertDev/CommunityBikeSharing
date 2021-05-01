@@ -31,13 +31,13 @@ namespace CommunityBikeSharing.ViewModels
 
 		private string _repeatedPassword;
 
-		public RegistrationViewModel()
+		public RegistrationViewModel(IAuthService authService, IDialogService dialogService, IUserService userService,
+			INavigationService navigationService)
 		{
-			RegisterCommand = new Command(Register);
-			_authService = DependencyService.Get<IAuthService>();
-			_dialogService = DependencyService.Get<IDialogService>();
-			_userService = DependencyService.Get<IUserService>();
-			_navigationService = DependencyService.Get<INavigationService>();
+			_authService = authService;
+			_dialogService = dialogService;
+			_userService = userService;
+			_navigationService = navigationService;
 		}
 
 		public string Email
@@ -73,7 +73,7 @@ namespace CommunityBikeSharing.ViewModels
 		public ICommand GoToLoginCommand => new Command(GoToLogin);
 		private async void GoToLogin() => await _navigationService.NavigateToRoot<LoginViewModel>();
 
-		public ICommand RegisterCommand { get; }
+		public ICommand RegisterCommand => new Command(Register);
 
 		private async void Register()
 		{

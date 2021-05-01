@@ -1,8 +1,4 @@
-﻿using CommunityBikeSharing.Services;
-using Plugin.CloudFirestore;
-using Xamarin.Forms;
-
-[assembly: Dependency(typeof(FirestoreContext))]
+﻿using Plugin.CloudFirestore;
 
 namespace CommunityBikeSharing.Services
 {

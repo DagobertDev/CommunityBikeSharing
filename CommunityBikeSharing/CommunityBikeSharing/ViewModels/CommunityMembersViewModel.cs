@@ -19,6 +19,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly IDialogService _dialogService;
 		private readonly IUserRepository _userRepository;
+		private readonly IUserService _userService;
 
 		private CommunityMembership CurrentUserMembership
 		{
@@ -71,12 +72,18 @@ namespace CommunityBikeSharing.ViewModels
 			_dialogService.ShowActionSheet(membership.Name, "Abbrechen", actions, membership);
 		}
 
-		public CommunityMembersViewModel(string communityId)
+		public CommunityMembersViewModel(
+			IMembershipRepository membershipRepository,
+			IDialogService dialogService,
+			IUserRepository userRepository,
+			IUserService userService,
+			string communityId)
 		{
+			_membershipRepository = membershipRepository;
+			_dialogService = dialogService;
+			_userRepository = userRepository;
+			_userService = userService;
 			_communityId = communityId;
-			_membershipRepository = DependencyService.Get<IMembershipRepository>();
-			_dialogService = DependencyService.Get<IDialogService>();
-			_userRepository = DependencyService.Get<IUserRepository>();
 			_membersChanged = (sender, args) => OnPropertyChanged(nameof(SortedMembers));
 		}
 
@@ -84,7 +91,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			Members = _membershipRepository.ObserveMembershipsFromCommunity(_communityId);
 
-			var user = await DependencyService.Get<IUserService>().GetCurrentUser();
+			var user = await _userService.GetCurrentUser();
 			CurrentUserMembership = Members.Single(m => m.UserId == user.Id);
 		}
 

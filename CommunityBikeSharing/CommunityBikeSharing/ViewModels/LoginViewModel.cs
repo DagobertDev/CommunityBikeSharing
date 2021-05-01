@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
@@ -29,13 +28,13 @@ namespace CommunityBikeSharing.ViewModels
 
 		private string _password;
 
-		public LoginViewModel()
+		public LoginViewModel(IAuthService authService,
+			IDialogService dialogService,
+			INavigationService navigationService)
 		{
-			LoginCommand = new Command(Login);
-			ResetPasswordCommand = new Command(ResetPassword);
-			_authService = DependencyService.Get<IAuthService>();
-			_dialogService = DependencyService.Get<IDialogService>();
-			_navigationService = DependencyService.Get<INavigationService>();
+			_authService = authService;
+			_dialogService = dialogService;
+			_navigationService = navigationService;
 		}
 
 		public string Email
@@ -61,8 +60,8 @@ namespace CommunityBikeSharing.ViewModels
 		public ICommand GoToRegistrationCommand => new Command(GoToRegistration);
 		private async void GoToRegistration() => await _navigationService.NavigateToRoot<RegistrationViewModel>();
 
-		public ICommand LoginCommand { get; }
-		public ICommand ResetPasswordCommand { get; }
+		public ICommand LoginCommand => new Command(Login);
+		public ICommand ResetPasswordCommand => new Command(ResetPassword);
 
 		private async void Login()
 		{

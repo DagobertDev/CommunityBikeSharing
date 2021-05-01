@@ -19,6 +19,8 @@ namespace CommunityBikeSharing.Services
 	{
 		private readonly IUserService _userService;
 		private readonly IFirestoreContext _firestore;
+		private readonly IMembershipRepository _membershipRepository;
+
 		private ObservableCollection<Community> _userCommunities;
 
 		private readonly IDictionary<string, IObservable<Community>> _observableCommunities =
@@ -26,20 +28,21 @@ namespace CommunityBikeSharing.Services
 		private ICollectionReference CommunityUsers => _firestore.CommunityUsers;
 		private ICollectionReference Communities => _firestore.Communities;
 
-		public CommunityRepository()
+		public CommunityRepository(
+			IUserService userService,
+			IFirestoreContext firestoreContext,
+			IMembershipRepository membershipRepository)
 		{
-			_userService = DependencyService.Get<IUserService>();
-			_firestore = DependencyService.Get<IFirestoreContext>();
+			_userService = userService;
+			_firestore = firestoreContext;
+			_membershipRepository = membershipRepository;
 		}
 
-		public async Task<ObservableCollection<Community>> GetCommunities()
+		public Task<ObservableCollection<Community>> GetCommunities(ObservableCollection<CommunityMembership> memberships)
 		{
 			if (_userCommunities == null)
 			{
 				_userCommunities = new ObservableCollection<Community>();
-
-				var user = await _userService.GetCurrentUser();
-				var memberships = DependencyService.Get<IMembershipRepository>().ObserveMembershipsFromUser(user.Id);
 
 				memberships.CollectionChanged += (sender, args) =>
 				{
@@ -55,7 +58,7 @@ namespace CommunityBikeSharing.Services
 				};
 			}
 
-			return _userCommunities;
+			return Task.FromResult(_userCommunities);
 
 			void OnCommunityChanged(Community newCommunity, string id)
 			{
@@ -136,14 +139,12 @@ namespace CommunityBikeSharing.Services
 
 		public Task AddUserToCommunity(User user, string communityId, CommunityRole role = CommunityRole.User)
 		{
-			var membershipRepo = DependencyService.Get<IMembershipRepository>();
-
 			var membership = new CommunityMembership
 			{
 				Name = user.Username, Role = role, CommunityId = communityId, UserId = user.Id
 			};
 
-			return membershipRepo.Add(membership);
+			return _membershipRepository.Add(membership);
 		}
 	}
 }

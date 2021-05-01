@@ -1,16 +1,17 @@
 ﻿using CommunityBikeSharing.Models;
 using CommunityBikeSharing.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
 {
-	public partial class CommunitiesPage : ContentPage
+	public partial class CommunitiesPage
 	{
 		public CommunitiesPage()
 		{
 			InitializeComponent();
 
-			BindingContext = new CommunitiesViewModel();
+			BindingContext = Startup.ServiceProvider.GetService<CommunitiesViewModel>();
 		}
 
 		protected override async void OnAppearing()

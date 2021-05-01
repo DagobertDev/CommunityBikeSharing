@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using CommunityBikeSharing.Services;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -9,10 +8,10 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IAuthService _authService;
 		private readonly INavigationService _navigationService;
 
-		public LoadingViewModel()
+		public LoadingViewModel(IAuthService authService, INavigationService navigationService)
 		{
-			_authService = DependencyService.Get<IAuthService>();
-			_navigationService = DependencyService.Get<INavigationService>();
+			_authService = authService;
+			_navigationService = navigationService;
 		}
 
 		public override async Task InitializeAsync()
