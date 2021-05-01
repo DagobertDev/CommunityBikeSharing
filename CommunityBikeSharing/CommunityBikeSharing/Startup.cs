@@ -24,6 +24,7 @@ namespace CommunityBikeSharing
 
 		private static void ConfigureServices(IServiceCollection services)
 		{
+			services.AddSingleton<IBikeRepository, BikeRepository>();
 			services.AddSingleton<ICommunityRepository, CommunityRepository>();
 			services.AddSingleton<IDialogService, DialogService>();
 			services.AddSingleton<IFirestoreContext, FirestoreContext>();
@@ -33,6 +34,7 @@ namespace CommunityBikeSharing
 			services.AddSingleton<IUserService, UserService>();
 
 			services.AddTransient<CommunitiesViewModel>();
+			services.AddTransient<CommunityBikesViewModel>();
 			services.AddTransient<CommunityMembersViewModel>();
 			services.AddTransient<CommunityOverviewPage>();
 			services.AddTransient<LoadingViewModel>();

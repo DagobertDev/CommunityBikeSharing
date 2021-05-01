@@ -16,4 +16,5 @@
     </TabbedPage.ToolbarItems>
 
     <views:CommunityMembersPage BindingContext="{Binding CommunityMembersViewModel}"/>
+    <views:CommunityBikesPage BindingContext="{Binding CommunityBikesViewModel}"/>
 </TabbedPage>

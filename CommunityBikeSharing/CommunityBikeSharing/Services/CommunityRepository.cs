@@ -6,12 +6,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
-using CommunityBikeSharing.Services;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Reactive;
-using Xamarin.Forms;
-
-[assembly: Dependency(typeof(CommunityRepository))]
 
 namespace CommunityBikeSharing.Services
 {
@@ -25,6 +21,8 @@ namespace CommunityBikeSharing.Services
 
 		private readonly IDictionary<string, IObservable<Community>> _observableCommunities =
 			new ConcurrentDictionary<string, IObservable<Community>>();
+
+		private ICollectionReference Bikes(string id) => _firestore.Bikes(id);
 		private ICollectionReference CommunityUsers => _firestore.CommunityUsers;
 		private ICollectionReference Communities => _firestore.Communities;
 
@@ -126,11 +124,18 @@ namespace CommunityBikeSharing.Services
 			var memberships = await CommunityUsers.WhereEqualsTo(nameof(CommunityMembership.CommunityId), id)
 				.GetAsync();
 
+			var bikes = await Bikes(id).GetAsync();
+
 			await _firestore.Firestore.RunTransactionAsync(transaction =>
 			{
 				transaction.Delete(Communities.Document(id));
 
 				foreach (var document in memberships.Documents)
+				{
+					transaction.Delete(document.Reference);
+				}
+
+				foreach (var document in bikes.Documents)
 				{
 					transaction.Delete(document.Reference);
 				}
