@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 
-namespace CommunityBikeSharing.Services
+namespace CommunityBikeSharing.Services.Data
 {
 	public interface ICommunityRepository
 	{

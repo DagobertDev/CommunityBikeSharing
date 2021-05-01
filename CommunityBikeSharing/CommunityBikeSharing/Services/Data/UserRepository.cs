@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
 
-namespace CommunityBikeSharing.Services
+namespace CommunityBikeSharing.Services.Data
 {
 	public class UserRepository : IUserRepository
 	{

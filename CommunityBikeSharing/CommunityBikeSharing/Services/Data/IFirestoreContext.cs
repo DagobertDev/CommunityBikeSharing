@@ -1,6 +1,6 @@
 ﻿using Plugin.CloudFirestore;
 
-namespace CommunityBikeSharing.Services
+namespace CommunityBikeSharing.Services.Data
 {
 	public interface IFirestoreContext
 	{

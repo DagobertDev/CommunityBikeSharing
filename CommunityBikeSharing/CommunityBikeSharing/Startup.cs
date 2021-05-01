@@ -1,5 +1,6 @@
 ﻿using System;
 using CommunityBikeSharing.Services;
+using CommunityBikeSharing.Services.Data;
 using CommunityBikeSharing.ViewModels;
 using CommunityBikeSharing.Views;
 using Microsoft.Extensions.DependencyInjection;

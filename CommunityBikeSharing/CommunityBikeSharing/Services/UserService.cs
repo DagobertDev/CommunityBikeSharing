@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
+using CommunityBikeSharing.Services.Data;
 
 namespace CommunityBikeSharing.Services
 {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
+using CommunityBikeSharing.Services.Data;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Reactive;
 

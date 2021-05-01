@@ -9,7 +9,7 @@ using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Reactive;
 
-namespace CommunityBikeSharing.Services
+namespace CommunityBikeSharing.Services.Data
 {
 	public class CommunityRepository : ICommunityRepository
 	{

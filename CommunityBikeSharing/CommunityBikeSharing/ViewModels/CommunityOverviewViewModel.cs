@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
+using CommunityBikeSharing.Services.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
 
