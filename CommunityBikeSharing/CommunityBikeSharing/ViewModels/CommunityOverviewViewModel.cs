@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
@@ -148,6 +149,16 @@ namespace CommunityBikeSharing.ViewModels
 
 			if (!confirmed)
 			{
+				return;
+			}
+
+			var allUsers = _membershipRepository.ObserveMembershipsFromCommunity(Community);
+
+			if (allUsers.Count(user => user.IsCommunityAdmin) <= 1)
+			{
+				await _dialogService.ShowError("Fehler",
+					"Der letzte Community-Admin kann die Community nicht verlassen. " +
+					"Ernennen Sie einen neuen Community-Admin oder löschen Sie die Community.");
 				return;
 			}
 
