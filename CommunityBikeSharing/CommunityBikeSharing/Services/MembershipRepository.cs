@@ -31,7 +31,7 @@ namespace CommunityBikeSharing.Services
 
 		public ObservableCollection<CommunityMembership> ObserveMembershipsFromCommunity(string communityId)
 		{
-			if(_cachedMemberships.TryGetValue(communityId, out var result))
+			if (_cachedMemberships.TryGetValue(communityId, out var result))
 			{
 				return result;
 			}
@@ -39,8 +39,8 @@ namespace CommunityBikeSharing.Services
 			result = new ObservableCollection<CommunityMembership>();
 			_cachedMemberships.Add(communityId, result);
 
-			Memberships.WhereEqualsTo(nameof(CommunityMembership.CommunityId), communityId)
-				.AsObservable().Subscribe(snapshot =>
+			Memberships.WhereEqualsTo(nameof(CommunityMembership.CommunityId), communityId).AsObservable().Subscribe(
+				snapshot =>
 				{
 					result.Clear();
 
@@ -57,22 +57,36 @@ namespace CommunityBikeSharing.Services
 		{
 			var result = new ObservableCollection<CommunityMembership>();
 
-			Memberships.WhereEqualsTo(nameof(CommunityMembership.UserId), userId)
-				.AsObservable().Subscribe(snapshot =>
-				{
-					result.Clear();
+			Memberships.WhereEqualsTo(nameof(CommunityMembership.UserId), userId).AsObservable().Subscribe(snapshot =>
+			{
+				result.Clear();
 
-					foreach (var membership in snapshot.ToObjects<CommunityMembership>())
-					{
-						result.Add(membership);
-					}
-				});
+				foreach (var membership in snapshot.ToObjects<CommunityMembership>())
+				{
+					result.Add(membership);
+				}
+			});
 
 			return result;
 		}
 
-		public Task Add(CommunityMembership membership)
-			=> Memberships.Document(membership.Id).SetAsync(membership);
+		public async Task<CommunityMembership> Add(CommunityMembership membership)
+		{
+			if (membership.Id == null)
+			{
+				return null;
+			}
+
+			var result = await Memberships.Document(membership.Id).GetAsync();
+
+			if (result.Exists)
+			{
+				return result.ToObject<CommunityMembership>();
+			}
+
+			await Memberships.Document(membership.Id).SetAsync(membership);
+			return membership;
+		}
 
 		public Task Update(CommunityMembership membership)
 			=> Memberships.Document(membership.Id).UpdateAsync(membership);

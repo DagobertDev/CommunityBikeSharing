@@ -30,7 +30,7 @@ namespace CommunityBikeSharing.Services.Data
 			return result.ToObject<User>();
 		}
 
-		public async Task<User> CreateUser(User user)
+		public async Task<User> Add(User user)
 		{
 			IDocumentReference userDocument;
 
@@ -47,5 +47,9 @@ namespace CommunityBikeSharing.Services.Data
 			var userSnapshot = await userDocument.GetAsync();
 			return userSnapshot.ToObject<User>();
 		}
+
+		public Task Update(User user) => Users.Document(user.Id).UpdateAsync(user);
+
+		public Task Delete(User user) => Users.Document(user.Id).DeleteAsync();
 	}
 }

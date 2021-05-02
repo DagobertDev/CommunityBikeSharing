@@ -24,7 +24,7 @@ namespace CommunityBikeSharing.Services
 		public async Task<User> RegisterUser(string email, string password)
 		{
 			var user = await _authService.Register(email, password);
-			return await _userRepository.CreateUser(user);
+			return await _userRepository.Add(user);
 		}
 	}
 }

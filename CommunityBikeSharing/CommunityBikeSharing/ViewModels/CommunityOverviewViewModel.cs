@@ -120,7 +120,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 
 			Name = name;
-			await _communityRepository.UpdateCommunity(Community);
+			await _communityRepository.Update(Community);
 		}
 
 		private bool CanRenameCommunity() => _membership.IsCommunityAdmin;
@@ -135,7 +135,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _communityRepository.DeleteCommunity(Community.Id);
+			await _communityRepository.Delete(Community.Id);
 			await _navigationService.NavigateBack();
 		}
 

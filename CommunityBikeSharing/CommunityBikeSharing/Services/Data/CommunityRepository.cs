@@ -117,9 +117,19 @@ namespace CommunityBikeSharing.Services.Data
 			return community;
 		}
 
-		public Task UpdateCommunity(Community community) => Communities.Document(community.Id).UpdateAsync(community);
+		public async Task<Community> Add(Community community)
+		{
+			var document = await Communities.AddAsync(community);
 
-		public async Task DeleteCommunity(string id)
+			var result = await document.GetAsync();
+
+			return result.ToObject<Community>();
+		}
+
+		public Task Update(Community community) => Communities.Document(community.Id).UpdateAsync(community);
+		public Task Delete(Community community) => Delete(community.Id);
+
+		public async Task Delete(string id)
 		{
 			var memberships = await CommunityUsers.WhereEqualsTo(nameof(CommunityMembership.CommunityId), id)
 				.GetAsync();
