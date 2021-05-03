@@ -25,6 +25,7 @@ namespace CommunityBikeSharing
 
 		private static void ConfigureServices(IServiceCollection services)
 		{
+			services.AddSingleton<IAuthService, FirebaseAuthService>();
 			services.AddSingleton<IBikeRepository, BikeRepository>();
 			services.AddSingleton<ICommunityRepository, CommunityRepository>();
 			services.AddSingleton<IDialogService, DialogService>();

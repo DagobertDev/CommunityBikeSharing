@@ -1,6 +1,4 @@
-﻿using CommunityBikeSharing.iOS.Services;
-using CommunityBikeSharing.Services;
-using Foundation;
+﻿using Foundation;
 using Microsoft.Extensions.DependencyInjection;
 using UIKit;
 
@@ -23,8 +21,6 @@ namespace CommunityBikeSharing.iOS
         {
             Xamarin.Forms.Forms.Init();
 
-            Firebase.Core.App.Configure();
-
             LoadApplication(Startup.Init(ConfigureServices));
 
             return base.FinishedLaunching(app, options);
@@ -32,7 +28,7 @@ namespace CommunityBikeSharing.iOS
 
         private void ConfigureServices(IServiceCollection services)
         {
-	        services.AddSingleton<IAuthService, FirebaseIOSAuthService>();
+	        Firebase.Core.App.Configure();
         }
     }
 }
