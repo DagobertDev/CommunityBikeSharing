@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
 
@@ -10,6 +9,7 @@ namespace CommunityBikeSharing.Services.Data
 		private readonly IFirestoreContext _firestore;
 
 		private ICollectionReference Users => _firestore.Users;
+		private ICollectionReference UserEmails => _firestore.Firestore.Collection("users_email");
 
 		public UserRepository(IFirestoreContext firestoreContext)
 		{
@@ -18,10 +18,18 @@ namespace CommunityBikeSharing.Services.Data
 
 		public async Task<User> GetUserByEmail(string email)
 		{
-			var result = await Users.WhereEqualsTo(nameof(User.Email), email).GetAsync();
+			var emailSnapshot = await UserEmails.Document(email).GetAsync();
 
-			var user = result.ToObjects<User>().FirstOrDefault();
-			return user;
+			var userEmail = emailSnapshot.ToObject<UserEmail>();
+
+			if (userEmail == null)
+			{
+				return null;
+			}
+
+			var result = await Users.Document(userEmail.UserId).GetAsync();
+
+			return result.ToObject<User>();
 		}
 
 		public async Task<User> GetUserById(string id)
@@ -32,17 +40,17 @@ namespace CommunityBikeSharing.Services.Data
 
 		public async Task<User> Add(User user)
 		{
-			IDocumentReference userDocument;
-
 			if (string.IsNullOrEmpty(user.Id))
 			{
-				userDocument = await Users.AddAsync(user);
+				return null;
 			}
-			else
-			{
-				userDocument = Users.Document(user.Id);
-				await userDocument.SetAsync(user);
-			}
+
+			var userDocument = Users.Document(user.Id);
+			await userDocument.SetAsync(user);
+
+			var userEmail = new UserEmail {UserId = user.Id};
+
+			await UserEmails.Document(user.Email).SetAsync(userEmail);
 
 			var userSnapshot = await userDocument.GetAsync();
 			return userSnapshot.ToObject<User>();
@@ -51,5 +59,10 @@ namespace CommunityBikeSharing.Services.Data
 		public Task Update(User user) => Users.Document(user.Id).UpdateAsync(user);
 
 		public Task Delete(User user) => Users.Document(user.Id).DeleteAsync();
+
+		private class UserEmail
+		{
+			public string UserId { get; set; }
+		}
 	}
 }
