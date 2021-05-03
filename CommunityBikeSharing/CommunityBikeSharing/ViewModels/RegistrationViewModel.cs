@@ -86,8 +86,6 @@ namespace CommunityBikeSharing.ViewModels
 			try
 			{
 				await _userService.RegisterUser(Email, Password);
-				await _authService.SignIn(Email, Password);
-
 				await _navigationService.NavigateToRoot<MainPageViewModel>();
 			}
 			catch (AuthError e)

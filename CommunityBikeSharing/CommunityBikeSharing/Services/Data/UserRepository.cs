@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
 
@@ -14,6 +15,28 @@ namespace CommunityBikeSharing.Services.Data
 		public UserRepository(IFirestoreContext firestoreContext)
 		{
 			_firestore = firestoreContext;
+		}
+
+		public async Task<User> Add(User user)
+		{
+			if (string.IsNullOrEmpty(user.Id) || string.IsNullOrEmpty(user.Email))
+			{
+				return null;
+			}
+
+			var userDocument = Users.Document(user.Id);
+
+			await _firestore.Firestore.RunTransactionAsync(transaction =>
+			{
+				transaction.Set(userDocument, user);
+
+				var userEmail = new UserEmail {UserId = user.Id};
+
+				transaction.Set(UserEmails.Document(user.Email), userEmail);
+			});
+
+			var userSnapshot = await userDocument.GetAsync();
+			return userSnapshot.ToObject<User>();
 		}
 
 		public async Task<User> GetUserByEmail(string email)
@@ -38,27 +61,9 @@ namespace CommunityBikeSharing.Services.Data
 			return result.ToObject<User>();
 		}
 
-		public async Task<User> Add(User user)
-		{
-			if (string.IsNullOrEmpty(user.Id))
-			{
-				return null;
-			}
+		public Task Update(User user) => throw new NotImplementedException();
 
-			var userDocument = Users.Document(user.Id);
-			await userDocument.SetAsync(user);
-
-			var userEmail = new UserEmail {UserId = user.Id};
-
-			await UserEmails.Document(user.Email).SetAsync(userEmail);
-
-			var userSnapshot = await userDocument.GetAsync();
-			return userSnapshot.ToObject<User>();
-		}
-
-		public Task Update(User user) => Users.Document(user.Id).UpdateAsync(user);
-
-		public Task Delete(User user) => Users.Document(user.Id).DeleteAsync();
+		public Task Delete(User user) => throw new NotImplementedException();
 
 		private class UserEmail
 		{
