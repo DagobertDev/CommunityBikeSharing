@@ -158,7 +158,8 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			var allUsers = _membershipRepository.ObserveMembershipsFromCommunity(Community);
+			var allUsers =
+				await _membershipRepository.GetMembershipsFromCommunity(_community.Id);
 
 			if (_membership.IsCommunityAdmin && allUsers.Count(user => user.IsCommunityAdmin) <= 1)
 			{

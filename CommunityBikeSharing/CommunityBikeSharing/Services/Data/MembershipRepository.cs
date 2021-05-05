@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
@@ -20,6 +22,14 @@ namespace CommunityBikeSharing.Services.Data
 		public IObservable<CommunityMembership> Get(Community community, User user)
 			=> Memberships.Document(CommunityMembership.GetId(community, user))
 				.AsObservable().Select(snapshot => snapshot.ToObject<CommunityMembership>());
+
+		public async Task<ICollection<CommunityMembership>> GetMembershipsFromCommunity(string community)
+		{
+			var doc =
+				await Memberships.WhereEqualsTo(nameof(CommunityMembership.CommunityId), community).GetAsync();
+
+			return doc.ToObjects<CommunityMembership>().ToList();
+		}
 
 		public ObservableCollection<CommunityMembership> ObserveMembershipsFromCommunity(string communityId)
 		{

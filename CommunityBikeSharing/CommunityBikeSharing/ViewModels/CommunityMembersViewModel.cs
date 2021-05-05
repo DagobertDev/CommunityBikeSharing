@@ -22,6 +22,8 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IUserRepository _userRepository;
 		private readonly IUserService _userService;
 
+		private User _currentUser;
+
 		private CommunityMembership CurrentUserMembership
 		{
 			get => _currentUserMembership;
@@ -85,15 +87,17 @@ namespace CommunityBikeSharing.ViewModels
 			_userRepository = userRepository;
 			_userService = userService;
 			_communityId = communityId;
-			_membersChanged = (sender, args) => OnPropertyChanged(nameof(SortedMembers));
+			_membersChanged = (sender, args) =>
+			{
+				OnPropertyChanged(nameof(SortedMembers));
+				CurrentUserMembership = Members?.SingleOrDefault(m => m.UserId == _currentUser.Id);
+			};
 		}
 
 		public override async Task InitializeAsync()
 		{
+			_currentUser = await _userService.GetCurrentUser();
 			Members = _membershipRepository.ObserveMembershipsFromCommunity(_communityId);
-
-			var user = await _userService.GetCurrentUser();
-			CurrentUserMembership = Members.Single(m => m.UserId == user.Id);
 		}
 
 		public ICommand AddMemberCommand => new Command(AddMember);
@@ -125,6 +129,14 @@ namespace CommunityBikeSharing.ViewModels
 
 				return;
 			}
+
+			if (Members.Select(membership => membership.UserId).Contains(user.Id))
+			{
+				await _dialogService.ShowError("Benutzer bereits Mitglied",
+					$"Der Benutzer \"{email}\" ist bereits Mitglied der Community.");
+				return;
+			}
+
 			await _membershipRepository.Add(new CommunityMembership
 			{
 				Name = user.Username,
