@@ -122,16 +122,16 @@ namespace CommunityBikeSharing.ViewModels
 				{
 					SendInvitationMail(email);
 				}
+
+				return;
 			}
-			else
+			await _membershipRepository.Add(new CommunityMembership
 			{
-				await _membershipRepository.Add(new CommunityMembership
-				{
-					Name = user.Username,
-					CommunityId = _communityId,
-					UserId = user.Id
-				});
-			}
+				Name = user.Username,
+				CommunityId = _communityId,
+				UserId = user.Id,
+				Role = CommunityRole.User
+			});
 		}
 
 		public ICommand PromoteCommunityAdminCommand => new Command<CommunityMembership>(

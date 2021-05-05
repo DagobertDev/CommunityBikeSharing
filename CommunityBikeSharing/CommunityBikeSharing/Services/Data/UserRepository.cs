@@ -35,8 +35,7 @@ namespace CommunityBikeSharing.Services.Data
 				transaction.Set(UserEmails.Document(user.Email), userEmail);
 			});
 
-			var userSnapshot = await userDocument.GetAsync();
-			return userSnapshot.ToObject<User>();
+			return user;
 		}
 
 		public async Task<User> GetUserByEmail(string email)

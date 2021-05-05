@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
@@ -15,7 +16,6 @@ namespace CommunityBikeSharing.Services.Data
 	{
 		private readonly IUserService _userService;
 		private readonly IFirestoreContext _firestore;
-		private readonly IMembershipRepository _membershipRepository;
 
 		private ObservableCollection<Community> _userCommunities;
 
@@ -28,12 +28,10 @@ namespace CommunityBikeSharing.Services.Data
 
 		public CommunityRepository(
 			IUserService userService,
-			IFirestoreContext firestoreContext,
-			IMembershipRepository membershipRepository)
+			IFirestoreContext firestoreContext)
 		{
 			_userService = userService;
 			_firestore = firestoreContext;
-			_membershipRepository = membershipRepository;
 		}
 
 		public Task<ObservableCollection<Community>> GetCommunities(ObservableCollection<CommunityMembership> memberships)
@@ -51,7 +49,8 @@ namespace CommunityBikeSharing.Services.Data
 						var observableCommunity = GetObservableCommunity(membership.CommunityId);
 
 						observableCommunity.Subscribe(
-							community => OnCommunityChanged(community, membership.CommunityId));
+							community => OnCommunityChanged(community, membership.CommunityId),
+							exception => {OnCommunityChanged(null, membership.CommunityId);});
 					}
 				};
 			}
@@ -93,28 +92,32 @@ namespace CommunityBikeSharing.Services.Data
 		}
 
 
-		public async Task<Community> GetCommunity(string id)
-		{
-			var result = await Communities.Document(id).GetAsync();
-			return result.ToObject<Community>();
-		}
+		public IObservable<Community> GetCommunity(string id)
+			=> Communities.Document(id).AsObservable().Select(snap => snap.ToObject<Community>());
 
 		public async Task<Community> CreateCommunity(string name)
 		{
-			var result = await Communities.AddAsync(new Community
+			var user = await _userService.GetCurrentUser();
+
+			var document = Communities.Document();
+
+			var community = new Community {Name = name};
+			var membership = new CommunityMembership
 			{
-				Name = name
+				Name = user.Username,
+				Role = CommunityRole.CommunityAdmin,
+				CommunityId = document.Id,
+				UserId = user.Id
+			};
+
+			await _firestore.Firestore.RunTransactionAsync(transaction =>
+			{
+				transaction.Set(document, community);
+				transaction.Set(CommunityUsers.Document(membership.Id), membership);
 			});
 
-			var community = (await result.GetAsync()).ToObject<Community>();
-
-			if (community == null)
-			{
-				return null;
-			}
-
-			await AddUserToCommunity(await _userService.GetCurrentUser(), community.Id, CommunityRole.CommunityAdmin);
-			return community;
+			var result = await document.GetAsync();
+			return result.ToObject<Community>();
 		}
 
 		public async Task<Community> Add(Community community)
@@ -150,16 +153,6 @@ namespace CommunityBikeSharing.Services.Data
 					transaction.Delete(document.Reference);
 				}
 			});
-		}
-
-		public Task AddUserToCommunity(User user, string communityId, CommunityRole role = CommunityRole.User)
-		{
-			var membership = new CommunityMembership
-			{
-				Name = user.Username, Role = role, CommunityId = communityId, UserId = user.Id
-			};
-
-			return _membershipRepository.Add(membership);
 		}
 	}
 }

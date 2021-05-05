@@ -37,6 +37,10 @@ namespace CommunityBikeSharing.Services.Data
 						bike.CommunityId = communityId;
 						result.Add(bike);
 					}
+				},
+				exception =>
+				{
+					result.Clear();
 				});
 
 			return result;

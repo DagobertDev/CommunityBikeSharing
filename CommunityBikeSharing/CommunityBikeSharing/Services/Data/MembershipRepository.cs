@@ -1,43 +1,29 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
-using CommunityBikeSharing.Services.Data;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Reactive;
 
-namespace CommunityBikeSharing.Services
+namespace CommunityBikeSharing.Services.Data
 {
 	public class MembershipRepository : IMembershipRepository
 	{
 		private readonly IFirestoreContext _firestore;
 		private ICollectionReference Memberships => _firestore.CommunityUsers;
-
-		private readonly IDictionary<string, ObservableCollection<CommunityMembership>> _cachedMemberships =
-			new ConcurrentDictionary<string, ObservableCollection<CommunityMembership>>();
-
 		public MembershipRepository(IFirestoreContext firestoreContext)
 		{
 			_firestore = firestoreContext;
 		}
 
-		public async Task<CommunityMembership> Get(Community community, User user)
-		{
-			var snapshot = await Memberships.Document(CommunityMembership.GetId(community, user)).GetAsync();
-			return snapshot.ToObject<CommunityMembership>();
-		}
+		public IObservable<CommunityMembership> Get(Community community, User user)
+			=> Memberships.Document(CommunityMembership.GetId(community, user))
+				.AsObservable().Select(snapshot => snapshot.ToObject<CommunityMembership>());
 
 		public ObservableCollection<CommunityMembership> ObserveMembershipsFromCommunity(string communityId)
 		{
-			if (_cachedMemberships.TryGetValue(communityId, out var result))
-			{
-				return result;
-			}
-
-			result = new ObservableCollection<CommunityMembership>();
-			_cachedMemberships.Add(communityId, result);
+			var result = new ObservableCollection<CommunityMembership>();
 
 			Memberships.WhereEqualsTo(nameof(CommunityMembership.CommunityId), communityId).AsObservable().Subscribe(
 				snapshot =>
@@ -48,6 +34,10 @@ namespace CommunityBikeSharing.Services
 					{
 						result.Add(membership);
 					}
+				},
+				exception =>
+				{
+					result.Clear();
 				});
 
 			return result;
@@ -65,6 +55,10 @@ namespace CommunityBikeSharing.Services
 				{
 					result.Add(membership);
 				}
+			},
+				exception =>
+			{
+				result.Clear();
 			});
 
 			return result;

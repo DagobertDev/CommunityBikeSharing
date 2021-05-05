@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
@@ -89,11 +90,16 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override async Task InitializeAsync()
 		{
-			Community = await _communityRepository.GetCommunity(_id);
+			_communityRepository.GetCommunity(_id).Subscribe(
+				community => Community = community,
+				exception => _navigationService.NavigateBack()
+				);
 
 			var user = await _userService.GetCurrentUser();
 
-			_membership = await _membershipRepository.Get(Community, user);
+			_membershipRepository.Get(Community, user).Subscribe(
+				membership => _membership = membership,
+				exception => _navigationService.NavigateBack());
 		}
 
 		public ICommand OpenSettingsCommand => new Command(OpenSettings);
@@ -154,7 +160,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			var allUsers = _membershipRepository.ObserveMembershipsFromCommunity(Community);
 
-			if (allUsers.Count(user => user.IsCommunityAdmin) <= 1)
+			if (_membership.IsCommunityAdmin && allUsers.Count(user => user.IsCommunityAdmin) <= 1)
 			{
 				await _dialogService.ShowError("Fehler",
 					"Der letzte Community-Admin kann die Community nicht verlassen. " +
