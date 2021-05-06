@@ -17,22 +17,22 @@ namespace CommunityBikeSharing.Services.Data
 			_firestore = firestoreContext;
 		}
 
-		public async Task<User> Add(User user)
+		public Task<User> Add(User user) => throw new NotImplementedException();
+
+		public async Task<User> Add(User user, string email)
 		{
-			if (string.IsNullOrEmpty(user.Id) || string.IsNullOrEmpty(user.Email))
+			if (string.IsNullOrEmpty(user.Id) || string.IsNullOrEmpty(email))
 			{
 				return null;
 			}
 
-			var userDocument = Users.Document(user.Id);
-
 			await _firestore.Firestore.RunTransactionAsync(transaction =>
 			{
-				transaction.Set(userDocument, user);
+				transaction.Set(Users.Document(user.Id), user);
 
 				var userEmail = new UserEmail {UserId = user.Id};
 
-				transaction.Set(UserEmails.Document(user.Email), userEmail);
+				transaction.Set(UserEmails.Document(email), userEmail);
 			});
 
 			return user;

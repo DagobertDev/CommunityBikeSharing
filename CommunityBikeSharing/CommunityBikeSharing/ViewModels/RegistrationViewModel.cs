@@ -11,7 +11,6 @@ namespace CommunityBikeSharing.ViewModels
 	{
 		private readonly IAuthService _authService;
 		private readonly IDialogService _dialogService;
-		private readonly IUserService _userService;
 		private readonly INavigationService _navigationService;
 
 		private readonly IReadOnlyDictionary<AuthError.AuthErrorReason, string> _errorMessages =
@@ -31,12 +30,12 @@ namespace CommunityBikeSharing.ViewModels
 
 		private string _repeatedPassword;
 
-		public RegistrationViewModel(IAuthService authService, IDialogService dialogService, IUserService userService,
+		public RegistrationViewModel(IAuthService authService,
+			IDialogService dialogService,
 			INavigationService navigationService)
 		{
 			_authService = authService;
 			_dialogService = dialogService;
-			_userService = userService;
 			_navigationService = navigationService;
 		}
 
@@ -85,7 +84,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			try
 			{
-				await _userService.RegisterUser(Email, Password);
+				await _authService.Register(Email, Password);
 				await _navigationService.NavigateToRoot<MainPageViewModel>();
 			}
 			catch (AuthError e)

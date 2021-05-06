@@ -20,11 +20,5 @@ namespace CommunityBikeSharing.Services
 			var id = _authService.GetCurrentUserId();
 			return _userRepository.GetUserById(id);
 		}
-
-		public async Task<User> RegisterUser(string email, string password)
-		{
-			var user = await _authService.Register(email, password);
-			return await _userRepository.Add(user);
-		}
 	}
 }

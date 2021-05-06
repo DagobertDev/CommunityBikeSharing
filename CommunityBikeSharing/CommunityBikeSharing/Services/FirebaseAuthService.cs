@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
+using CommunityBikeSharing.Services.Data;
 using Plugin.FirebaseAuth;
 
 namespace CommunityBikeSharing.Services
@@ -7,6 +8,12 @@ namespace CommunityBikeSharing.Services
 	public class FirebaseAuthService : IAuthService
 	{
 		private readonly IAuth _auth = CrossFirebaseAuth.Current.Instance;
+		private readonly IUserRepository _userRepository;
+
+		public FirebaseAuthService(IUserRepository userRepository)
+		{
+			_userRepository = userRepository;
+		}
 
 		public async Task<User> Register(string email, string password)
 		{
@@ -49,12 +56,11 @@ namespace CommunityBikeSharing.Services
 
 			await user.GetIdTokenAsync(true);
 
-			return new User
+			return await _userRepository.Add(new User
 			{
-				Email = user.Email,
 				Id = user.Uid,
-				Username = user.DisplayName
-			};
+				Username = email
+			}, email);
 		}
 
 		public async Task SignIn(string email, string password)
