@@ -20,7 +20,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly IDialogService _dialogService;
 		private readonly IUserRepository _userRepository;
-		private readonly IUserService _userService;
+		private readonly IAuthService _authService;
 
 		private User _currentUser;
 
@@ -79,13 +79,13 @@ namespace CommunityBikeSharing.ViewModels
 			IMembershipRepository membershipRepository,
 			IDialogService dialogService,
 			IUserRepository userRepository,
-			IUserService userService,
+			IAuthService authService,
 			string communityId)
 		{
 			_membershipRepository = membershipRepository;
 			_dialogService = dialogService;
 			_userRepository = userRepository;
-			_userService = userService;
+			_authService = authService;
 			_communityId = communityId;
 			_membersChanged = (sender, args) =>
 			{
@@ -96,7 +96,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override async Task InitializeAsync()
 		{
-			_currentUser = await _userService.GetCurrentUser();
+			_authService.ObserveCurrentUser().Subscribe(user => _currentUser = user);
 			Members = _membershipRepository.ObserveMembershipsFromCommunity(_communityId);
 		}
 

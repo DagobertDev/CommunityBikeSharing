@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -15,19 +16,19 @@ namespace CommunityBikeSharing.ViewModels
 	{
 		private readonly IDialogService _dialogService;
 		private readonly IBikeRepository _bikeRepository;
-		private readonly IUserService _userService;
+		private readonly IAuthService _authService;
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly string _communityId;
 
 		public CommunityBikesViewModel(IDialogService dialogService,
 			IBikeRepository bikeRepository,
-			IUserService userService,
+			IAuthService authService,
 			IMembershipRepository membershipRepository,
 			string id)
 		{
 			_dialogService = dialogService;
 			_bikeRepository = bikeRepository;
-			_userService = userService;
+			_authService = authService;
 			_membershipRepository = membershipRepository;
 
 			_communityId = id;
@@ -86,10 +87,8 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			Bikes = _bikeRepository.ObserveBikesFromCommunity(_communityId);
 
-			var members = _membershipRepository.ObserveMembershipsFromCommunity(_communityId);
-
-			var user = await _userService.GetCurrentUser();
-			CurrentUserMembership = members.Single(m => m.UserId == user.Id);
+			var user = _authService.GetCurrentUser();
+			_membershipRepository.Observe(_communityId, user).Subscribe(membership => CurrentUserMembership = membership);
 		}
 
 		public ICommand EditBikeCommand => new Command<Bike>(EditBike);

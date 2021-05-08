@@ -17,7 +17,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
-		private readonly IUserService _userService;
+		private readonly IAuthService _authService;
 
 		private Community _community;
 		private CommunityMembership _membership;
@@ -71,7 +71,7 @@ namespace CommunityBikeSharing.ViewModels
 			IMembershipRepository membershipRepository,
 			IDialogService dialogService,
 			INavigationService navigationService,
-			IUserService userService,
+			IAuthService authService,
 			string id)
 		{
 			_id = id;
@@ -79,7 +79,7 @@ namespace CommunityBikeSharing.ViewModels
 			_membershipRepository = membershipRepository;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
-			_userService = userService;
+			_authService = authService;
 
 			CommunityMembersViewModel =
 				ActivatorUtilities.CreateInstance<CommunityMembersViewModel>(Startup.ServiceProvider, _id);
@@ -90,14 +90,13 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override async Task InitializeAsync()
 		{
-			_communityRepository.GetCommunity(_id).Subscribe(
+			_communityRepository.Observe(_id).Subscribe(
 				community => Community = community,
-				exception => _navigationService.NavigateBack()
-				);
+				exception => _navigationService.NavigateBack());
 
-			var user = await _userService.GetCurrentUser();
+			var user = _authService.GetCurrentUser();
 
-			_membershipRepository.Get(Community, user).Subscribe(
+			_membershipRepository.Observe(_id, user).Subscribe(
 				membership => _membership = membership,
 				exception => _navigationService.NavigateBack());
 		}

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 
 namespace CommunityBikeSharing.Services
@@ -10,6 +11,8 @@ namespace CommunityBikeSharing.Services
 		Task SignOut();
 		Task ResetPassword(string email);
 		string GetCurrentUserId();
+		IObservable<User> ObserveCurrentUser();
+		User GetCurrentUser();
 		bool SignedIn { get; }
 	}
 }

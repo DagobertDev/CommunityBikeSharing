@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
@@ -14,7 +13,6 @@ namespace CommunityBikeSharing.Services.Data
 {
 	public class CommunityRepository : ICommunityRepository
 	{
-		private readonly IUserService _userService;
 		private readonly IFirestoreContext _firestore;
 
 		private ObservableCollection<Community> _userCommunities;
@@ -27,10 +25,8 @@ namespace CommunityBikeSharing.Services.Data
 		private ICollectionReference Communities => _firestore.Communities;
 
 		public CommunityRepository(
-			IUserService userService,
 			IFirestoreContext firestoreContext)
 		{
-			_userService = userService;
 			_firestore = firestoreContext;
 		}
 
@@ -92,22 +88,20 @@ namespace CommunityBikeSharing.Services.Data
 		}
 
 
-		public IObservable<Community> GetCommunity(string id)
+		public IObservable<Community> Observe(string id)
 			=> Communities.Document(id).AsObservable().Select(snap => snap.ToObject<Community>());
 
-		public async Task<Community> CreateCommunity(string name)
+		public async Task<Community> Create(string name, User creator)
 		{
-			var user = await _userService.GetCurrentUser();
-
 			var document = Communities.Document();
 
 			var community = new Community {Name = name};
 			var membership = new CommunityMembership
 			{
-				Name = user.Username,
+				Name = creator.Username,
 				Role = CommunityRole.CommunityAdmin,
 				CommunityId = document.Id,
-				UserId = user.Id
+				UserId = creator.Id
 			};
 
 			await _firestore.Firestore.RunTransactionAsync(transaction =>

@@ -11,6 +11,7 @@ namespace CommunityBikeSharing.ViewModels
 	public class CommunitiesViewModel : BaseViewModel
 	{
 		private ObservableCollection<Community> _communities;
+		private User _user;
 
 		public ObservableCollection<Community> Communities
 		{
@@ -26,20 +27,20 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
 		private readonly IMembershipRepository _membershipRepository;
-		private readonly IUserService _userService;
+		private readonly IAuthService _authService;
 
 		public CommunitiesViewModel(
 			ICommunityRepository communityRepository,
 			IDialogService dialogService,
 			INavigationService navigationService,
 			IMembershipRepository membershipRepository,
-			IUserService userService)
+			IAuthService authService)
 		{
 			_communityRepository = communityRepository;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
 			_membershipRepository = membershipRepository;
-			_userService = userService;
+			_authService = authService;
 		}
 
 		public ICommand AddCommunityCommand => new Command(AddCommunity);
@@ -54,7 +55,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			var community = await _communityRepository.CreateCommunity(name);
+			var community = await _communityRepository.Create(name, _user);
 			OpenCommunityDetail(community);
 		}
 
@@ -67,8 +68,8 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override async Task InitializeAsync()
 		{
-			var user = await _userService.GetCurrentUser();
-			var memberships = _membershipRepository.ObserveMembershipsFromUser(user.Id);
+			_user = _authService.GetCurrentUser();
+			var memberships = _membershipRepository.ObserveMembershipsFromUser(_user.Id);
 			Communities = await _communityRepository.GetCommunities(memberships);
 		}
 	}

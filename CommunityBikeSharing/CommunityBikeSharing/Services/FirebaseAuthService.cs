@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data;
 using Plugin.FirebaseAuth;
@@ -9,6 +12,7 @@ namespace CommunityBikeSharing.Services
 	{
 		private readonly IAuth _auth = CrossFirebaseAuth.Current.Instance;
 		private readonly IUserRepository _userRepository;
+		private IObservable<User> _user;
 
 		public FirebaseAuthService(IUserRepository userRepository)
 		{
@@ -119,6 +123,37 @@ namespace CommunityBikeSharing.Services
 		}
 
 		public string GetCurrentUserId() => _auth.CurrentUser?.Uid;
+
+		public IObservable<User> ObserveCurrentUser()
+		{
+			if (_user == null)
+			{
+				var user = new Subject<User>();
+
+				_auth.AuthState += (sender, args) =>
+				{
+					user.OnNext(GetCurrentUser());
+				};
+
+				_user = user;
+			}
+
+			return _user.StartWith(GetCurrentUser());
+		}
+
+		public User GetCurrentUser()
+		{
+			if (_auth.CurrentUser == null)
+			{
+				return null;
+			}
+
+			return new User
+			{
+				Id = _auth.CurrentUser.Uid,
+				Username = _auth.CurrentUser.DisplayName
+			};
+		}
 
 		public bool SignedIn => _auth.CurrentUser != null;
 	}

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Services;
 using Xamarin.Forms;
@@ -7,15 +8,13 @@ namespace CommunityBikeSharing.ViewModels
 {
 	public class ProfileViewModel : BaseViewModel
 	{
-		private readonly IUserService _userService;
 		private readonly IAuthService _authService;
 		private readonly INavigationService _navigationService;
 
 		private string _welcomeMessage;
 
-		public ProfileViewModel(IUserService userService, INavigationService navigationService, IAuthService authService)
+		public ProfileViewModel(INavigationService navigationService, IAuthService authService)
 		{
-			_userService = userService;
 			_navigationService = navigationService;
 			_authService = authService;
 		}
@@ -29,10 +28,10 @@ namespace CommunityBikeSharing.ViewModels
 				OnPropertyChanged();
 			}
 		}
-		public override async Task InitializeAsync()
+		public override Task InitializeAsync()
 		{
-			var user = await _userService.GetCurrentUser();
-			WelcomeMessage = $"Benutzername: {user.Username}";
+			_authService.ObserveCurrentUser().Subscribe(user => WelcomeMessage = $"Benutzername: {user?.Username}");
+			return Task.CompletedTask;
 		}
 
 		public ICommand SignOutCommand => new Command(SignOut);

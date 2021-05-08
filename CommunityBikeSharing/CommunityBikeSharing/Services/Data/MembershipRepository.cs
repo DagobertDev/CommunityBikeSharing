@@ -19,8 +19,8 @@ namespace CommunityBikeSharing.Services.Data
 			_firestore = firestoreContext;
 		}
 
-		public IObservable<CommunityMembership> Get(Community community, User user)
-			=> Memberships.Document(CommunityMembership.GetId(community, user))
+		public IObservable<CommunityMembership> Observe(string community, User user)
+			=> Memberships.Document(CommunityMembership.GetId(community, user.Id))
 				.AsObservable().Select(snapshot => snapshot.ToObject<CommunityMembership>());
 
 		public async Task<ICollection<CommunityMembership>> GetMembershipsFromCommunity(string community)

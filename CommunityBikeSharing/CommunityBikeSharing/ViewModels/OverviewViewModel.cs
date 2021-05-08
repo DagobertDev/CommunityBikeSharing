@@ -5,33 +5,43 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using CommunityBikeSharing.Services.Data;
 
 namespace CommunityBikeSharing.ViewModels
 {
 	public class OverviewViewModel : BaseViewModel
 	{
-		private string _userId;
-		private readonly IBikeRepository _bikeRepository;
-		private readonly IMembershipRepository _membershipRepository;
-		private readonly IAuthService _authService;
+		private readonly IBikeService _bikeService;
 
 		private readonly NotifyCollectionChangedEventHandler _bikesChanged;
 
-		private readonly IDictionary<string, ObservableCollection<Bike>> _allBikes =
-			new Dictionary<string, ObservableCollection<Bike>>();
+		private ObservableCollection<Bike> _allBikes;
+		public ObservableCollection<Bike> AllBikes
+		{
+			get => _allBikes;
+			set
+			{
+				if (_allBikes != null)
+				{
+					_allBikes.CollectionChanged -= _bikesChanged;
+				}
 
-		public IEnumerable<Bike> BikesSorted => _allBikes.Values
-			.SelectMany(bikes => bikes)
+				if (value != null)
+				{
+					value.CollectionChanged += _bikesChanged;
+				}
+
+				_allBikes = value;
+				OnPropertyChanged();
+				_bikesChanged.Invoke(null, null);
+			}
+		}
+
+		public IEnumerable<Bike> BikesSorted => AllBikes?
 			.OrderBy(bike => bike.Name);
 
-		public OverviewViewModel(IBikeRepository bikeRepository,
-			IMembershipRepository membershipRepository,
-			IAuthService authService)
+		public OverviewViewModel(IBikeService bikeService)
 		{
-			_bikeRepository = bikeRepository;
-			_membershipRepository = membershipRepository;
-			_authService = authService;
+			_bikeService = bikeService;
 
 			_bikesChanged = (sender, args) =>
 			{
@@ -43,42 +53,12 @@ namespace CommunityBikeSharing.ViewModels
 		public string Heading => "Verfügbare Fahrräder:";
 		public string Summary => "Zurzeit sind keine Fahrräder verfügbar. " +
 		                         "Treten Sie einer Community bei, um Fahrräder auszuleihen.";
-		public bool SummaryVisible => !BikesSorted.Any();
+
+		public bool SummaryVisible => AllBikes?.Count == 0;
 
 		public override Task InitializeAsync()
 		{
-			var newUserId = _authService.GetCurrentUserId();
-
-			if (_userId == newUserId)
-			{
-				return Task.CompletedTask;
-			}
-
-			_userId = newUserId;
-
-			var communities = _membershipRepository.ObserveMembershipsFromUser(_userId);
-
-			communities.CollectionChanged += (sender, args) =>
-			{
-				foreach (var bike in _allBikes)
-				{
-					bike.Value.CollectionChanged -= _bikesChanged;
-				}
-
-				_allBikes.Clear();
-
-				foreach (var membership in communities)
-				{
-					var communityBikes =
-						_bikeRepository.ObserveBikesFromCommunity(membership.CommunityId);
-
-					communityBikes.CollectionChanged += _bikesChanged;
-					_allBikes[membership.Id] = communityBikes;
-				}
-
-				OnPropertyChanged(nameof(BikesSorted));
-				OnPropertyChanged(nameof(SummaryVisible));
-			};
+			AllBikes = _bikeService.GetAvailableBikes();
 
 			return Task.CompletedTask;
 		}

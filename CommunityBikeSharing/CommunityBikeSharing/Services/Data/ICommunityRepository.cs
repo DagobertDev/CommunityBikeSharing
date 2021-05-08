@@ -7,10 +7,9 @@ namespace CommunityBikeSharing.Services.Data
 {
 	public interface ICommunityRepository : IRepository<Community>
 	{
-		Task<Community> CreateCommunity(string name);
-		IObservable<Community> GetCommunity(string id);
+		Task<Community> Create(string name, User creator);
+		IObservable<Community> Observe(string id);
 		Task Delete(string id);
 		Task<ObservableCollection<Community>> GetCommunities(ObservableCollection<CommunityMembership> memberships);
-		IObservable<Community> GetObservableCommunity(string id);
 	}
 }

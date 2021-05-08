@@ -27,13 +27,13 @@ namespace CommunityBikeSharing
 		{
 			services.AddSingleton<IAuthService, FirebaseAuthService>();
 			services.AddSingleton<IBikeRepository, BikeRepository>();
+			services.AddSingleton<IBikeService, BikeService>();
 			services.AddSingleton<ICommunityRepository, CommunityRepository>();
 			services.AddSingleton<IDialogService, DialogService>();
 			services.AddSingleton<IFirestoreContext, FirestoreContext>();
 			services.AddSingleton<IMembershipRepository, MembershipRepository>();
 			services.AddSingleton<INavigationService, NavigationService>();
 			services.AddSingleton<IUserRepository, UserRepository>();
-			services.AddSingleton<IUserService, UserService>();
 
 			services.AddTransient<CommunitiesViewModel>();
 			services.AddTransient<CommunityBikesViewModel>();
