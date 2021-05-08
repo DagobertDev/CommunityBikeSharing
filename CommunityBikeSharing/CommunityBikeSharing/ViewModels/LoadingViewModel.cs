@@ -18,7 +18,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			if (_authService.SignedIn)
 			{
-				await _navigationService.NavigateToRoot<MainPageViewModel>();
+				await _navigationService.NavigateToRoot<OverviewViewModel>();
 			}
 			else
 			{

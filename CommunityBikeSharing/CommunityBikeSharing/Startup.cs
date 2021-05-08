@@ -41,7 +41,8 @@ namespace CommunityBikeSharing
 			services.AddTransient<CommunityOverviewPage>();
 			services.AddTransient<LoadingViewModel>();
 			services.AddTransient<LoginViewModel>();
-			services.AddTransient<MainPageViewModel>();
+			services.AddTransient<OverviewViewModel>();
+			services.AddTransient<ProfileViewModel>();
 			services.AddTransient<RegistrationViewModel>();
 
 			services.AddSingleton<App>();

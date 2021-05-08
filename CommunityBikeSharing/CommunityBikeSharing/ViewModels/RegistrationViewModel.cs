@@ -85,7 +85,7 @@ namespace CommunityBikeSharing.ViewModels
 			try
 			{
 				await _authService.Register(Email, Password);
-				await _navigationService.NavigateToRoot<MainPageViewModel>();
+				await _navigationService.NavigateToRoot<OverviewViewModel>();
 			}
 			catch (AuthError e)
 			{

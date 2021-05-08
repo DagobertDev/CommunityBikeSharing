@@ -5,7 +5,7 @@ using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
-	public class MainPageViewModel : BaseViewModel
+	public class ProfileViewModel : BaseViewModel
 	{
 		private readonly IUserService _userService;
 		private readonly IAuthService _authService;
@@ -13,7 +13,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		private string _welcomeMessage;
 
-		public MainPageViewModel(IUserService userService, INavigationService navigationService, IAuthService authService)
+		public ProfileViewModel(IUserService userService, INavigationService navigationService, IAuthService authService)
 		{
 			_userService = userService;
 			_navigationService = navigationService;
@@ -32,7 +32,7 @@ namespace CommunityBikeSharing.ViewModels
 		public override async Task InitializeAsync()
 		{
 			var user = await _userService.GetCurrentUser();
-			WelcomeMessage = $"Hallo {user.Username}.";
+			WelcomeMessage = $"Benutzername: {user.Username}";
 		}
 
 		public ICommand SignOutCommand => new Command(SignOut);

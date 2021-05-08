@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:CommunityBikeSharing.Models;assembly=CommunityBikeSharing"
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             x:Class="CommunityBikeSharing.Views.OverviewPage"
+             x:DataType="viewModels:OverviewViewModel"
+             Title="Übersicht">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="{Binding Heading}"
+                   FontSize="16"
+                   Margin="30, 20"/>
+            <Label Text="{Binding Summary}"
+                   IsVisible="{Binding SummaryVisible}"
+                   Margin="30, 0"/>
+            <ListView ItemsSource="{Binding BikesSorted}"
+                      SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell x:DataType="models:Bike">
+                            <StackLayout Margin="30 ,10" Orientation="Horizontal">
+                                <Label Text="{Binding Name}"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

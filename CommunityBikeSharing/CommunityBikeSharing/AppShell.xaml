@@ -10,12 +10,15 @@
     </ShellItem>
 
     <TabBar>
-        <ShellContent x:Name="MainPage"
+        <ShellContent x:Name="OverviewPage"
                       Title="Übersicht"
-                      ContentTemplate="{DataTemplate views:MainPage}">
+                      ContentTemplate="{DataTemplate views:OverviewPage}">
         </ShellContent>
         <ShellContent Title="Communities"
                       ContentTemplate="{DataTemplate views:CommunitiesPage}">
+        </ShellContent>
+        <ShellContent Title="Profil"
+                      ContentTemplate="{DataTemplate views:ProfilePage}">
         </ShellContent>
     </TabBar>
 
