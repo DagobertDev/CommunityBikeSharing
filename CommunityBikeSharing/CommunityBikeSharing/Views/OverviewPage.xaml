@@ -16,17 +16,40 @@
                    IsVisible="{Binding SummaryVisible}"
                    Margin="30, 0"/>
             <ListView ItemsSource="{Binding BikesSorted}"
-                      SelectionMode="None">
+                      SelectedItem="{Binding SelectedBike}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell x:DataType="models:Bike">
                             <StackLayout Margin="30 ,10" Orientation="Horizontal">
                                 <Label Text="{Binding Name}"/>
+                                <Label Text="Ausgeliehen"
+                                       IsVisible="{Binding InUse}"
+                                       HorizontalOptions="EndAndExpand" TextColor="DarkRed"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+
+            <Frame IsVisible="{Binding HasSelectedBike}"
+                   Padding="20">
+                <StackLayout>
+                    <Label
+                        Text="{Binding SelectedBikeName}"
+                        FontAttributes="Bold"/>
+                    <Button Text="Fahrrad ausleihen"
+                            Command="{Binding LendBikeCommand}"
+                            CommandParameter="{Binding SelectedBike}"
+                            IsVisible="{Binding CanLendBike}"/>
+                    <Button Text="Fahrrad zurückgeben"
+                            Command="{Binding ReturnBikeCommand}"
+                            CommandParameter="{Binding SelectedBike}"
+                            IsVisible="{Binding CanReturnBike}"/>
+                    <Button Text="Fahrrad reservieren"
+                            IsVisible="{Binding CanReserveBike}"/>
+                    <Button Text="Problem melden"/>
+                </StackLayout>
+            </Frame>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

@@ -1,4 +1,5 @@
-﻿using Plugin.CloudFirestore.Attributes;
+﻿#nullable enable
+using Plugin.CloudFirestore.Attributes;
 
 namespace CommunityBikeSharing.Models
 {
@@ -9,5 +10,8 @@ namespace CommunityBikeSharing.Models
 		[Ignored]
 		public string CommunityId { get; set; }
 		public string Name { get; set; }
+		public string? CurrentUser { get; set; }
+		[Ignored]
+		public bool InUse => CurrentUser != null;
 	}
 }

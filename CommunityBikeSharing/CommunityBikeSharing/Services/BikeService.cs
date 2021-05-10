@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data;
 
@@ -34,7 +35,9 @@ namespace CommunityBikeSharing.Services
 			{
 				_bikes.Clear();
 
-				foreach (var bike in _allBikes.Values.SelectMany(bikes => bikes))
+				foreach (var bike in _allBikes.Values
+					.SelectMany(bikes => bikes)
+					.Where(bike => bike.CurrentUser == null || bike.CurrentUser == _userId))
 				{
 					_bikes.Add(bike);
 				}
@@ -74,6 +77,18 @@ namespace CommunityBikeSharing.Services
 			};
 
 			return _bikes;
+		}
+
+		public Task LendBike(Bike bike)
+		{
+			bike.CurrentUser = _userId;
+			return _bikeRepository.Update(bike);
+		}
+
+		public Task ReturnBike(Bike bike)
+		{
+			bike.CurrentUser = null;
+			return _bikeRepository.Update(bike);
 		}
 	}
 }

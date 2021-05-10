@@ -17,6 +17,9 @@
                         <ViewCell x:DataType="models:Bike">
                             <StackLayout Margin="30 ,10" Orientation="Horizontal">
                                 <Label Text="{Binding Name}"/>
+                                <Label Text="Ausgeliehen"
+                                       IsVisible="{Binding InUse}"
+                                       HorizontalOptions="EndAndExpand" TextColor="DarkRed"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>
