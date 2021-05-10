@@ -1,5 +1,7 @@
 ﻿#nullable enable
+using CommunityBikeSharing.Services.Data;
 using Plugin.CloudFirestore.Attributes;
+using Xamarin.Essentials;
 
 namespace CommunityBikeSharing.Models
 {
@@ -13,5 +15,8 @@ namespace CommunityBikeSharing.Models
 		public string? CurrentUser { get; set; }
 		[Ignored]
 		public bool InUse => CurrentUser != null;
+
+		[DocumentConverter(typeof(LocationConverter))]
+		public Location? Location { get; set; }
 	}
 }

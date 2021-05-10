@@ -20,16 +20,19 @@ namespace CommunityBikeSharing.Services
 		private readonly IBikeRepository _bikeRepository;
 		private readonly IAuthService _authService;
 		private readonly IMembershipRepository _membershipRepository;
+		private readonly ILocationService _locationService;
 		private string _userId;
 
 		public BikeService(
 			IBikeRepository bikeRepository,
 			IAuthService authService,
-			IMembershipRepository membershipRepository)
+			IMembershipRepository membershipRepository,
+			ILocationService locationService)
 		{
 			_bikeRepository = bikeRepository;
 			_authService = authService;
 			_membershipRepository = membershipRepository;
+			_locationService = locationService;
 
 			_bikesChanged = (sender, args) =>
 			{
@@ -85,10 +88,14 @@ namespace CommunityBikeSharing.Services
 			return _bikeRepository.Update(bike);
 		}
 
-		public Task ReturnBike(Bike bike)
+		public async Task ReturnBike(Bike bike)
 		{
 			bike.CurrentUser = null;
-			return _bikeRepository.Update(bike);
+
+			var location = await _locationService.GetCurrentLocation();
+			bike.Location = location;
+
+			await _bikeRepository.Update(bike);
 		}
 	}
 }

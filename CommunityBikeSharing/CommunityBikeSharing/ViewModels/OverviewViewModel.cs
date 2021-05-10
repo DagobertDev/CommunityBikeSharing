@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -13,6 +14,7 @@ namespace CommunityBikeSharing.ViewModels
 	public class OverviewViewModel : BaseViewModel
 	{
 		private readonly IBikeService _bikeService;
+		private readonly ILocationService _locationService;
 
 		private readonly NotifyCollectionChangedEventHandler _bikesChanged;
 
@@ -38,13 +40,27 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
+		private Location _userLocation = new Location();
+		public Location UserLocation
+		{
+			get => _userLocation;
+			set
+			{
+				_userLocation = value;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(BikesSorted));
+			}
+		}
+
 		public IEnumerable<Bike> BikesSorted => AllBikes?
 			.OrderBy(bike => bike.CurrentUser == null)
-			.ThenBy(bike => bike.Name);
+			.ThenBy(bike => bike.Location.CalculateDistance(UserLocation, DistanceUnits.Kilometers))
+			.ThenBy(bike => bike.Name) ?? Enumerable.Empty<Bike>();
 
-		public OverviewViewModel(IBikeService bikeService)
+		public OverviewViewModel(IBikeService bikeService, ILocationService locationService)
 		{
 			_bikeService = bikeService;
+			_locationService = locationService;
 
 			_bikesChanged = (sender, args) =>
 			{
@@ -67,6 +83,7 @@ namespace CommunityBikeSharing.ViewModels
 				OnPropertyChanged();
 				OnPropertyChanged(nameof(SelectedBikeName));
 				OnPropertyChanged(nameof(HasSelectedBike));
+				OnPropertyChanged(nameof(CanShowBikeOnMap));
 				OnPropertyChanged(nameof(CanLendBike));
 				OnPropertyChanged(nameof(CanReturnBike));
 				OnPropertyChanged(nameof(CanReserveBike));
@@ -78,15 +95,41 @@ namespace CommunityBikeSharing.ViewModels
 
 		public bool SummaryVisible => AllBikes?.Count == 0;
 
-		public override Task InitializeAsync()
+		public override async Task InitializeAsync()
 		{
 			AllBikes = _bikeService.GetAvailableBikes();
 
-			return Task.CompletedTask;
+			UserLocation = await _locationService.GetCurrentLocation();
 		}
 
+		private bool _isRefreshing;
+		public bool IsRefreshing
+		{
+			get => _isRefreshing;
+			set
+			{
+				_isRefreshing = value;
+				OnPropertyChanged();
+			}
+		}
+		public ICommand RefreshUserLocationCommand => new Command(RefreshUserLocation);
+		private async void RefreshUserLocation()
+		{
+			IsRefreshing = true;
+			UserLocation = await _locationService.GetCurrentLocation();
+			IsRefreshing = false;
+		}
+
+		public ICommand ShowBikeOnMapCommand => new Command<Bike>(ShowBikeOnMap);
+		private async void ShowBikeOnMap(Bike bike)
+		{
+			await Map.OpenAsync(bike.Location);
+		}
+
+		public bool CanShowBikeOnMap => SelectedBike?.Location != null;
+
 		public ICommand LendBikeCommand => new Command<Bike>(LendBike);
-		public async void LendBike(Bike bike)
+		private async void LendBike(Bike bike)
 		{
 			//TODO: Open lock
 			await _bikeService.LendBike(bike);
@@ -96,7 +139,7 @@ namespace CommunityBikeSharing.ViewModels
 		public ICommand ReturnBikeCommand => new Command<Bike>(ReturnBike);
 		public bool CanReturnBike => !string.IsNullOrEmpty(SelectedBike.CurrentUser);
 
-		public async void ReturnBike(Bike bike)
+		private async void ReturnBike(Bike bike)
 		{
 			// TODO: Close lock
 			await _bikeService.ReturnBike(bike);

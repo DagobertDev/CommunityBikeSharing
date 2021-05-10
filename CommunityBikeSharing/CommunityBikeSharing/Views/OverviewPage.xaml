@@ -6,6 +6,7 @@
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.OverviewPage"
              x:DataType="viewModels:OverviewViewModel"
+             x:Name="Page"
              Title="Übersicht">
     <ContentPage.Content>
         <StackLayout>
@@ -16,12 +17,24 @@
                    IsVisible="{Binding SummaryVisible}"
                    Margin="30, 0"/>
             <ListView ItemsSource="{Binding BikesSorted}"
-                      SelectedItem="{Binding SelectedBike}">
+                      SelectedItem="{Binding SelectedBike}"
+                      IsPullToRefreshEnabled="True"
+                      RefreshCommand="{Binding RefreshUserLocationCommand}"
+                      IsRefreshing="{Binding IsRefreshing}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell x:DataType="models:Bike">
-                            <StackLayout Margin="30 ,10" Orientation="Horizontal">
+                            <StackLayout Margin="30,10" Orientation="Horizontal">
                                 <Label Text="{Binding Name}"/>
+                                <Label TextColor="Green" HorizontalOptions="EndAndExpand">
+                                    <Label.Text>
+                                        <MultiBinding Converter="{StaticResource DistanceConverter}">
+                                            <Binding Path="Location"/>
+                                            <Binding Source="{x:Reference Page}"
+                                                     Path="BindingContext.UserLocation"/>
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
                                 <Label Text="Ausgeliehen"
                                        IsVisible="{Binding InUse}"
                                        HorizontalOptions="EndAndExpand" TextColor="DarkRed"/>
@@ -37,6 +50,10 @@
                     <Label
                         Text="{Binding SelectedBikeName}"
                         FontAttributes="Bold"/>
+                    <Button Text="Auf Karte anzeigen"
+                            Command="{Binding ShowBikeOnMapCommand}"
+                            CommandParameter="{Binding SelectedBike}"
+                            IsVisible="{Binding CanShowBikeOnMap}"/>
                     <Button Text="Fahrrad ausleihen"
                             Command="{Binding LendBikeCommand}"
                             CommandParameter="{Binding SelectedBike}"
