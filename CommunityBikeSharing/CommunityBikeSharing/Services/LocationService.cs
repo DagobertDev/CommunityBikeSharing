@@ -6,6 +6,12 @@ namespace CommunityBikeSharing.Services
 {
 	public class LocationService : ILocationService
 	{
+		private readonly IDialogService _dialogService;
+		public LocationService(IDialogService dialogService)
+		{
+			_dialogService = dialogService;
+		}
+
 		public async Task<Location> GetCurrentLocation()
 		{
 			try
@@ -14,21 +20,20 @@ namespace CommunityBikeSharing.Services
 				var location = await Geolocation.GetLocationAsync(request);
 				return location.IsFromMockProvider ? null : location;
 			}
-			catch (FeatureNotSupportedException)
-			{
-				// Handle not supported on device exception
-			}
 			catch (FeatureNotEnabledException)
 			{
-				// Handle not enabled on device exception
+				await _dialogService.ShowError("Standort nicht aktiviert",
+					"Bitte aktivieren Sie die Standortfunktion des Gerätes.");
 			}
 			catch (PermissionException)
 			{
-				// Handle permission exception
+				await _dialogService.ShowError("Standort nicht erlaubt",
+					"Bitte erlauben Sie der App den Zugriff auf den Standort des Gerätes.");
 			}
 			catch (Exception)
 			{
-				// Unable to get location
+				await _dialogService.ShowError("Zugriff auf Standort fehlgeschlagen",
+					"Es ist ein Fehler beim Zugriff auf den Standort des Gerätes aufgetreten.");
 			}
 
 			return null;

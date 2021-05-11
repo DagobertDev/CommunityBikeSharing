@@ -46,7 +46,7 @@ namespace CommunityBikeSharing.ViewModels
 			get => _userLocation;
 			set
 			{
-				_userLocation = value;
+				_userLocation = value ?? new Location();
 				OnPropertyChanged();
 				OnPropertyChanged(nameof(BikesSorted));
 			}

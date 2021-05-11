@@ -26,6 +26,9 @@
                         <ViewCell x:DataType="models:Bike">
                             <StackLayout Margin="30,10" Orientation="Horizontal">
                                 <Label Text="{Binding Name}"/>
+                                <Label Text="Ausgeliehen"
+                                       IsVisible="{Binding InUse}"
+                                       HorizontalOptions="EndAndExpand" TextColor="DarkRed"/>
                                 <Label TextColor="Green" HorizontalOptions="EndAndExpand">
                                     <Label.Text>
                                         <MultiBinding Converter="{StaticResource DistanceConverter}">
@@ -35,9 +38,6 @@
                                         </MultiBinding>
                                     </Label.Text>
                                 </Label>
-                                <Label Text="Ausgeliehen"
-                                       IsVisible="{Binding InUse}"
-                                       HorizontalOptions="EndAndExpand" TextColor="DarkRed"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

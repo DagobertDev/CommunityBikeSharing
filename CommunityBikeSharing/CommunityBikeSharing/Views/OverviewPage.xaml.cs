@@ -8,12 +8,17 @@ namespace CommunityBikeSharing.Views
 		public OverviewPage()
 		{
 			InitializeComponent();
-
-			BindingContext = Startup.ServiceProvider.GetService<OverviewViewModel>();
 		}
 
 		protected override async void OnAppearing()
 		{
+			if (BindingContext != null)
+			{
+				return;
+			}
+
+			BindingContext = Startup.ServiceProvider.GetService<OverviewViewModel>();
+
 			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 	}
