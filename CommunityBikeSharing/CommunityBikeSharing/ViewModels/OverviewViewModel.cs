@@ -54,7 +54,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public IEnumerable<Bike> BikesSorted => AllBikes?
 			.OrderBy(bike => bike.CurrentUser == null)
-			.ThenBy(bike => bike.Location.CalculateDistance(UserLocation, DistanceUnits.Kilometers))
+			.ThenBy(bike => bike.Location?.CalculateDistance(UserLocation, DistanceUnits.Kilometers))
 			.ThenBy(bike => bike.Name) ?? Enumerable.Empty<Bike>();
 
 		public OverviewViewModel(IBikeService bikeService, ILocationService locationService)

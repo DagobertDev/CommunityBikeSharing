@@ -17,4 +17,5 @@
 
     <views:CommunityMembersPage BindingContext="{Binding CommunityMembersViewModel}"/>
     <views:CommunityBikesPage BindingContext="{Binding CommunityBikesViewModel}"/>
+    <views:CommunityStationsPage BindingContext="{Binding CommunityStationsViewModel}"/>
 </TabbedPage>

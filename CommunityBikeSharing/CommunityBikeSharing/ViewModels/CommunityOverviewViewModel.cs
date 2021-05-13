@@ -33,7 +33,6 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-
 		public string Name
 		{
 			get => _community.Name;
@@ -44,27 +43,9 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private CommunityMembersViewModel _communityMembersViewModel;
-		public CommunityMembersViewModel CommunityMembersViewModel
-		{
-			get => _communityMembersViewModel;
-			private set
-			{
-				_communityMembersViewModel = value;
-				OnPropertyChanged();
-			}
-		}
-
-		private CommunityBikesViewModel _communityBikesViewModel;
-		public CommunityBikesViewModel CommunityBikesViewModel
-		{
-			get => _communityBikesViewModel;
-			private set
-			{
-				_communityBikesViewModel = value;
-				OnPropertyChanged();
-			}
-		}
+		public CommunityMembersViewModel CommunityMembersViewModel { get; }
+		public CommunityBikesViewModel CommunityBikesViewModel { get; }
+		public CommunityStationsViewModel CommunityStationsViewModel { get; }
 
 		public CommunityOverviewViewModel(
 			ICommunityRepository communityRepository,
@@ -86,6 +67,9 @@ namespace CommunityBikeSharing.ViewModels
 
 			CommunityBikesViewModel =
 				ActivatorUtilities.CreateInstance<CommunityBikesViewModel>(Startup.ServiceProvider, _id);
+
+			CommunityStationsViewModel =
+				ActivatorUtilities.CreateInstance<CommunityStationsViewModel>(Startup.ServiceProvider, _id);
 		}
 
 		public override async Task InitializeAsync()

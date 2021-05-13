@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:CommunityBikeSharing.Models;assembly=CommunityBikeSharing"
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             x:Class="CommunityBikeSharing.Views.CommunityStationsPage"
+             x:DataType="viewModels:CommunityStationsViewModel"
+             Title="Stationen">
+    <ContentPage.Content>
+        <StackLayout>
+            <ListView ItemsSource="{Binding Stations}"
+                      SelectionMode="None"
+                      ItemTapped="OnEditStation">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell x:DataType="models:Station">
+                            <StackLayout Margin="30 ,10" Orientation="Horizontal">
+                                <Label Text="{Binding Name}"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Text="Station hinzufügen"
+                    Command="{Binding AddStationCommand}"
+                    Margin="30, 10"
+                    IsVisible="{Binding AddStationVisible}"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

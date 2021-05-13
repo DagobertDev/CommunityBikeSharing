@@ -34,12 +34,14 @@ namespace CommunityBikeSharing
 			services.AddSingleton<ILocationService, LocationService>();
 			services.AddSingleton<IMembershipRepository, MembershipRepository>();
 			services.AddSingleton<INavigationService, NavigationService>();
+			services.AddSingleton<IStationRepository, StationRepository>();
 			services.AddSingleton<IUserRepository, UserRepository>();
 
 			services.AddTransient<CommunitiesViewModel>();
 			services.AddTransient<CommunityBikesViewModel>();
 			services.AddTransient<CommunityMembersViewModel>();
 			services.AddTransient<CommunityOverviewPage>();
+			services.AddTransient<CommunityStationsPage>();
 			services.AddTransient<LoadingViewModel>();
 			services.AddTransient<LoginViewModel>();
 			services.AddTransient<OverviewViewModel>();

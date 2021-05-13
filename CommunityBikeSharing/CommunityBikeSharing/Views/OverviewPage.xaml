@@ -62,9 +62,9 @@
                             Command="{Binding ReturnBikeCommand}"
                             CommandParameter="{Binding SelectedBike}"
                             IsVisible="{Binding CanReturnBike}"/>
-                    <Button Text="Fahrrad reservieren"
+                    <!--<Button Text="Fahrrad reservieren"
                             IsVisible="{Binding CanReserveBike}"/>
-                    <Button Text="Problem melden"/>
+                    <Button Text="Problem melden"/>-->
                 </StackLayout>
             </Frame>
         </StackLayout>
