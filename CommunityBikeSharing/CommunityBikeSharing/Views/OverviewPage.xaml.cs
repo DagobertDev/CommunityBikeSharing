@@ -1,5 +1,4 @@
-﻿using System;
-using CommunityBikeSharing.Models;
+﻿using CommunityBikeSharing.Models;
 using CommunityBikeSharing.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms.Maps;
@@ -23,10 +22,13 @@ namespace CommunityBikeSharing.Views
 			var viewModel = Startup.ServiceProvider.GetService<OverviewViewModel>();
 			BindingContext = viewModel;
 
-			await viewModel.InitializeAsync();
+			viewModel.OnLocationChanged += location =>
+			{
+				var position = new Position(location.Latitude, location.Longitude);
+				Map.MoveToRegion(new MapSpan(position, 0.1, 0.1));
+			};
 
-			var position = new Position(viewModel.UserLocation.Latitude, viewModel.UserLocation.Longitude);
-			Map.MoveToRegion(new MapSpan(position, 0.1, 0.1));
+			await viewModel.InitializeAsync();
 		}
 
 		private void OnBikeSelected(object sender, PinClickedEventArgs e)

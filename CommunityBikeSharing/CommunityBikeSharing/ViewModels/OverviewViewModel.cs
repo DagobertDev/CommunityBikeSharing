@@ -83,6 +83,9 @@ namespace CommunityBikeSharing.ViewModels
 			};
 		}
 
+		public delegate void LocationChanged(Location location);
+		public event LocationChanged OnLocationChanged;
+
 		public string Heading => "Verfügbare Fahrräder:";
 		public string Summary => "Zurzeit sind keine Fahrräder verfügbar. " +
 		                         "Treten Sie einer Community bei, um Fahrräder auszuleihen.";
@@ -116,6 +119,7 @@ namespace CommunityBikeSharing.ViewModels
 			AllBikes = _bikeService.GetAvailableBikes();
 
 			UserLocation = await _locationService.GetCurrentLocation();
+			OnLocationChanged?.Invoke(UserLocation);
 		}
 
 		private bool _isRefreshing;
@@ -137,9 +141,11 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		public ICommand ShowBikeOnMapCommand => new Command<Bike>(ShowBikeOnMap);
-		private async void ShowBikeOnMap(Bike bike)
+		private void ShowBikeOnMap(Bike bike)
 		{
-			await Map.OpenAsync(bike.Location);
+			ShowMap = true;
+			OnLocationChanged?.Invoke(bike.Location);
+			//await Map.OpenAsync(bike.Location);
 		}
 
 		public bool CanShowBikeOnMap => SelectedBike?.Location != null && !ShowMap;
