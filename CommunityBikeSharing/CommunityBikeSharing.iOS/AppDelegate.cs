@@ -20,6 +20,7 @@ namespace CommunityBikeSharing.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             Xamarin.Forms.Forms.Init();
+            Xamarin.FormsMaps.Init();
 
             LoadApplication(Startup.Init(ConfigureServices));
 

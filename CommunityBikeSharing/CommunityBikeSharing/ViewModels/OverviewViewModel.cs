@@ -57,6 +57,20 @@ namespace CommunityBikeSharing.ViewModels
 			.ThenBy(bike => bike.Location?.CalculateDistance(UserLocation, DistanceUnits.Kilometers))
 			.ThenBy(bike => bike.Name) ?? Enumerable.Empty<Bike>();
 
+		private bool _showMap = Preferences.Get("ShowMap", false);
+		public bool ShowMap
+		{
+			get => _showMap;
+			set
+			{
+				_showMap = value;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(CanShowBikeOnMap));
+				OnPropertyChanged(nameof(ToggleMapText));
+				Preferences.Set("ShowMap", value);
+			}
+		}
+
 		public OverviewViewModel(IBikeService bikeService, ILocationService locationService)
 		{
 			_bikeService = bikeService;
@@ -72,6 +86,8 @@ namespace CommunityBikeSharing.ViewModels
 		public string Heading => "Verfügbare Fahrräder:";
 		public string Summary => "Zurzeit sind keine Fahrräder verfügbar. " +
 		                         "Treten Sie einer Community bei, um Fahrräder auszuleihen.";
+
+		public string ToggleMapText => ShowMap ? "Zur Listenansicht" : "Zur Kartenansicht";
 
 		private Bike _selectedBike;
 		public Bike SelectedBike
@@ -126,7 +142,7 @@ namespace CommunityBikeSharing.ViewModels
 			await Map.OpenAsync(bike.Location);
 		}
 
-		public bool CanShowBikeOnMap => SelectedBike?.Location != null;
+		public bool CanShowBikeOnMap => SelectedBike?.Location != null && !ShowMap;
 
 		public ICommand LendBikeCommand => new Command<Bike>(LendBike);
 		private async void LendBike(Bike bike)
@@ -146,5 +162,12 @@ namespace CommunityBikeSharing.ViewModels
 			SelectedBike = null;
 		}
 		public bool CanReserveBike => CanLendBike;
+
+		public ICommand ToggleMapCommand => new Command(ToggleMap);
+
+		private void ToggleMap()
+		{
+			ShowMap = !ShowMap;
+		}
 	}
 }

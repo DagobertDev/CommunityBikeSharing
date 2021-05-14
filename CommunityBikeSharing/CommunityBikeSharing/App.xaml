@@ -5,5 +5,7 @@
              x:Class="CommunityBikeSharing.App">
     <Application.Resources>
         <behaviors:LocationsToDistanceConverter x:Key="DistanceConverter" />
+        <behaviors:PositionToLocationConverter x:Key="PositionConverter" />
+        <behaviors:BoolInverter x:Key="BoolInverter" />
     </Application.Resources>
 </Application>

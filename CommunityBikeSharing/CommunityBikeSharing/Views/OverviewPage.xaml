@@ -4,10 +4,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:CommunityBikeSharing.Models;assembly=CommunityBikeSharing"
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
              x:Class="CommunityBikeSharing.Views.OverviewPage"
              x:DataType="viewModels:OverviewViewModel"
              x:Name="Page"
              Title="Übersicht">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{Binding ToggleMapText}"
+                     Order="Primary"
+                     Priority="0"
+                     Command="{Binding ToggleMapCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <StackLayout>
             <Label Text="{Binding Heading}"
@@ -20,7 +28,9 @@
                       SelectedItem="{Binding SelectedBike}"
                       IsPullToRefreshEnabled="True"
                       RefreshCommand="{Binding RefreshUserLocationCommand}"
-                      IsRefreshing="{Binding IsRefreshing}">
+                      IsRefreshing="{Binding IsRefreshing}"
+                      IsVisible="{Binding ShowMap,
+                      Converter={StaticResource BoolInverter}}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell x:DataType="models:Bike">
@@ -43,6 +53,22 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+
+            <maps:Map
+                x:Name="Map"
+                IsShowingUser="True"
+                ItemsSource="{Binding BikesSorted}"
+                MoveToLastRegionOnLayoutChange="False"
+                IsVisible="{Binding ShowMap}">
+                <maps:Map.ItemTemplate>
+                    <DataTemplate x:DataType="models:Bike">
+                        <maps:Pin Position="{Binding Location,
+                                    Converter={StaticResource PositionConverter}}"
+                                  Label="{Binding Name}"
+                                  MarkerClicked="OnBikeSelected"/>
+                    </DataTemplate>
+                </maps:Map.ItemTemplate>
+            </maps:Map>
 
             <Frame IsVisible="{Binding HasSelectedBike}"
                    Padding="20">

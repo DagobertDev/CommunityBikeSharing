@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.companyname.communitybikesharing">
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
-    <application android:label="CommunityBikeSharing.Android" android:theme="@style/MainTheme"></application>
+    <application android:label="CommunityBikeSharing.Android" android:theme="@style/MainTheme">
+        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDY-uV12CQf9g7hsT5rVORnbI6JWZKQJyo" />
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+    </application>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <queries>
         <intent>

@@ -63,6 +63,7 @@
     <PackageReference Include="Xamarin.Firebase.Auth" Version="120.0.2" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
+    <PackageReference Include="Xamarin.Forms.Maps" Version="5.0.0.2012" />
     <PackageReference Include="Xamarin.GooglePlayServices.Tasks" Version="117.2.0" />
   </ItemGroup>
   <ItemGroup>
