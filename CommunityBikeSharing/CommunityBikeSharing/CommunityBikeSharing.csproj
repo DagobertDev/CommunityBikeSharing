@@ -18,4 +18,11 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
     <PackageReference Include="Xamarin.Forms.Maps" Version="5.0.0.2012" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Font Awesome 5 Free-Solid-900.otf" />
+    <EmbeddedResource Include="Assets\Font Awesome 5 Free-Solid-900.otf" />
+    <None Remove="Assets\Font Awesome 5 Free-Regular-400.otf" />
+    <EmbeddedResource Include="Assets\Font Awesome 5 Free-Regular-400.otf" />
+  </ItemGroup>
 </Project>

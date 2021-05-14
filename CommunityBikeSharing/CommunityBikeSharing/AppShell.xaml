@@ -3,6 +3,7 @@
 <Shell xmlns="http://xamarin.com/schemas/2014/forms"
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:views="clr-namespace:CommunityBikeSharing.Views"
+       xmlns:fa="clr-namespace:FontAwesome;assembly=CommunityBikeSharing"
        x:Class="CommunityBikeSharing.AppShell">
 
     <ShellItem>
@@ -13,12 +14,21 @@
         <ShellContent x:Name="OverviewPage"
                       Title="Übersicht"
                       ContentTemplate="{DataTemplate views:OverviewPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="SolidIcons" Glyph="{x:Static fa:FontAwesomeIcons.Map}"/>
+            </ShellContent.Icon>
         </ShellContent>
         <ShellContent Title="Communities"
                       ContentTemplate="{DataTemplate views:CommunitiesPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="SolidIcons" Glyph="{x:Static fa:FontAwesomeIcons.Users}"/>
+            </ShellContent.Icon>
         </ShellContent>
         <ShellContent Title="Profil"
                       ContentTemplate="{DataTemplate views:ProfilePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="SolidIcons" Glyph="{x:Static fa:FontAwesomeIcons.User}"/>
+            </ShellContent.Icon>
         </ShellContent>
     </TabBar>
 
