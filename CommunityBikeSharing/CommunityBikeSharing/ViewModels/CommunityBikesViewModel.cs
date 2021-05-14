@@ -83,12 +83,16 @@ namespace CommunityBikeSharing.ViewModels
 			await _bikeRepository.Add(name, _communityId);
 		}
 
-		public override async Task InitializeAsync()
+		public override Task InitializeAsync()
 		{
 			Bikes = _bikeRepository.ObserveBikesFromCommunity(_communityId);
 
 			var user = _authService.GetCurrentUser();
-			_membershipRepository.Observe(_communityId, user).Subscribe(membership => CurrentUserMembership = membership);
+			_membershipRepository.Observe(_communityId, user).Subscribe(
+				membership => CurrentUserMembership = membership,
+				exception => CurrentUserMembership = null);
+
+			return Task.CompletedTask;
 		}
 
 		public ICommand EditBikeCommand => new Command<Bike>(EditBike);

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
@@ -14,15 +11,13 @@ namespace CommunityBikeSharing.Services.Data
 {
 	public class StationRepository : IStationRepository
 	{
+		private readonly IFirestoreContext _context;
 		private ICollectionReference Stations(string communityId) => _context.Stations(communityId);
 
 		public StationRepository(IFirestoreContext context)
 		{
 			_context = context;
 		}
-
-		private readonly IFirestoreContext _context;
-
 		public async Task<Station> Add(Station model)
 		{
 			await Stations(model.CommunityId).AddAsync(model);

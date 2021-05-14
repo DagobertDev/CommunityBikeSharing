@@ -59,7 +59,9 @@ namespace CommunityBikeSharing.ViewModels
 		public override Task InitializeAsync()
 		{
 			_stationRepository.ObserveStationsFromCommunity(CommunityId)
-				.Subscribe(stations => Stations = new ObservableCollection<Station>(stations));
+				.Subscribe(
+					stations => Stations = new ObservableCollection<Station>(stations),
+					exception => Stations = null);
 
 			return Task.CompletedTask;
 		}
