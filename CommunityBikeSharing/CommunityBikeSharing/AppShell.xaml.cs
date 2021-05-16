@@ -13,6 +13,7 @@ namespace CommunityBikeSharing
 			Routing.RegisterRoute(nameof(CommunityOverviewViewModel), typeof(CommunityOverviewPage));
 			Routing.RegisterRoute(nameof(MapModalViewModel), typeof(MapModalPage));
 			Routing.RegisterRoute(nameof(EditStationViewModel), typeof(EditStationPage));
+			Routing.RegisterRoute(nameof(StationDetailViewModel), typeof(StationDetailPage));
 			OverviewPage.Route = nameof(OverviewViewModel);
 			Login.Route = nameof(LoginViewModel);
 			Registration.Route = nameof(RegistrationViewModel);

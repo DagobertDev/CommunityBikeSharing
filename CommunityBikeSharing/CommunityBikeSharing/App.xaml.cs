@@ -1,8 +1,10 @@
-﻿using Xamarin.Forms;
+﻿using CommunityBikeSharing.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using Xamarin.Forms;
 
 namespace CommunityBikeSharing
 {
-    public partial class App : Application
+    public partial class App
     {
 	    public App()
         {
@@ -10,6 +12,10 @@ namespace CommunityBikeSharing
 
             MainPage = new AppShell();
         }
+
+	    public static T GetViewModel<T>() => Startup.ServiceProvider.GetService<T>();
+	    public static T GetViewModel<T>(params object[] parameter) =>
+		    ActivatorUtilities.CreateInstance<T>(Startup.ServiceProvider, parameter);
 
         protected override void OnStart()
         {

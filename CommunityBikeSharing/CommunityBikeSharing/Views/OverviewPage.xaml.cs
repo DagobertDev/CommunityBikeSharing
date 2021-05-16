@@ -1,6 +1,9 @@
-﻿using CommunityBikeSharing.Models;
+﻿#nullable enable
+using CommunityBikeSharing.Models;
+using CommunityBikeSharing.Services;
 using CommunityBikeSharing.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
 namespace CommunityBikeSharing.Views
@@ -12,6 +15,8 @@ namespace CommunityBikeSharing.Views
 			InitializeComponent();
 		}
 
+		private OverviewViewModel ViewModel => (OverviewViewModel)BindingContext;
+
 		protected override async void OnAppearing()
 		{
 			if (BindingContext != null)
@@ -19,21 +24,36 @@ namespace CommunityBikeSharing.Views
 				return;
 			}
 
-			var viewModel = Startup.ServiceProvider.GetService<OverviewViewModel>();
-			BindingContext = viewModel;
+			BindingContext = Startup.ServiceProvider.GetService<OverviewViewModel>();
 
-			viewModel.OnLocationChanged += location =>
+			ViewModel.OnLocationChanged += location =>
 			{
-				var position = new Position(location.Latitude, location.Longitude);
-				Map.MoveToRegion(new MapSpan(position, 0.1, 0.1));
+				Map.MoveToRegion(MapSpan.FromCenterAndRadius(
+					location.ToPosition(),
+					Distance.FromKilometers(1)));
 			};
 
-			await viewModel.InitializeAsync();
+			await ViewModel.InitializeAsync();
 		}
 
-		private void OnBikeSelected(object sender, PinClickedEventArgs e)
+		private void OnStationSelected(object sender, ItemTappedEventArgs e)
 		{
-			((OverviewViewModel)BindingContext).SelectedBike = (Bike)((Pin)sender).BindingContext;
+			ViewModel.OnStationSelected((Station)e.Item);
+		}
+
+		private void OnMapStationSelected(object sender, PinClickedEventArgs e)
+		{
+			ViewModel.OnStationSelected((Station)((Pin)sender).BindingContext);
+		}
+
+		private void OnBikeSelected(object sender, ItemTappedEventArgs e)
+		{
+			ViewModel.OnBikeSelected((Bike)e.Item);
+		}
+
+		private void OnMapBikeSelected(object sender, PinClickedEventArgs e)
+		{
+			ViewModel.OnBikeSelected((Bike)((Pin)sender).BindingContext);
 		}
 	}
 }

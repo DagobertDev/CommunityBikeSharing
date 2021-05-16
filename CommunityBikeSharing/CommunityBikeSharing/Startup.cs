@@ -36,6 +36,7 @@ namespace CommunityBikeSharing
 			services.AddSingleton<IMembershipRepository, MembershipRepository>();
 			services.AddSingleton<INavigationService, NavigationService>();
 			services.AddSingleton<IStationRepository, StationRepository>();
+			services.AddSingleton<IStationService, StationService>();
 			services.AddSingleton<IUserRepository, UserRepository>();
 
 			services.AddTransient<CommunitiesViewModel>();
@@ -50,6 +51,7 @@ namespace CommunityBikeSharing
 			services.AddTransient<OverviewViewModel>();
 			services.AddTransient<ProfileViewModel>();
 			services.AddTransient<RegistrationViewModel>();
+			services.AddTransient<StationDetailViewModel>();
 
 			services.AddSingleton<App>();
 		}

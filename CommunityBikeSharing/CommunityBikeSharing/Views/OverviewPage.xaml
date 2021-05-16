@@ -5,10 +5,32 @@
              xmlns:models="clr-namespace:CommunityBikeSharing.Models;assembly=CommunityBikeSharing"
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
              xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
+             xmlns:behaviors="clr-namespace:CommunityBikeSharing.Views.Behaviors;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.OverviewPage"
              x:DataType="viewModels:OverviewViewModel"
              x:Name="Page"
              Title="Übersicht">
+
+    <ContentPage.Resources>
+        <behaviors:MapItemTemplateSelector x:Key="MapItemTemplateSelector">
+            <behaviors:MapItemTemplateSelector.StationTemplate>
+                <DataTemplate x:DataType="models:Station">
+                    <maps:Pin Position="{Binding Location,
+                                    Converter={StaticResource PositionConverter}}"
+                              Label="{Binding Name}"
+                              MarkerClicked="OnMapStationSelected"/>
+                </DataTemplate>
+            </behaviors:MapItemTemplateSelector.StationTemplate>
+            <behaviors:MapItemTemplateSelector.BikeTemplate>
+                <DataTemplate x:DataType="models:Bike">
+                    <maps:Pin Position="{Binding Location,
+                                    Converter={StaticResource PositionConverter}}"
+                              Label="{Binding Name}"
+                              MarkerClicked="OnMapBikeSelected"/>
+                </DataTemplate>
+            </behaviors:MapItemTemplateSelector.BikeTemplate>
+        </behaviors:MapItemTemplateSelector>
+    </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="{Binding ToggleMapText}"
@@ -24,8 +46,40 @@
             <Label Text="{Binding Summary}"
                    IsVisible="{Binding SummaryVisible}"
                    Margin="30, 0"/>
+
+            <ListView ItemsSource="{Binding AllStations}"
+                      ItemTapped="OnStationSelected"
+                      SelectionMode="None"
+                      IsPullToRefreshEnabled="True"
+                      RefreshCommand="{Binding RefreshUserLocationCommand}"
+                      IsRefreshing="{Binding IsRefreshing}"
+                      IsVisible="{Binding ShowMap,
+                      Converter={StaticResource BoolInverter}}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell x:DataType="models:Station">
+                            <StackLayout Orientation="Horizontal"
+                                         Margin="30, 10">
+                                <Label Text="{Binding Name}"/>
+                                <Label TextColor="Green" HorizontalOptions="EndAndExpand">
+                                    <Label.Text>
+                                        <MultiBinding Converter="{StaticResource DistanceConverter}">
+                                            <Binding Path="Location"/>
+                                            <Binding Source="{x:Reference Page}"
+                                                     Path="BindingContext.UserLocation"/>
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+
             <ListView ItemsSource="{Binding BikesSorted}"
-                      SelectedItem="{Binding SelectedBike}"
+                      ItemTapped="OnBikeSelected"
+                      SelectionMode="None"
                       IsPullToRefreshEnabled="True"
                       RefreshCommand="{Binding RefreshUserLocationCommand}"
                       IsRefreshing="{Binding IsRefreshing}"
@@ -57,42 +111,11 @@
             <maps:Map
                 x:Name="Map"
                 IsShowingUser="True"
-                ItemsSource="{Binding BikesSorted}"
+                ItemsSource="{Binding AllItems}"
+                ItemTemplateSelector="{StaticResource MapItemTemplateSelector}"
                 MoveToLastRegionOnLayoutChange="False"
                 IsVisible="{Binding ShowMap}">
-                <maps:Map.ItemTemplate>
-                    <DataTemplate x:DataType="models:Bike">
-                        <maps:Pin Position="{Binding Location,
-                                    Converter={StaticResource PositionConverter}}"
-                                  Label="{Binding Name}"
-                                  MarkerClicked="OnBikeSelected"/>
-                    </DataTemplate>
-                </maps:Map.ItemTemplate>
             </maps:Map>
-
-            <Frame IsVisible="{Binding HasSelectedBike}"
-                   Padding="20">
-                <StackLayout>
-                    <Label
-                        Text="{Binding SelectedBikeName}"
-                        FontAttributes="Bold"/>
-                    <Button Text="Auf Karte anzeigen"
-                            Command="{Binding ShowBikeOnMapCommand}"
-                            CommandParameter="{Binding SelectedBike}"
-                            IsVisible="{Binding CanShowBikeOnMap}"/>
-                    <Button Text="Fahrrad ausleihen"
-                            Command="{Binding LendBikeCommand}"
-                            CommandParameter="{Binding SelectedBike}"
-                            IsVisible="{Binding CanLendBike}"/>
-                    <Button Text="Fahrrad zurückgeben"
-                            Command="{Binding ReturnBikeCommand}"
-                            CommandParameter="{Binding SelectedBike}"
-                            IsVisible="{Binding CanReturnBike}"/>
-                    <!--<Button Text="Fahrrad reservieren"
-                            IsVisible="{Binding CanReserveBike}"/>
-                    <Button Text="Problem melden"/>-->
-                </StackLayout>
-            </Frame>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

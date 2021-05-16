@@ -80,6 +80,11 @@ namespace CommunityBikeSharing.ViewModels
 			var name = await _dialogService.ShowTextEditor("Name eingeben",
 				"Bitte geben Sie den Namen des Fahrrads ein.");
 
+			if (string.IsNullOrEmpty(name))
+			{
+				return;
+			}
+
 			await _bikeRepository.Add(name, _communityId);
 		}
 
