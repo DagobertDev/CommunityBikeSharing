@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using CommunityBikeSharing.Services;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
@@ -10,12 +11,12 @@ namespace CommunityBikeSharing.Views.Behaviors
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			if (!(value is Location position))
+			if (!(value is Location location))
 			{
-				return new Position();
+				return default(Position);
 			}
 
-			return new Position(position.Latitude, position.Longitude);
+			return location.ToPosition();
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

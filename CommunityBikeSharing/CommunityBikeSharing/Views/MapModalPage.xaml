@@ -3,17 +3,27 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
              x:Class="CommunityBikeSharing.Views.MapModalPage"
              x:DataType="viewModels:MapModalViewModel"
              Shell.PresentationMode="Modal">
     <ContentPage.Content>
-        <StackLayout Padding="30">
-            <!--TODO: Show map-->
-            <Label Text="Hello, world!"
-                   VerticalOptions="CenterAndExpand"
-                   HorizontalOptions="CenterAndExpand" />
-            <Button Text="Bestätigen" Command="{Binding ConfirmCommand }"/>
-            <Button Text="Abbrechen" Command="{Binding CancelCommand }"/>
+        <StackLayout>
+            <maps:Map
+                IsShowingUser="True"
+                MapClicked="OnMapClicked">
+
+                <maps:Map.Pins>
+                    <maps:Pin Label="Ausgewählter Standort" x:Name="Pin"/>
+                </maps:Map.Pins>
+            </maps:Map>
+
+            <Button Text="Bestätigen"
+                    Command="{Binding ConfirmCommand }"
+                    Margin="30, 0" />
+            <Button Text="Abbrechen"
+                    Command="{Binding CancelCommand }"
+                    Margin="30, 0, 30, 10" />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
