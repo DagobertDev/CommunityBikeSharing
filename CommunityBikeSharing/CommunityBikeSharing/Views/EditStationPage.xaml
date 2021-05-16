@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             x:Class="CommunityBikeSharing.Views.EditStationPage"
+             x:DataType="viewModels:EditStationViewModel"
+             Shell.PresentationMode="Modal">
+    <ContentPage.Content>
+        <StackLayout Padding="30">
+            <Label Text="Name" />
+            <Entry Text="{Binding Name}" />
+            <Label Text="Zusätzliche Beschreibung" />
+            <Editor Text="{Binding Description}"
+                    AutoSize="TextChanges"
+                    MaxLength="512" />
+            <Button Text="Standort festlegen"
+                    Command="{Binding PickLocationCommand}" />
+            <Button Text="Änderungen speichern" Command="{Binding ConfirmCommand}" />
+            <Button Text="Bearbeiten abbrechen" Command="{Binding CancelCommand}" />
+            <Button Text="Station löschen"
+                    Command="{Binding DeleteCommand}"
+                    IsVisible="{Binding DeleteVisible}"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

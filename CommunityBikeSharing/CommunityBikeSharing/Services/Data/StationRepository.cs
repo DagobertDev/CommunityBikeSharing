@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -25,7 +26,7 @@ namespace CommunityBikeSharing.Services.Data
 		}
 
 		public Task Update(Station station) =>
-			Stations(station.CommunityId).Document(station.CommunityId).UpdateAsync(station);
+			Stations(station.CommunityId).Document(station.Id).UpdateAsync(station);
 
 		public Task Delete(Station station) => Stations(station.CommunityId).Document(station.Id).DeleteAsync();
 
@@ -38,6 +39,14 @@ namespace CommunityBikeSharing.Services.Data
 					station.CommunityId = communityId;
 					return station;
 				}).ToList());
+		}
+
+		public async Task<Station> Get(string community, string id)
+		{
+			var snap = await Stations(community).Document(id).GetAsync();
+			var station = snap.ToObject<Station>();
+			station!.CommunityId = community;
+			return station;
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -13,20 +14,20 @@ namespace CommunityBikeSharing.ViewModels
 	{
 		public CommunityStationsViewModel(
 			IStationRepository stationRepository,
-			IDialogService dialogService,
+			INavigationService navigationService,
 			string communityId)
 		{
 			_stationRepository = stationRepository;
-			_dialogService = dialogService;
+			_navigationService = navigationService;
 			CommunityId = communityId;
 		}
 
 		private readonly IStationRepository _stationRepository;
-		private readonly IDialogService _dialogService;
+		private readonly INavigationService _navigationService;
 		private string CommunityId { get; }
 
-		private ObservableCollection<Station> _stations;
-		public ObservableCollection<Station> Stations
+		private ObservableCollection<Station>? _stations;
+		public ObservableCollection<Station>? Stations
 		{
 			get => _stations;
 			set
@@ -39,22 +40,16 @@ namespace CommunityBikeSharing.ViewModels
 		public ICommand AddStationCommand => new Command(AddStation);
 		private async void AddStation()
 		{
-			var name = await _dialogService.ShowTextEditor("Name eingeben",
-				"Bitte geben Sie einen Namen für die Station ein");
-
-			var station = new Station
-			{
-				CommunityId = CommunityId,
-				Name = name,
-			};
-
-			await _stationRepository.Add(station);
+			await _navigationService.NavigateTo<EditStationViewModel>(CommunityId);
 		}
 		public bool AddStationVisible => true;
 
 		public ICommand EditStationCommand => new Command<Station>(EditStation);
 
-		private async void EditStation(Station station) { }
+		private async void EditStation(Station station)
+		{
+			await _navigationService.NavigateTo<EditStationViewModel>(CommunityId, station.Id);
+		}
 
 		public override Task InitializeAsync()
 		{

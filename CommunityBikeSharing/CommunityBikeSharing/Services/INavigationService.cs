@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿#nullable enable
+using System.Threading.Tasks;
 using CommunityBikeSharing.ViewModels;
 
 namespace CommunityBikeSharing.Services
@@ -7,7 +8,7 @@ namespace CommunityBikeSharing.Services
 	{
 		public Task NavigateTo<T>() where T : BaseViewModel;
 		public Task NavigateToRoot<T>() where T : BaseViewModel;
-		public Task NavigateTo<T>(string parameter) where T : BaseViewModel;
+		public Task NavigateTo<T>(params string[] parameter) where T : BaseViewModel;
 		public Task NavigateBack();
 	}
 }

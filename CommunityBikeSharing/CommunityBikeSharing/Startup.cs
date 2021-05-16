@@ -31,6 +31,7 @@ namespace CommunityBikeSharing
 			services.AddSingleton<ICommunityRepository, CommunityRepository>();
 			services.AddSingleton<IDialogService, DialogService>();
 			services.AddSingleton<IFirestoreContext, FirestoreContext>();
+			services.AddSingleton<ILocationPicker, LocationPicker>();
 			services.AddSingleton<ILocationService, LocationService>();
 			services.AddSingleton<IMembershipRepository, MembershipRepository>();
 			services.AddSingleton<INavigationService, NavigationService>();
@@ -42,8 +43,10 @@ namespace CommunityBikeSharing
 			services.AddTransient<CommunityMembersViewModel>();
 			services.AddTransient<CommunityOverviewPage>();
 			services.AddTransient<CommunityStationsPage>();
+			services.AddTransient<EditStationViewModel>();
 			services.AddTransient<LoadingViewModel>();
 			services.AddTransient<LoginViewModel>();
+			services.AddTransient<MapModalViewModel>();
 			services.AddTransient<OverviewViewModel>();
 			services.AddTransient<ProfileViewModel>();
 			services.AddTransient<RegistrationViewModel>();
