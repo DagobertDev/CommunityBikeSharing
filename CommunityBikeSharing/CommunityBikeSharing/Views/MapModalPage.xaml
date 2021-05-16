@@ -9,12 +9,20 @@
              Shell.PresentationMode="Modal">
     <ContentPage.Content>
         <StackLayout>
-            <maps:Map
-                IsShowingUser="True"
-                MapClicked="OnMapClicked">
+            <Entry  x:Name="SearchField"
+                    Placeholder="Nach Ort suchen"
+                    Margin="30, 0, 30, 0"/>
+            <Button Text="Suchen"
+                    Clicked="OnSearchButtonClicked"
+                    Margin="30, 0"/>
+
+            <maps:Map x:Name="Map"
+                      IsShowingUser="True"
+                      MapClicked="OnMapClicked">
 
                 <maps:Map.Pins>
-                    <maps:Pin Label="Ausgewählter Standort" x:Name="Pin"/>
+                    <maps:Pin x:Name="Pin"
+                              Label="Ausgewählter Standort"/>
                 </maps:Map.Pins>
             </maps:Map>
 
