@@ -46,6 +46,30 @@ namespace CommunityBikeSharing.Services.Data
 			return result;
 		}
 
+		public ObservableCollection<Bike> ObserveBikesFromStation(Station station)
+		{
+			var result = new ObservableCollection<Bike>();
+
+			Bikes(station.CommunityId).WhereEqualsTo(
+				FieldPath.GetMappingName<Bike>(nameof(Bike.StationId)), station.Id)
+				.AsObservable().Subscribe(snapshot =>
+				{
+					result.Clear();
+
+					foreach (var bike in snapshot.ToObjects<Bike>())
+					{
+						bike.CommunityId = station.CommunityId;
+						result.Add(bike);
+					}
+				},
+				exception =>
+				{
+					result.Clear();
+				});
+
+			return result;
+		}
+
 		public Task Update(Bike bike)
 		{
 			return Bikes(bike.CommunityId).Document(bike.Id).UpdateAsync(bike);

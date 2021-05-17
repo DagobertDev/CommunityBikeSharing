@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Plugin.CloudFirestore;
 using Xamarin.Essentials;
 using Xamarin.Forms.Maps;
 
@@ -11,5 +12,8 @@ namespace CommunityBikeSharing.Services
 
 		public static Location ToLocation(this Position position) =>
 			new Location(position.Latitude, position.Longitude);
+
+		public static GeoPoint ToGeoPoint(this Location location) =>
+			new GeoPoint(location.Latitude, location.Longitude);
 	}
 }
