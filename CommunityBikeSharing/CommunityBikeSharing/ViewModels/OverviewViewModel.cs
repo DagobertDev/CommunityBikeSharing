@@ -62,10 +62,11 @@ namespace CommunityBikeSharing.ViewModels
 			{
 				if (AllStations == null)
 				{
-					return AllBikes ?? Enumerable.Empty<object>();
+					return AllBikes?.Where(bike => bike.StationId == null) ?? Enumerable.Empty<object>();
 				}
 
-				return AllBikes == null ? AllStations : AllStations.AsEnumerable<object>().Concat(AllBikes);
+				return AllBikes == null ? AllStations
+					: AllStations.AsEnumerable<object>().Concat(AllBikes.Where(bike => bike.StationId == null));
 			}
 		}
 

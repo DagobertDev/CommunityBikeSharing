@@ -41,6 +41,12 @@ namespace CommunityBikeSharing.Services.Data
 				}).ToList());
 		}
 
+		public async Task<IList<Station>> GetStationsFromCommunity(string communityId)
+		{
+			var snapshot = await Stations(communityId).GetAsync();
+			return snapshot.ToObjects<Station>().ToList();
+		}
+
 		public async Task<Station> Get(string community, string id)
 		{
 			var snap = await Stations(community).Document(id).GetAsync();

@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data;
+using Xamarin.Essentials;
 
 namespace CommunityBikeSharing.Services
 {
@@ -21,18 +23,21 @@ namespace CommunityBikeSharing.Services
 		private readonly IAuthService _authService;
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly ILocationService _locationService;
+		private readonly IStationRepository _stationRepository;
 		private string _userId;
 
 		public BikeService(
 			IBikeRepository bikeRepository,
 			IAuthService authService,
 			IMembershipRepository membershipRepository,
-			ILocationService locationService)
+			ILocationService locationService,
+			IStationRepository stationRepository)
 		{
 			_bikeRepository = bikeRepository;
 			_authService = authService;
 			_membershipRepository = membershipRepository;
 			_locationService = locationService;
+			_stationRepository = stationRepository;
 
 			_bikesChanged = (sender, args) =>
 			{
@@ -40,7 +45,8 @@ namespace CommunityBikeSharing.Services
 
 				foreach (var bike in _allBikes.Values
 					.SelectMany(bikes => bikes)
-					.Where(bike => bike.CurrentUser == null || bike.CurrentUser == _userId))
+					.Where(bike => (!bike.InUse && bike.StationId == null)
+					               || bike.CurrentUser == _userId))
 				{
 					_bikes.Add(bike);
 				}
@@ -85,6 +91,8 @@ namespace CommunityBikeSharing.Services
 		public Task LendBike(Bike bike)
 		{
 			bike.CurrentUser = _userId;
+			bike.StationId = null;
+			bike.Location = null;
 			return _bikeRepository.Update(bike);
 		}
 
@@ -92,8 +100,20 @@ namespace CommunityBikeSharing.Services
 		{
 			bike.CurrentUser = null;
 
+			var stations = await _stationRepository.GetStationsFromCommunity(bike.CommunityId);
 			var location = await _locationService.GetCurrentLocation();
-			bike.Location = location;
+
+			var closeStation = stations.SingleOrDefault(station =>
+				station.Location.CalculateDistance(location, DistanceUnits.Kilometers) < 0.1);
+
+			if (closeStation != null)
+			{
+				bike.StationId = closeStation.Id;
+			}
+			else
+			{
+				bike.Location = location;
+			}
 
 			await _bikeRepository.Update(bike);
 		}

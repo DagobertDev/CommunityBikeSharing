@@ -8,7 +8,9 @@
              Title="{Binding Name}">
     <ContentPage.Content>
         <StackLayout>
-            <ListView ItemsSource="{Binding Bikes}">
+            <ListView ItemsSource="{Binding Bikes}"
+                      ItemTapped="OnBikeSelected"
+                      SelectionMode="None">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell x:DataType="models:Bike">

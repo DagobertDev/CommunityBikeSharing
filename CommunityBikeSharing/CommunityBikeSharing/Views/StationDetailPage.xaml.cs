@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using CommunityBikeSharing.Models;
 using CommunityBikeSharing.ViewModels;
 using Xamarin.Forms;
 
@@ -47,6 +48,11 @@ namespace CommunityBikeSharing.Views
 				_stationId = Uri.UnescapeDataString(value);
 				OnPropertyChanged();
 			}
+		}
+
+		private void OnBikeSelected(object sender, ItemTappedEventArgs e)
+		{
+			((StationDetailViewModel)BindingContext).OnBikeSelected((Bike)e.Item);
 		}
 	}
 }

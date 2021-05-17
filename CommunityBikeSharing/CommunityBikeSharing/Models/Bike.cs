@@ -18,6 +18,6 @@ namespace CommunityBikeSharing.Models
 
 		[DocumentConverter(typeof(LocationConverter))]
 		public Location? Location { get; set; }
-		public string StationId { get; set; }
+		public string? StationId { get; set; }
 	}
 }

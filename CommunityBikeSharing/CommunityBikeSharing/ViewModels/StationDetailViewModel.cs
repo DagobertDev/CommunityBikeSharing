@@ -1,8 +1,11 @@
 ﻿#nullable enable
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using CommunityBikeSharing.Models;
+using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data;
+using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -13,6 +16,8 @@ namespace CommunityBikeSharing.ViewModels
 
 		private readonly IStationRepository _stationRepository;
 		private readonly IBikeRepository _bikeRepository;
+		private readonly IBikeService _bikeService;
+		private readonly IDialogService _dialogService;
 
 		private readonly string _communityId;
 		private readonly string _stationId;
@@ -20,13 +25,21 @@ namespace CommunityBikeSharing.ViewModels
 		public StationDetailViewModel(
 			IStationRepository stationRepository,
 			IBikeRepository bikeRepository,
+			IBikeService bikeService,
+			IDialogService dialogService,
 			string communityId,
 			string stationId)
 		{
 			_stationRepository = stationRepository;
 			_bikeRepository = bikeRepository;
+			_bikeService = bikeService;
+			_dialogService = dialogService;
 			_communityId = communityId;
 			_stationId = stationId;
+
+			LendBikeCommand = new Command<Bike>(LendBike, CanLendBike);
+			ReturnBikeCommand = new Command<Bike>(ReturnBike, CanReturnBike);
+			ReserveBikeCommand = new Command<Bike>(ReserveBike, CanReserveBike);
 		}
 
 		private Station? _station;
@@ -59,5 +72,41 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		public string Name => Station?.Name ?? string.Empty;
+
+		public Command<Bike> LendBikeCommand { get; }
+		public Command<Bike> ReturnBikeCommand { get; }
+		public Command<Bike> ReserveBikeCommand { get; }
+
+		public async void OnBikeSelected(Bike bike)
+		{
+			var actions = new (string, ICommand) []
+			{
+				("Fahrrad ausleihen", LendBikeCommand),
+				("Fahrrad zurückgeben", ReturnBikeCommand),
+				("Fahrrad reservieren", ReserveBikeCommand)
+			};
+
+			await _dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
+		}
+
+		private async void LendBike(Bike bike)
+		{
+			//TODO: Open lock
+			await _bikeService.LendBike(bike);
+		}
+		private bool CanLendBike(Bike bike) => string.IsNullOrEmpty(bike.CurrentUser);
+
+		private async void ReturnBike(Bike bike)
+		{
+			// TODO: Close lock
+			await _bikeService.ReturnBike(bike);
+		}
+		private bool CanReturnBike(Bike bike) => !string.IsNullOrEmpty(bike.CurrentUser);
+
+		private void ReserveBike(Bike bike)
+		{
+			// TODO
+		}
+		private bool CanReserveBike(Bike bike) => CanLendBike(bike);
 	}
 }
