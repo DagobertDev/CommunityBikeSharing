@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Stations;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -13,20 +13,20 @@ namespace CommunityBikeSharing.ViewModels
 	public class EditStationViewModel : BaseViewModel
 	{
 		private readonly INavigationService _navigationService;
-		private readonly IStationRepository _stationRepository;
+		private readonly IStationService _stationService;
 		private readonly ILocationPicker _locationPicker;
 		private readonly IDialogService _dialogService;
 
 		public EditStationViewModel(
 			INavigationService navigationService,
-			IStationRepository stationRepository,
+			IStationService stationService,
 			ILocationPicker locationPicker,
 			IDialogService dialogService,
 			string communityId,
 			string? stationId = null)
 		{
 			_navigationService = navigationService;
-			_stationRepository = stationRepository;
+			_stationService = stationService;
 			_locationPicker = locationPicker;
 			_dialogService = dialogService;
 			CommunityId = communityId;
@@ -37,7 +37,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			if (AlreadyExists)
 			{
-				Station = await _stationRepository.Get(CommunityId, StationId!);
+				Station = await _stationService.Get(CommunityId, StationId!);
 			}
 			else
 			{
@@ -83,6 +83,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
+		[DisallowNull]
 		public Location? Location
 		{
 			get => Station.Location;
@@ -98,14 +99,32 @@ namespace CommunityBikeSharing.ViewModels
 		public ICommand PickLocationCommand => new Command(PickLocation);
 		private async void PickLocation()
 		{
-			Location = await _locationPicker.PickLocation();
+			var location = await _locationPicker.PickLocation();
+			if (location != null)
+			{
+				Location = location;
+			}
 		}
 
 		public ICommand ConfirmCommand => new Command(Confirm);
 		private async void Confirm()
 		{
+			if (string.IsNullOrEmpty(Name))
+			{
+				await _dialogService.ShowError("Standort angeben",
+					"Bitte geben Sie einen Standort für die Station an.");
+				return;
+			}
+
+			if (Location == null)
+			{
+				await _dialogService.ShowError("Standort angeben",
+					"Bitte geben Sie einen Standort für die Station an.");
+				return;
+			}
+
 			await Task.WhenAll(
-				AlreadyExists ? _stationRepository.Update(Station) : _stationRepository.Add(Station),
+				AlreadyExists ? _stationService.Update(Station) : _stationService.Add(Station),
 				_navigationService.NavigateBack());
 		}
 
@@ -128,7 +147,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 
 			await Task.WhenAll(
-				_stationRepository.Delete(Station),
+				_stationService.Delete(Station),
 				_navigationService.NavigateBack());
 		}
 	}

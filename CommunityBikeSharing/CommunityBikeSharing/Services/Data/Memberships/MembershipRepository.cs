@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,12 +9,13 @@ using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Reactive;
 
-namespace CommunityBikeSharing.Services.Data
+namespace CommunityBikeSharing.Services.Data.Memberships
 {
-	public class MembershipRepository : IMembershipRepository
+	public class MembershipRepository : FirestoreRepository<CommunityMembership>, IMembershipRepository
 	{
 		private readonly IFirestoreContext _firestore;
 		private ICollectionReference Memberships => _firestore.CommunityUsers;
+
 		public MembershipRepository(IFirestoreContext firestoreContext)
 		{
 			_firestore = firestoreContext;
@@ -21,7 +23,7 @@ namespace CommunityBikeSharing.Services.Data
 
 		public IObservable<CommunityMembership> Observe(string community, User user)
 			=> Memberships.Document(CommunityMembership.GetId(community, user.Id))
-				.AsObservable().Select(snapshot => snapshot.ToObject<CommunityMembership>());
+				.AsObservable().Select(snapshot => snapshot.ToObject<CommunityMembership>()!);
 
 		public async Task<ICollection<CommunityMembership>> GetMembershipsFromCommunity(string community)
 		{
@@ -32,32 +34,16 @@ namespace CommunityBikeSharing.Services.Data
 		}
 
 		public ObservableCollection<CommunityMembership> ObserveMembershipsFromCommunity(string communityId)
-		{
-			var result = new ObservableCollection<CommunityMembership>();
-
-			Memberships.WhereEqualsTo(nameof(CommunityMembership.CommunityId), communityId).AsObservable().Subscribe(
-				snapshot =>
-				{
-					result.Clear();
-
-					foreach (var membership in snapshot.ToObjects<CommunityMembership>())
-					{
-						result.Add(membership);
-					}
-				},
-				exception =>
-				{
-					result.Clear();
-				});
-
-			return result;
-		}
+			=> ObserveCommunities(Memberships.WhereEqualsTo(nameof(CommunityMembership.CommunityId), communityId));
 
 		public ObservableCollection<CommunityMembership> ObserveMembershipsFromUser(string userId)
+			=> ObserveCommunities(Memberships.WhereEqualsTo(nameof(CommunityMembership.UserId), userId));
+
+		private static ObservableCollection<CommunityMembership> ObserveCommunities(IQuery query)
 		{
 			var result = new ObservableCollection<CommunityMembership>();
 
-			Memberships.WhereEqualsTo(nameof(CommunityMembership.UserId), userId).AsObservable().Subscribe(snapshot =>
+			query.AsObservable().Subscribe(snapshot =>
 			{
 				result.Clear();
 
@@ -74,28 +60,8 @@ namespace CommunityBikeSharing.Services.Data
 			return result;
 		}
 
-		public async Task<CommunityMembership> Add(CommunityMembership membership)
-		{
-			if (membership.Id == null)
-			{
-				return null;
-			}
-
-			var result = await Memberships.Document(membership.Id).GetAsync();
-
-			if (result.Exists)
-			{
-				return result.ToObject<CommunityMembership>();
-			}
-
-			await Memberships.Document(membership.Id).SetAsync(membership);
-			return membership;
-		}
-
-		public Task Update(CommunityMembership membership)
-			=> Memberships.Document(membership.Id).UpdateAsync(membership);
-
-		public Task Delete(CommunityMembership membership)
-			=> Memberships.Document(membership.Id).DeleteAsync();
+		protected override IDocumentReference GetDocument(CommunityMembership membership) => Memberships.Document(membership.Id);
+		protected override IDocumentReference GetNewDocument(CommunityMembership membership) => Memberships.Document(membership.Id);
+		protected override ICollectionReference GetCollection(CommunityMembership model) => Memberships;
 	}
 }

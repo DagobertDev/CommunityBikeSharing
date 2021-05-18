@@ -1,6 +1,11 @@
 ﻿using System;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Bikes;
+using CommunityBikeSharing.Services.Data.Communities;
+using CommunityBikeSharing.Services.Data.Memberships;
+using CommunityBikeSharing.Services.Data.Stations;
+using CommunityBikeSharing.Services.Data.Users;
 using CommunityBikeSharing.ViewModels;
 using CommunityBikeSharing.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,35 +30,48 @@ namespace CommunityBikeSharing
 
 		private static void ConfigureServices(IServiceCollection services)
 		{
-			services.AddSingleton<IAuthService, FirebaseAuthService>();
-			services.AddSingleton<IBikeRepository, BikeRepository>();
-			services.AddSingleton<IBikeService, BikeService>();
-			services.AddSingleton<ICommunityRepository, CommunityRepository>();
-			services.AddSingleton<IDialogService, DialogService>();
-			services.AddSingleton<IFirestoreContext, FirestoreContext>();
-			services.AddSingleton<ILocationPicker, LocationPicker>();
-			services.AddSingleton<ILocationService, LocationService>();
-			services.AddSingleton<IMembershipRepository, MembershipRepository>();
-			services.AddSingleton<INavigationService, NavigationService>();
-			services.AddSingleton<IStationRepository, StationRepository>();
-			services.AddSingleton<IStationService, StationService>();
-			services.AddSingleton<IUserRepository, UserRepository>();
+			services.AddSingleton<IAuthService, FirebaseAuthService>()
+				.AddSingleton<IDialogService, DialogService>()
+				.AddSingleton<ILocationPicker, LocationPicker>()
+				.AddSingleton<ILocationService, LocationService>()
+				.AddSingleton<INavigationService, NavigationService>()
 
-			services.AddTransient<CommunitiesViewModel>();
-			services.AddTransient<CommunityBikesViewModel>();
-			services.AddTransient<CommunityMembersViewModel>();
-			services.AddTransient<CommunityOverviewPage>();
-			services.AddTransient<CommunityStationsPage>();
-			services.AddTransient<EditStationViewModel>();
-			services.AddTransient<LoadingViewModel>();
-			services.AddTransient<LoginViewModel>();
-			services.AddTransient<MapModalViewModel>();
-			services.AddTransient<OverviewViewModel>();
-			services.AddTransient<ProfileViewModel>();
-			services.AddTransient<RegistrationViewModel>();
-			services.AddTransient<StationDetailViewModel>();
+				.AddSingleton<IFirestoreContext, FirestoreContext>()
+				.AddRepositories()
+				.AddDataServices()
+				.AddViewModels()
 
-			services.AddSingleton<App>();
+				.AddSingleton<App>();
 		}
+
+		private static IServiceCollection AddRepositories(this IServiceCollection services) =>
+			services.AddSingleton<IBikeRepository, BikeRepository>()
+				.AddSingleton<ICommunityRepository, CommunityRepository>()
+				.AddSingleton<IMembershipRepository, MembershipRepository>()
+				.AddSingleton<IStationRepository, StationRepository>()
+				.AddSingleton<IUserRepository, UserRepository>()
+				.AddSingleton<IUserEmailRepository, UserEmailRepository>();
+
+		private static IServiceCollection AddDataServices(this IServiceCollection services) =>
+			services.AddSingleton<IBikeService, BikeService>()
+				.AddSingleton<ICommunityService, CommunityService>()
+				.AddSingleton<IMembershipService, MembershipService>()
+				.AddSingleton<IStationService, StationService>()
+				.AddSingleton<IUserService, UserService>();
+
+		private static IServiceCollection AddViewModels(this IServiceCollection services) =>
+			services.AddTransient<CommunitiesViewModel>()
+				.AddTransient<CommunityBikesViewModel>()
+				.AddTransient<CommunityMembersViewModel>()
+				.AddTransient<CommunityOverviewPage>()
+				.AddTransient<CommunityStationsPage>()
+				.AddTransient<EditStationViewModel>()
+				.AddTransient<LoadingViewModel>()
+				.AddTransient<LoginViewModel>()
+				.AddTransient<MapModalViewModel>()
+				.AddTransient<OverviewViewModel>()
+				.AddTransient<ProfileViewModel>()
+				.AddTransient<RegistrationViewModel>()
+				.AddTransient<StationDetailViewModel>();
 	}
 }

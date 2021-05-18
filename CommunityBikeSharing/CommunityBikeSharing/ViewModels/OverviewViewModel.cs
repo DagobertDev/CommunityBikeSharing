@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
+using CommunityBikeSharing.Services.Data.Bikes;
+using CommunityBikeSharing.Services.Data.Stations;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 

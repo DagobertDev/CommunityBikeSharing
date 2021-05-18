@@ -1,14 +1,15 @@
-﻿using System;
+﻿#nullable enable
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
-using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Memberships;
+using CommunityBikeSharing.Services.Data.Stations;
 using Xamarin.Essentials;
 
-namespace CommunityBikeSharing.Services
+namespace CommunityBikeSharing.Services.Data.Bikes
 {
 	public class BikeService : IBikeService
 	{
@@ -24,7 +25,7 @@ namespace CommunityBikeSharing.Services
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly ILocationService _locationService;
 		private readonly IStationRepository _stationRepository;
-		private string _userId;
+		private string? _userId;
 
 		public BikeService(
 			IBikeRepository bikeRepository,
@@ -52,6 +53,9 @@ namespace CommunityBikeSharing.Services
 				}
 			};
 		}
+
+		public ObservableCollection<Bike> ObserveBikesFromStation(Station station) =>
+			_bikeRepository.ObserveBikesFromStation(station);
 
 		public ObservableCollection<Bike> GetAvailableBikes()
 		{
@@ -117,5 +121,20 @@ namespace CommunityBikeSharing.Services
 
 			await _bikeRepository.Update(bike);
 		}
+
+		public Task<Bike> Add(string name, string communityId)
+			=> _bikeRepository.Add(new Bike {Name = name, CommunityId = communityId});
+
+		public Task Rename(Bike bike, string name)
+		{
+			bike.Name = name;
+			return _bikeRepository.Update(bike);
+		}
+
+		public Task Delete(Bike bike) => _bikeRepository.Delete(bike);
+
+		public ObservableCollection<Bike> ObserveBikesFromCommunity(string communityId) =>
+			_bikeRepository.ObserveBikesFromCommunity(communityId);
 	}
 }
+

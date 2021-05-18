@@ -1,4 +1,6 @@
-﻿using Plugin.CloudFirestore;
+﻿#nullable enable
+using System.Threading.Tasks;
+using Plugin.CloudFirestore;
 
 namespace CommunityBikeSharing.Services.Data
 {
@@ -10,5 +12,7 @@ namespace CommunityBikeSharing.Services.Data
 		ICollectionReference Users { get; }
 		ICollectionReference CommunityUsers { get; }
 		ICollectionReference Communities { get; }
+		ICollectionReference UserEmails { get; }
+		public Task RunTransactionAsync(TransactionHandler handler) => Firestore.RunTransactionAsync(handler);
 	}
 }

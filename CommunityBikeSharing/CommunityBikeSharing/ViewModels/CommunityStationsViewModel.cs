@@ -6,6 +6,7 @@ using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Stations;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -13,16 +14,16 @@ namespace CommunityBikeSharing.ViewModels
 	public class CommunityStationsViewModel : BaseViewModel
 	{
 		public CommunityStationsViewModel(
-			IStationRepository stationRepository,
+			IStationService stationService,
 			INavigationService navigationService,
 			string communityId)
 		{
-			_stationRepository = stationRepository;
+			_stationService = stationService;
 			_navigationService = navigationService;
 			CommunityId = communityId;
 		}
 
-		private readonly IStationRepository _stationRepository;
+		private readonly IStationService _stationService;
 		private readonly INavigationService _navigationService;
 		private string CommunityId { get; }
 
@@ -53,7 +54,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override Task InitializeAsync()
 		{
-			_stationRepository.ObserveStationsFromCommunity(CommunityId)
+			_stationService.ObserveStationsFromCommunity(CommunityId)
 				.Subscribe(
 					stations => Stations = new ObservableCollection<Station>(stations),
 					exception => Stations = null);

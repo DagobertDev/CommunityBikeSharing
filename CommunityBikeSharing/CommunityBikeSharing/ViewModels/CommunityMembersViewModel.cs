@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Memberships;
+using CommunityBikeSharing.Services.Data.Users;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -17,9 +18,9 @@ namespace CommunityBikeSharing.ViewModels
 	{
 		private readonly string _communityId;
 		private CommunityMembership _currentUserMembership;
-		private readonly IMembershipRepository _membershipRepository;
+		private readonly IMembershipService _membershipService;
 		private readonly IDialogService _dialogService;
-		private readonly IUserRepository _userRepository;
+		private readonly IUserService _userService;
 		private readonly IAuthService _authService;
 
 		private User _currentUser;
@@ -76,15 +77,15 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		public CommunityMembersViewModel(
-			IMembershipRepository membershipRepository,
+			IMembershipService membershipService,
 			IDialogService dialogService,
-			IUserRepository userRepository,
+			IUserService userService,
 			IAuthService authService,
 			string communityId)
 		{
-			_membershipRepository = membershipRepository;
+			_membershipService = membershipService;
 			_dialogService = dialogService;
-			_userRepository = userRepository;
+			_userService = userService;
 			_authService = authService;
 			_communityId = communityId;
 			_membersChanged = (sender, args) =>
@@ -97,7 +98,7 @@ namespace CommunityBikeSharing.ViewModels
 		public override async Task InitializeAsync()
 		{
 			_authService.ObserveCurrentUser().Subscribe(user => _currentUser = user);
-			Members = _membershipRepository.ObserveMembershipsFromCommunity(_communityId);
+			Members = _membershipService.ObserveMembershipsFromCommunity(_communityId);
 		}
 
 		public ICommand AddMemberCommand => new Command(AddMember);
@@ -114,7 +115,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			var user = await _userRepository.GetUserByEmail(email);
+			var user = await _userService.GetUserByEmail(email);
 
 			if (user == null)
 			{
@@ -137,13 +138,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _membershipRepository.Add(new CommunityMembership
-			{
-				Name = user.Username,
-				CommunityId = _communityId,
-				UserId = user.Id,
-				Role = CommunityRole.User
-			});
+			await _membershipService.Add(user, _communityId);
 		}
 
 		public ICommand PromoteCommunityAdminCommand => new Command<CommunityMembership>(
@@ -153,8 +148,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void PromoteCommunityAdmin(CommunityMembership membership)
 		{
-			membership.Role = CommunityRole.CommunityAdmin;
-			await _membershipRepository.Update(membership);
+			await _membershipService.PromoteToCommunityAdmin(membership);
 		}
 
 		private bool CanPromoteCommunityAdmin(CommunityMembership membership) =>
@@ -162,7 +156,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void RemoveMember(CommunityMembership membership)
 		{
-			await _membershipRepository.Delete(membership);
+			await _membershipService.Delete(membership);
 		}
 
 		private bool CanRemoveMember(CommunityMembership membership) => UserIsAdminAndEditsOtherUser(membership);

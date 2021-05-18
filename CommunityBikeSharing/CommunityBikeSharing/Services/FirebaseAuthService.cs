@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
-using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Users;
 using Plugin.FirebaseAuth;
 
 namespace CommunityBikeSharing.Services
@@ -11,12 +11,12 @@ namespace CommunityBikeSharing.Services
 	public class FirebaseAuthService : IAuthService
 	{
 		private readonly IAuth _auth = CrossFirebaseAuth.Current.Instance;
-		private readonly IUserRepository _userRepository;
+		private readonly IUserService _userService;
 		private IObservable<User> _user;
 
-		public FirebaseAuthService(IUserRepository userRepository)
+		public FirebaseAuthService(IUserService userService)
 		{
-			_userRepository = userRepository;
+			_userService = userService;
 		}
 
 		public async Task<User> Register(string email, string password)
@@ -60,11 +60,7 @@ namespace CommunityBikeSharing.Services
 
 			await user.GetIdTokenAsync(true);
 
-			return await _userRepository.Add(new User
-			{
-				Id = user.Uid,
-				Username = email
-			}, email);
+			return await _userService.Add(user.Uid, email);
 		}
 
 		public async Task SignIn(string email, string password)

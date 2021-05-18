@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Communities;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -11,7 +11,6 @@ namespace CommunityBikeSharing.ViewModels
 	public class CommunitiesViewModel : BaseViewModel
 	{
 		private ObservableCollection<Community> _communities;
-		private User _user;
 
 		public ObservableCollection<Community> Communities
 		{
@@ -23,24 +22,17 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private readonly ICommunityRepository _communityRepository;
+		private readonly ICommunityService _communityService;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
-		private readonly IMembershipRepository _membershipRepository;
-		private readonly IAuthService _authService;
-
 		public CommunitiesViewModel(
-			ICommunityRepository communityRepository,
+			ICommunityService communityService,
 			IDialogService dialogService,
-			INavigationService navigationService,
-			IMembershipRepository membershipRepository,
-			IAuthService authService)
+			INavigationService navigationService)
 		{
-			_communityRepository = communityRepository;
+			_communityService = communityService;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
-			_membershipRepository = membershipRepository;
-			_authService = authService;
 		}
 
 		public ICommand AddCommunityCommand => new Command(AddCommunity);
@@ -55,7 +47,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			var community = await _communityRepository.Create(name, _user);
+			var community = await _communityService.Create(name);
 			OpenCommunityDetail(community);
 		}
 
@@ -68,9 +60,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override async Task InitializeAsync()
 		{
-			_user = _authService.GetCurrentUser();
-			var memberships = _membershipRepository.ObserveMembershipsFromUser(_user.Id);
-			Communities = await _communityRepository.GetCommunities(memberships);
+			Communities = _communityService.GetCommunities();
 		}
 	}
 }

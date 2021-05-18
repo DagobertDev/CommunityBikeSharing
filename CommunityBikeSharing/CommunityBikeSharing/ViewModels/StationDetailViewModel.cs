@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Bikes;
+using CommunityBikeSharing.Services.Data.Stations;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -14,8 +15,7 @@ namespace CommunityBikeSharing.ViewModels
 		public static string[] NavigationParameters(string communityId, string stationId) =>
 			new [] {communityId, stationId};
 
-		private readonly IStationRepository _stationRepository;
-		private readonly IBikeRepository _bikeRepository;
+		private readonly IStationService _stationService;
 		private readonly IBikeService _bikeService;
 		private readonly IDialogService _dialogService;
 
@@ -23,15 +23,13 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly string _stationId;
 
 		public StationDetailViewModel(
-			IStationRepository stationRepository,
-			IBikeRepository bikeRepository,
+			IStationService stationService,
 			IBikeService bikeService,
 			IDialogService dialogService,
 			string communityId,
 			string stationId)
 		{
-			_stationRepository = stationRepository;
-			_bikeRepository = bikeRepository;
+			_stationService = stationService;
 			_bikeService = bikeService;
 			_dialogService = dialogService;
 			_communityId = communityId;
@@ -67,8 +65,8 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override async Task InitializeAsync()
 		{
-			Station = await _stationRepository.Get(_communityId, _stationId);
-			Bikes = _bikeRepository.ObserveBikesFromStation(Station);
+			Station = await _stationService.Get(_communityId, _stationId);
+			Bikes = _bikeService.ObserveBikesFromStation(Station);
 		}
 
 		public string Name => Station?.Name ?? string.Empty;

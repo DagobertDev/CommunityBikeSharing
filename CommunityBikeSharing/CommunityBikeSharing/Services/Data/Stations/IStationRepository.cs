@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 
-namespace CommunityBikeSharing.Services.Data
+namespace CommunityBikeSharing.Services.Data.Stations
 {
 	public interface IStationRepository : IRepository<Station>
 	{

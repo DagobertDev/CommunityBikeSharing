@@ -5,6 +5,8 @@ using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Communities;
+using CommunityBikeSharing.Services.Data.Memberships;
 using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
 
@@ -13,8 +15,8 @@ namespace CommunityBikeSharing.ViewModels
 	public class CommunityOverviewViewModel : BaseViewModel
 	{
 		private readonly string _id;
-		private readonly ICommunityRepository _communityRepository;
-		private readonly IMembershipRepository _membershipRepository;
+		private readonly ICommunityService _communityService;
+		private readonly IMembershipService _membershipService;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
 		private readonly IAuthService _authService;
@@ -48,16 +50,16 @@ namespace CommunityBikeSharing.ViewModels
 		public CommunityStationsViewModel CommunityStationsViewModel { get; }
 
 		public CommunityOverviewViewModel(
-			ICommunityRepository communityRepository,
-			IMembershipRepository membershipRepository,
+			ICommunityService communityService,
+			IMembershipService membershipService,
 			IDialogService dialogService,
 			INavigationService navigationService,
 			IAuthService authService,
 			string id)
 		{
 			_id = id;
-			_communityRepository = communityRepository;
-			_membershipRepository = membershipRepository;
+			_communityService = communityService;
+			_membershipService = membershipService;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
 			_authService = authService;
@@ -74,13 +76,11 @@ namespace CommunityBikeSharing.ViewModels
 
 		public override async Task InitializeAsync()
 		{
-			_communityRepository.Observe(_id).Subscribe(
+			_communityService.Observe(_id).Subscribe(
 				community => Community = community,
 				exception => _navigationService.NavigateBack());
 
-			var user = _authService.GetCurrentUser();
-
-			_membershipRepository.Observe(_id, user).Subscribe(
+			_membershipService.Observe(_id).Subscribe(
 				membership => _membership = membership,
 				exception => _navigationService.NavigateBack());
 		}
@@ -109,8 +109,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			Name = name;
-			await _communityRepository.Update(Community);
+			await _communityService.Rename(Community, name);
 		}
 
 		private bool CanRenameCommunity() => _membership.IsCommunityAdmin;
@@ -125,7 +124,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _communityRepository.Delete(Community.Id);
+			await _communityService.Delete(Community);
 			await _navigationService.NavigateBack();
 		}
 
@@ -142,7 +141,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 
 			var allUsers =
-				await _membershipRepository.GetMembershipsFromCommunity(_community.Id);
+				await _membershipService.GetMembershipsFromCommunity(_community.Id);
 
 			if (_membership.IsCommunityAdmin && allUsers.Count(user => user.IsCommunityAdmin) <= 1)
 			{
@@ -152,7 +151,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _membershipRepository.Delete(_membership);
+			await _membershipService.Delete(_membership);
 			await _navigationService.NavigateBack();
 		}
 

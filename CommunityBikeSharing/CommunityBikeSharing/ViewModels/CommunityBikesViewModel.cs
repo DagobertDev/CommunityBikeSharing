@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using CommunityBikeSharing.Services.Data;
+using CommunityBikeSharing.Services.Data.Bikes;
+using CommunityBikeSharing.Services.Data.Memberships;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -15,21 +16,18 @@ namespace CommunityBikeSharing.ViewModels
 	public class CommunityBikesViewModel : BaseViewModel
 	{
 		private readonly IDialogService _dialogService;
-		private readonly IBikeRepository _bikeRepository;
-		private readonly IAuthService _authService;
-		private readonly IMembershipRepository _membershipRepository;
+		private readonly IBikeService _bikeService;
+		private readonly IMembershipService _membershipService;
 		private readonly string _communityId;
 
 		public CommunityBikesViewModel(IDialogService dialogService,
-			IBikeRepository bikeRepository,
-			IAuthService authService,
-			IMembershipRepository membershipRepository,
+			IBikeService bikeService,
+			IMembershipService membershipService,
 			string id)
 		{
 			_dialogService = dialogService;
-			_bikeRepository = bikeRepository;
-			_authService = authService;
-			_membershipRepository = membershipRepository;
+			_bikeService = bikeService;
+			_membershipService = membershipService;
 
 			_communityId = id;
 
@@ -85,15 +83,14 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _bikeRepository.Add(name, _communityId);
+			await _bikeService.Add(name, _communityId);
 		}
 
 		public override Task InitializeAsync()
 		{
-			Bikes = _bikeRepository.ObserveBikesFromCommunity(_communityId);
+			Bikes = _bikeService.ObserveBikesFromCommunity(_communityId);
 
-			var user = _authService.GetCurrentUser();
-			_membershipRepository.Observe(_communityId, user).Subscribe(
+			_membershipService.Observe(_communityId).Subscribe(
 				membership => CurrentUserMembership = membership,
 				exception => CurrentUserMembership = null);
 
@@ -125,8 +122,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			bike.Name = name;
-			await _bikeRepository.Update(bike);
+			await _bikeService.Rename(bike, name);
 		}
 
 		private bool CanRenameBike(Bike bike) => CurrentUserMembership is {IsCommunityAdmin: true};
@@ -143,7 +139,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _bikeRepository.Delete(bike);
+			await _bikeService.Delete(bike);
 		}
 
 		private bool CanDeleteBike(Bike bike) => CurrentUserMembership is {IsCommunityAdmin: true};

@@ -8,9 +8,9 @@ using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Reactive;
 
-namespace CommunityBikeSharing.Services.Data
+namespace CommunityBikeSharing.Services.Data.Stations
 {
-	public class StationRepository : IStationRepository
+	public class StationRepository : FirestoreRepository<Station>, IStationRepository
 	{
 		private readonly IFirestoreContext _context;
 		private ICollectionReference Stations(string communityId) => _context.Stations(communityId);
@@ -19,16 +19,6 @@ namespace CommunityBikeSharing.Services.Data
 		{
 			_context = context;
 		}
-		public async Task<Station> Add(Station model)
-		{
-			await Stations(model.CommunityId).AddAsync(model);
-			return model;
-		}
-
-		public Task Update(Station station) =>
-			Stations(station.CommunityId).Document(station.Id).UpdateAsync(station);
-
-		public Task Delete(Station station) => Stations(station.CommunityId).Document(station.Id).DeleteAsync();
 
 		public IObservable<IList<Station>> ObserveStationsFromCommunity(string communityId)
 		{
@@ -54,5 +44,8 @@ namespace CommunityBikeSharing.Services.Data
 			station!.CommunityId = community;
 			return station;
 		}
+
+		protected override IDocumentReference GetDocument(Station station) => Stations(station.CommunityId).Document(station.Id);
+		protected override ICollectionReference GetCollection(Station station) => Stations(station.CommunityId);
 	}
 }

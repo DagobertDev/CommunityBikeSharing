@@ -1,10 +1,11 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 
-namespace CommunityBikeSharing.Services.Data
+namespace CommunityBikeSharing.Services.Data.Memberships
 {
 	public interface IMembershipRepository : IRepository<CommunityMembership>
 	{
