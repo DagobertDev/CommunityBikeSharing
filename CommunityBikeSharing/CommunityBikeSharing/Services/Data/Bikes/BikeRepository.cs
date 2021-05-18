@@ -1,6 +1,9 @@
 ﻿#nullable enable
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Reactive;
@@ -24,6 +27,16 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			=> ObserveBikes(Bikes(station.CommunityId)
 					.WhereEqualsTo(FieldPath.GetMappingName<Bike>(nameof(Bike.StationId)), station.Id),
 				station.CommunityId);
+
+		public async Task<IList<Bike>> GetBikesFromStation(Station station)
+		{
+			var result =  await Bikes(station.CommunityId).GetAsync();
+			return result.ToObjects<Bike>().Select(bike =>
+			{
+				bike.CommunityId = station.CommunityId;
+				return bike;
+			}).ToList();
+		}
 
 		private static ObservableCollection<Bike> ObserveBikes(IQuery query, string community)
 		{

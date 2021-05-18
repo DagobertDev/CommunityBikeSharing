@@ -6,18 +6,26 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
+using CommunityBikeSharing.Services.Data.Bikes;
 using CommunityBikeSharing.Services.Data.Memberships;
 
 namespace CommunityBikeSharing.Services.Data.Stations
 {
 	public class StationService : IStationService
 	{
+		private readonly IFirestoreContext _context;
 		private readonly IStationRepository _stationRepository;
+		private readonly IBikeRepository _bikeRepository;
 
-		public StationService(IStationRepository stationRepository,
+		public StationService(
+			IFirestoreContext context,
+			IStationRepository stationRepository,
+			IBikeRepository bikeRepository,
 			IMembershipService membershipService)
 		{
+			_context = context;
 			_stationRepository = stationRepository;
+			_bikeRepository = bikeRepository;
 
 			_availableStations = new Lazy<ObservableCollection<Station>>(() =>
 			{
@@ -110,6 +118,22 @@ namespace CommunityBikeSharing.Services.Data.Stations
 		public Task Add(Station station) => _stationRepository.Add(station);
 
 		public Task Update(Station station) => _stationRepository.Add(station);
-		public Task Delete(Station station) => _stationRepository.Delete(station);
+
+		public async Task Delete(Station station)
+		{
+			var bikes = await _bikeRepository.GetBikesFromStation(station);
+
+			await _context.RunTransactionAsync(transaction =>
+			{
+				foreach (var bike in bikes)
+				{
+					bike.StationId = null;
+					bike.Location = station.Location;
+					_bikeRepository.Update(bike, transaction);
+				}
+
+				_stationRepository.Delete(station, transaction);
+			});
+		}
 	}
 }

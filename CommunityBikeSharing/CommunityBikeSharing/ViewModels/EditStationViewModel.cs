@@ -111,8 +111,8 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			if (string.IsNullOrEmpty(Name))
 			{
-				await _dialogService.ShowError("Standort angeben",
-					"Bitte geben Sie einen Standort für die Station an.");
+				await _dialogService.ShowError("Name angeben",
+					"Bitte geben Sie einen Namen für die Station an.");
 				return;
 			}
 
