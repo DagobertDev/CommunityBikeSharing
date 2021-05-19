@@ -3,8 +3,10 @@ using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
 {
-	public partial class CommunityMembersPage : ContentPage
+	public partial class CommunityMembersPage
 	{
+		private bool _initialized;
+
 		public CommunityMembersPage()
 		{
 			InitializeComponent();
@@ -12,12 +14,21 @@ namespace CommunityBikeSharing.Views
 
 		protected override async void OnAppearing()
 		{
-			await ((BaseViewModel)BindingContext).InitializeAsync();
+			if (!_initialized)
+			{
+				_initialized = true;
+				await ((BaseViewModel)BindingContext).InitializeAsync();
+			}
 		}
 
 		private void OnEditMembership(object sender, ItemTappedEventArgs e)
 		{
-			((CommunityMembersViewModel)BindingContext).EditMembershipCommand.Execute(e.Item);
+			var editMembership = ((CommunityMembersViewModel)BindingContext).EditMembershipCommand;
+
+			if (editMembership.CanExecute(e.Item))
+			{
+				editMembership.Execute(e.Item);
+			}
 		}
 	}
 }

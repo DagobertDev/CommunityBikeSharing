@@ -8,6 +8,10 @@
              Title="{Binding Name}">
     <ContentPage.Content>
         <StackLayout>
+            <Label Text="{Binding Description}"
+                   IsVisible="{Binding Description,
+                        Converter={StaticResource IsNotNull}}"
+                   Margin="30, 10"/>
             <ListView ItemsSource="{Binding Bikes}"
                       ItemTapped="OnBikeSelected"
                       SelectionMode="None">

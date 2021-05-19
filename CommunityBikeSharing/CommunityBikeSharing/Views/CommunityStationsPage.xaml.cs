@@ -5,6 +5,8 @@ namespace CommunityBikeSharing.Views
 {
 	public partial class CommunityStationsPage
 	{
+		private bool _initialized;
+
 		public CommunityStationsPage()
 		{
 			InitializeComponent();
@@ -12,12 +14,21 @@ namespace CommunityBikeSharing.Views
 
 		protected override async void OnAppearing()
 		{
-			await ((BaseViewModel)BindingContext).InitializeAsync();
+			if (!_initialized)
+			{
+				_initialized = true;
+				await ((BaseViewModel)BindingContext).InitializeAsync();
+			}
 		}
 
 		private void OnEditStation(object sender, ItemTappedEventArgs e)
 		{
-			((CommunityStationsViewModel)BindingContext).EditStationCommand.Execute(e.Item);
+			var editStation = ((CommunityStationsViewModel)BindingContext).EditStationCommand;
+
+			if (editStation.CanExecute(e.Item))
+			{
+				editStation.Execute(e.Item);
+			}
 		}
 	}
 }

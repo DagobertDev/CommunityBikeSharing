@@ -7,5 +7,6 @@
         <behaviors:LocationsToDistanceConverter x:Key="DistanceConverter" />
         <behaviors:PositionToLocationConverter x:Key="PositionConverter" />
         <behaviors:BoolInverter x:Key="BoolInverter" />
+        <behaviors:IsNotNullConverter x:Key="IsNotNull" />
     </Application.Resources>
 </Application>

@@ -15,5 +15,6 @@ namespace CommunityBikeSharing.Models
 		public Location Location { get; set; }
 		[Ignored]
 		public string CommunityId { get; set; }
+		public int NumberOfBikes { get; set; }
 	}
 }

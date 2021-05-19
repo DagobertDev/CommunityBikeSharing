@@ -49,6 +49,7 @@ namespace CommunityBikeSharing.ViewModels
 				_station = value;
 				OnPropertyChanged();
 				OnPropertyChanged(nameof(Name));
+				OnPropertyChanged(nameof(Description));
 			}
 		}
 
@@ -70,6 +71,7 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		public string Name => Station?.Name ?? string.Empty;
+		public string? Description => Station?.Description;
 
 		public Command<Bike> LendBikeCommand { get; }
 		public Command<Bike> ReturnBikeCommand { get; }

@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Stations;
+using Plugin.CloudFirestore;
 using Xamarin.Essentials;
 
 namespace CommunityBikeSharing.Services.Data.Bikes
 {
 	public class BikeService : IBikeService
 	{
+		private readonly IFirestoreContext _context;
+
 		private readonly IDictionary<string, ObservableCollection<Bike>> _allBikes =
 			new Dictionary<string, ObservableCollection<Bike>>();
 
@@ -28,12 +31,14 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		private string? _userId;
 
 		public BikeService(
+			IFirestoreContext context,
 			IBikeRepository bikeRepository,
 			IAuthService authService,
 			IMembershipRepository membershipRepository,
 			ILocationService locationService,
 			IStationRepository stationRepository)
 		{
+			_context = context;
 			_bikeRepository = bikeRepository;
 			_authService = authService;
 			_membershipRepository = membershipRepository;
@@ -92,12 +97,25 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			return _bikes;
 		}
 
-		public Task LendBike(Bike bike)
+		public async Task LendBike(Bike bike)
 		{
 			bike.CurrentUser = _userId;
-			bike.StationId = null;
 			bike.Location = null;
-			return _bikeRepository.Update(bike);
+
+			if (bike.StationId != null)
+			{
+				var station = await _stationRepository.Get(bike.CommunityId, bike.StationId);
+				bike.StationId = null;
+
+				await _context.RunTransactionAsync(transaction =>
+				{
+					_stationRepository.Update(station, nameof(Station.NumberOfBikes), FieldValue.Increment(-1), transaction);
+					_bikeRepository.Update(bike, transaction);
+				});
+				return;
+			}
+
+			await _bikeRepository.Update(bike);
 		}
 
 		public async Task ReturnBike(Bike bike)
@@ -113,11 +131,16 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			if (closeStation != null)
 			{
 				bike.StationId = closeStation.Id;
+
+				await _context.RunTransactionAsync(transaction =>
+				{
+					_stationRepository.Update(closeStation, nameof(Station.NumberOfBikes), FieldValue.Increment(1), transaction);
+					_bikeRepository.Update(bike, transaction);
+				});
+				return;
 			}
-			else
-			{
-				bike.Location = location;
-			}
+
+			bike.Location = location;
 
 			await _bikeRepository.Update(bike);
 		}
@@ -131,7 +154,22 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			return _bikeRepository.Update(bike);
 		}
 
-		public Task Delete(Bike bike) => _bikeRepository.Delete(bike);
+		public async Task Delete(Bike bike)
+		{
+			if (bike.StationId == null)
+			{
+				await _bikeRepository.Delete(bike);
+				return;
+			}
+
+			var station = await _stationRepository.Get(bike.CommunityId, bike.StationId);
+
+			await _context.RunTransactionAsync(transaction =>
+			{
+				_stationRepository.Update(station, nameof(Station.NumberOfBikes), FieldValue.Increment(-1), transaction);
+				_bikeRepository.Delete(bike, transaction);
+			});
+		}
 
 		public ObservableCollection<Bike> ObserveBikesFromCommunity(string communityId) =>
 			_bikeRepository.ObserveBikesFromCommunity(communityId);

@@ -14,6 +14,10 @@ namespace CommunityBikeSharing.Services.Data
 		}
 
 		public Task Update(T model) => GetDocument(model).UpdateAsync(model);
+
+		public Task Update(T model, string field, object value)
+			=> GetDocument(model).UpdateAsync(FieldPath.GetMappingName<T>(field), value);
+
 		public Task Delete(T model) => GetDocument(model).DeleteAsync();
 
 		public void Add(T model, ITransaction transaction)
@@ -25,6 +29,11 @@ namespace CommunityBikeSharing.Services.Data
 		public void Update(T model, ITransaction transaction)
 		{
 			transaction.Update(GetDocument(model), model);
+		}
+
+		public void Update(T model, string field, object value, ITransaction transaction)
+		{
+			transaction.Update(GetDocument(model), FieldPath.GetMappingName<T>(field), value);
 		}
 
 		public void Delete(T model, ITransaction transaction)

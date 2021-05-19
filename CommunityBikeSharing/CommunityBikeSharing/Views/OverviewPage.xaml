@@ -18,7 +18,7 @@
                     <maps:Pin Position="{Binding Location,
                                     Converter={StaticResource PositionConverter}}"
                               Label="{Binding Name}"
-                              MarkerClicked="OnMapStationSelected"/>
+                              MarkerClicked="OnStationSelected"/>
                 </DataTemplate>
             </behaviors:MapItemTemplateSelector.StationTemplate>
             <behaviors:MapItemTemplateSelector.BikeTemplate>
@@ -26,10 +26,56 @@
                     <maps:Pin Position="{Binding Location,
                                     Converter={StaticResource PositionConverter}}"
                               Label="{Binding Name}"
-                              MarkerClicked="OnMapBikeSelected"/>
+                              MarkerClicked="OnBikeSelected"/>
                 </DataTemplate>
             </behaviors:MapItemTemplateSelector.BikeTemplate>
         </behaviors:MapItemTemplateSelector>
+
+        <behaviors:StationBikeTemplateSelector x:Key="ItemTemplateSelector">
+            <behaviors:StationBikeTemplateSelector.StationTemplate>
+                <DataTemplate x:DataType="models:Station">
+                    <StackLayout Orientation="Horizontal"
+                                 Margin="30, 10"
+                                 Spacing="30">
+                        <Label Text="{Binding Name}"
+                               HorizontalOptions="StartAndExpand"/>
+                        <Label Text="{Binding NumberOfBikes,
+                            StringFormat='Fahrräder: {0}'}"
+                            HorizontalOptions="End"/>
+                        <Label TextColor="Green" HorizontalOptions="End">
+                            <Label.Text>
+                                <MultiBinding Converter="{StaticResource DistanceConverter}">
+                                    <Binding Path="Location"/>
+                                    <Binding Source="{x:Reference Page}"
+                                             Path="BindingContext.UserLocation"/>
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+                    </StackLayout>
+                </DataTemplate>
+            </behaviors:StationBikeTemplateSelector.StationTemplate>
+            <behaviors:StationBikeTemplateSelector.BikeTemplate>
+                <DataTemplate x:DataType="models:Bike">
+                    <StackLayout Margin="30,10"
+                                 Orientation="Horizontal">
+                        <Label Text="{Binding Name}"
+                               HorizontalOptions="StartAndExpand"/>
+                        <Label Text="Ausgeliehen"
+                               IsVisible="{Binding InUse}"
+                               HorizontalOptions="End" TextColor="DarkRed"/>
+                        <Label TextColor="Green" HorizontalOptions="End">
+                            <Label.Text>
+                                <MultiBinding Converter="{StaticResource DistanceConverter}">
+                                    <Binding Path="Location"/>
+                                    <Binding Source="{x:Reference Page}"
+                                             Path="BindingContext.UserLocation"/>
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+                    </StackLayout>
+                </DataTemplate>
+            </behaviors:StationBikeTemplateSelector.BikeTemplate>
+        </behaviors:StationBikeTemplateSelector>
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
@@ -38,75 +84,29 @@
                      Priority="0"
                      Command="{Binding ToggleMapCommand}"/>
     </ContentPage.ToolbarItems>
+
     <ContentPage.Content>
         <StackLayout>
             <Label Text="{Binding Heading}"
                    FontSize="16"
                    Margin="30, 20"/>
-            <Label Text="{Binding Summary}"
-                   IsVisible="{Binding SummaryVisible}"
-                   Margin="30, 0"/>
 
-            <ListView ItemsSource="{Binding AllStations}"
-                      ItemTapped="OnStationSelected"
-                      SelectionMode="None"
-                      IsPullToRefreshEnabled="True"
-                      RefreshCommand="{Binding RefreshUserLocationCommand}"
-                      IsRefreshing="{Binding IsRefreshing}"
-                      IsVisible="{Binding ShowMap,
-                      Converter={StaticResource BoolInverter}}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell x:DataType="models:Station">
-                            <StackLayout Orientation="Horizontal"
-                                         Margin="30, 10">
-                                <Label Text="{Binding Name}"/>
-                                <Label TextColor="Green" HorizontalOptions="EndAndExpand">
-                                    <Label.Text>
-                                        <MultiBinding Converter="{StaticResource DistanceConverter}">
-                                            <Binding Path="Location"/>
-                                            <Binding Source="{x:Reference Page}"
-                                                     Path="BindingContext.UserLocation"/>
-                                        </MultiBinding>
-                                    </Label.Text>
-                                </Label>
-                            </StackLayout>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-
-
-            <ListView ItemsSource="{Binding BikesSorted}"
-                      ItemTapped="OnBikeSelected"
-                      SelectionMode="None"
-                      IsPullToRefreshEnabled="True"
-                      RefreshCommand="{Binding RefreshUserLocationCommand}"
-                      IsRefreshing="{Binding IsRefreshing}"
-                      IsVisible="{Binding ShowMap,
-                      Converter={StaticResource BoolInverter}}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell x:DataType="models:Bike">
-                            <StackLayout Margin="30,10" Orientation="Horizontal">
-                                <Label Text="{Binding Name}"/>
-                                <Label Text="Ausgeliehen"
-                                       IsVisible="{Binding InUse}"
-                                       HorizontalOptions="EndAndExpand" TextColor="DarkRed"/>
-                                <Label TextColor="Green" HorizontalOptions="EndAndExpand">
-                                    <Label.Text>
-                                        <MultiBinding Converter="{StaticResource DistanceConverter}">
-                                            <Binding Path="Location"/>
-                                            <Binding Source="{x:Reference Page}"
-                                                     Path="BindingContext.UserLocation"/>
-                                        </MultiBinding>
-                                    </Label.Text>
-                                </Label>
-                            </StackLayout>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+            <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                         Command="{Binding RefreshUserLocationCommand}"
+                         IsVisible="{Binding ShowMap,
+                                    Converter={StaticResource BoolInverter}}"
+                         Margin="30, 0">
+                <CollectionView ItemsSource="{Binding AllItems}"
+                                EmptyView="{Binding Summary}"
+                                ItemTemplate="{StaticResource ItemTemplateSelector}"
+                                SelectionMode="Single"
+                                SelectionChanged="OnItemSelected"
+                                VerticalScrollBarVisibility="Default">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical"/>
+                    </CollectionView.ItemsLayout>
+                </CollectionView>
+            </RefreshView>
 
             <maps:Map
                 x:Name="Map"

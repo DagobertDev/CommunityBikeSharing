@@ -117,7 +117,7 @@ namespace CommunityBikeSharing.Services.Data.Stations
 		public Task<Station> Get(string community, string id) => _stationRepository.Get(community, id);
 		public Task Add(Station station) => _stationRepository.Add(station);
 
-		public Task Update(Station station) => _stationRepository.Add(station);
+		public Task Update(Station station) => _stationRepository.Update(station);
 
 		public async Task Delete(Station station)
 		{

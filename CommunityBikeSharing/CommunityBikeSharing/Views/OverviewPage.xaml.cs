@@ -1,8 +1,11 @@
 ﻿#nullable enable
+using System;
+using System.Linq;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -21,39 +24,54 @@ namespace CommunityBikeSharing.Views
 		{
 			if (BindingContext != null)
 			{
+				ViewModel.OnLocationChanged += LocationChanged;
 				return;
 			}
 
 			BindingContext = Startup.ServiceProvider.GetService<OverviewViewModel>();
 
-			ViewModel.OnLocationChanged += location =>
-			{
-				Map.MoveToRegion(MapSpan.FromCenterAndRadius(
-					location.ToPosition(),
-					Distance.FromKilometers(1)));
-			};
+			ViewModel.OnLocationChanged += LocationChanged;
 
 			await ViewModel.InitializeAsync();
 		}
 
-		private void OnStationSelected(object sender, ItemTappedEventArgs e)
+		protected override void OnDisappearing()
 		{
-			ViewModel.OnStationSelected((Station)e.Item);
+			ViewModel.OnLocationChanged -= LocationChanged;
 		}
 
-		private void OnMapStationSelected(object sender, PinClickedEventArgs e)
+		private void LocationChanged(Location location)
 		{
-			ViewModel.OnStationSelected((Station)((Pin)sender).BindingContext);
+			Map.MoveToRegion(MapSpan.FromCenterAndRadius(
+				location.ToPosition(),
+				Distance.FromKilometers(1)));
 		}
 
-		private void OnBikeSelected(object sender, ItemTappedEventArgs e)
+		private void OnStationSelected(object sender, EventArgs e)
 		{
-			ViewModel.OnBikeSelected((Bike)e.Item);
+			ViewModel.OnStationSelected((Station)((BindableObject)sender).BindingContext);
 		}
 
-		private void OnMapBikeSelected(object sender, PinClickedEventArgs e)
+		private void OnBikeSelected(object sender, EventArgs e)
 		{
-			ViewModel.OnBikeSelected((Bike)((Pin)sender).BindingContext);
+			ViewModel.OnBikeSelected((Bike)((BindableObject)sender).BindingContext);
+		}
+
+		private void OnItemSelected(object sender, SelectionChangedEventArgs e)
+		{
+			switch (e.CurrentSelection.SingleOrDefault())
+			{
+				case Bike bike:
+					ViewModel.OnBikeSelected(bike);
+					break;
+				case Station station:
+					ViewModel.OnStationSelected(station);
+					break;
+				default:
+					return;
+			}
+
+			((SelectableItemsView)sender).SelectedItem = null;
 		}
 	}
 }
