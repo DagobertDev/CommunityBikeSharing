@@ -10,6 +10,10 @@
         <Label Text="{Binding WelcomeMessage}"
                FontSize="16" Padding="30,20"/>
 
+        <Button Text="Benutzernamen ändern"
+                Command="{Binding ChangeUsernameCommand}"
+                Margin="30,0"/>
+
         <Button Text="Logout"
                 Command="{Binding SignOutCommand}"
                 Margin="30,0"/>

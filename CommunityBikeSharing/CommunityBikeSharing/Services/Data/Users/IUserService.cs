@@ -6,7 +6,8 @@ namespace CommunityBikeSharing.Services.Data.Users
 {
 	public interface IUserService
 	{
-		Task<User> Add(string authId, string email);
 		Task<User?> GetUserByEmail(string email);
+		Task<bool> UpdateUsername(string name);
+		Task<User> Register(string email, string password);
 	}
 }

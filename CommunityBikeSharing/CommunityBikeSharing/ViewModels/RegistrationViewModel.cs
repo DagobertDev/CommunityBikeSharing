@@ -3,13 +3,14 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
+using CommunityBikeSharing.Services.Data.Users;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
 	public class RegistrationViewModel : BaseViewModel
 	{
-		private readonly IAuthService _authService;
+		private readonly IUserService _userService;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
 
@@ -30,11 +31,11 @@ namespace CommunityBikeSharing.ViewModels
 
 		private string _repeatedPassword;
 
-		public RegistrationViewModel(IAuthService authService,
+		public RegistrationViewModel(IUserService userService,
 			IDialogService dialogService,
 			INavigationService navigationService)
 		{
-			_authService = authService;
+			_userService = userService;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
 		}
@@ -84,7 +85,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			try
 			{
-				await _authService.Register(Email, Password);
+				await _userService.Register(Email, Password);
 				await _navigationService.NavigateToRoot<OverviewViewModel>();
 			}
 			catch (AuthError e)

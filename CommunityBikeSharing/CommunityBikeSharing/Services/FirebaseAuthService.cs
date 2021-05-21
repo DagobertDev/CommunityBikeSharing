@@ -3,7 +3,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
-using CommunityBikeSharing.Services.Data.Users;
 using Plugin.FirebaseAuth;
 
 namespace CommunityBikeSharing.Services
@@ -11,13 +10,7 @@ namespace CommunityBikeSharing.Services
 	public class FirebaseAuthService : IAuthService
 	{
 		private readonly IAuth _auth = CrossFirebaseAuth.Current.Instance;
-		private readonly IUserService _userService;
 		private IObservable<User> _user;
-
-		public FirebaseAuthService(IUserService userService)
-		{
-			_userService = userService;
-		}
 
 		public async Task<User> Register(string email, string password)
 		{
@@ -59,8 +52,7 @@ namespace CommunityBikeSharing.Services
 			});
 
 			await user.GetIdTokenAsync(true);
-
-			return await _userService.Add(user.Uid, email);
+			return GetCurrentUser();
 		}
 
 		public async Task SignIn(string email, string password)
@@ -118,6 +110,33 @@ namespace CommunityBikeSharing.Services
 			}
 		}
 
+		public async Task UpdateUsername(string name)
+		{
+			var user = _auth.CurrentUser;
+
+			if (user == null)
+			{
+				throw new AuthError(AuthError.AuthErrorReason.Undefined);
+			}
+
+			try
+			{
+				await user.UpdateProfileAsync(new UserProfileChangeRequest
+				{
+					DisplayName = name
+				});
+				await user.GetIdTokenAsync(true);
+			}
+			catch (FirebaseAuthException e)
+			{
+				throw e.Reason switch
+				{
+					"InvalidCredentials" => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
+					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
+				};
+			}
+		}
+
 		public string GetCurrentUserId() => _auth.CurrentUser?.Uid;
 
 		public IObservable<User> ObserveCurrentUser()
@@ -125,6 +144,11 @@ namespace CommunityBikeSharing.Services
 			if (_user == null)
 			{
 				var user = new Subject<User>();
+
+				_auth.IdToken += (sender, args) =>
+				{
+					user.OnNext(GetCurrentUser());
+				};
 
 				_auth.AuthState += (sender, args) =>
 				{

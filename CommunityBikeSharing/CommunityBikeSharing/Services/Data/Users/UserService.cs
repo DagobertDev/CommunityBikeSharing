@@ -10,17 +10,20 @@ namespace CommunityBikeSharing.Services.Data.Users
 		private readonly IFirestoreContext _context;
 		private readonly IUserRepository _userRepository;
 		private readonly IUserEmailRepository _userEmailRepository;
+		private readonly IAuthService _authService;
 
 		public UserService(IFirestoreContext context,
 			IUserRepository userRepository,
-			IUserEmailRepository userEmailRepository)
+			IUserEmailRepository userEmailRepository,
+			IAuthService authService)
 		{
 			_context = context;
 			_userRepository = userRepository;
 			_userEmailRepository = userEmailRepository;
+			_authService = authService;
 		}
 
-		public async Task<User> Add(string authId, string email)
+		private async Task<User> Add(string authId, string email)
 		{
 			if (string.IsNullOrEmpty(authId) || string.IsNullOrEmpty(email))
 			{
@@ -49,6 +52,19 @@ namespace CommunityBikeSharing.Services.Data.Users
 			}
 
 			return await _userRepository.Get(userEmail.UserId);
+		}
+
+		public async Task<User> Register(string email, string password)
+		{
+			var user = await _authService.Register(email, password);
+			return await Add(user.Id, email);
+		}
+
+		public async Task<bool> UpdateUsername(string name)
+		{
+			await _authService.UpdateUsername(name);
+			await _userRepository.Update(_authService.GetCurrentUser());
+			return true;
 		}
 	}
 }

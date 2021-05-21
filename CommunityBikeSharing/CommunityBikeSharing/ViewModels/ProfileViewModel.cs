@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Services;
+using CommunityBikeSharing.Services.Data.Users;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -10,13 +11,24 @@ namespace CommunityBikeSharing.ViewModels
 	{
 		private readonly IAuthService _authService;
 		private readonly INavigationService _navigationService;
+		private readonly IDialogService _dialogService;
+		private readonly IUserService _userService;
 
 		private string _welcomeMessage;
 
-		public ProfileViewModel(INavigationService navigationService, IAuthService authService)
+		public ProfileViewModel(
+			INavigationService navigationService,
+			IAuthService authService,
+			IDialogService dialogService,
+			IUserService userService)
 		{
 			_navigationService = navigationService;
 			_authService = authService;
+			_dialogService = dialogService;
+			_userService = userService;
+
+			SignOutCommand = new Command(SignOut);
+			ChangeUsernameCommand = new Command(ChangeUserName);
 		}
 
 		public string WelcomeMessage
@@ -34,13 +46,31 @@ namespace CommunityBikeSharing.ViewModels
 			return Task.CompletedTask;
 		}
 
-		public ICommand SignOutCommand => new Command(SignOut);
+		public ICommand SignOutCommand { get; }
+		public ICommand ChangeUsernameCommand { get; }
 
 		private async void SignOut()
 		{
 			await _authService.SignOut();
 
 			await _navigationService.NavigateToRoot<RegistrationViewModel>();
+		}
+
+		private async void ChangeUserName()
+		{
+			var name = await _dialogService.ShowTextEditor("Benutzername eingeben",
+				"Bitte geben Sie ihren neuen Benutzernamen ein.");
+
+			if (string.IsNullOrEmpty(name))
+			{
+				return;
+			}
+
+			if (!await _userService.UpdateUsername(name))
+			{
+				await _dialogService.ShowError("Änderung fehlgeschlagen",
+					"Der gewählte Benutzername ist bereits vergeben.");
+			}
 		}
 	}
 }
