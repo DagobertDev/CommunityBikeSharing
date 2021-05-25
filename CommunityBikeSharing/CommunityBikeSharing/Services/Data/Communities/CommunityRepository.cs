@@ -21,6 +21,9 @@ namespace CommunityBikeSharing.Services.Data.Communities
 		public IObservable<Community> Observe(string id)
 			=> Communities.Document(id).AsObservable().Select(snap => snap.ToObject<Community>()!);
 
+		public Community Get(string id, ITransaction transaction) =>
+			transaction.Get(Communities.Document(id)).ToObject<Community>()!;
+
 		protected override IDocumentReference GetDocument(Community community) => Communities.Document(community.Id);
 		protected override IDocumentReference GetNewDocument(Community community) => Communities.Document(community.Id);
 		protected override ICollectionReference GetCollection(Community model) => Communities;

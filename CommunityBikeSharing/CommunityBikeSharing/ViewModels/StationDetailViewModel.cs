@@ -35,9 +35,9 @@ namespace CommunityBikeSharing.ViewModels
 			_communityId = communityId;
 			_stationId = stationId;
 
-			LendBikeCommand = new Command<Bike>(LendBike, CanLendBike);
-			ReturnBikeCommand = new Command<Bike>(ReturnBike, CanReturnBike);
-			ReserveBikeCommand = new Command<Bike>(ReserveBike, CanReserveBike);
+			LendBikeCommand = new Command<Bike>(LendBike, bikeService.CanLendBike);
+			ReturnBikeCommand = new Command<Bike>(ReturnBike, bikeService.CanReturnBike);
+			ReserveBikeCommand = new Command<Bike>(ReserveBike, bikeService.CanReserveBike);
 		}
 
 		private Station? _station;
@@ -94,19 +94,16 @@ namespace CommunityBikeSharing.ViewModels
 			//TODO: Open lock
 			await _bikeService.LendBike(bike);
 		}
-		private bool CanLendBike(Bike bike) => string.IsNullOrEmpty(bike.CurrentUser);
 
 		private async void ReturnBike(Bike bike)
 		{
 			// TODO: Close lock
 			await _bikeService.ReturnBike(bike);
 		}
-		private bool CanReturnBike(Bike bike) => !string.IsNullOrEmpty(bike.CurrentUser);
 
-		private void ReserveBike(Bike bike)
+		private async void ReserveBike(Bike bike)
 		{
-			// TODO
+			await _bikeService.ReserveBike(bike);
 		}
-		private bool CanReserveBike(Bike bike) => CanLendBike(bike);
 	}
 }

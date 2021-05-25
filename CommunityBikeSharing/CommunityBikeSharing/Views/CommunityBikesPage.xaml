@@ -16,10 +16,14 @@
                     <DataTemplate>
                         <ViewCell x:DataType="models:Bike">
                             <StackLayout Margin="30 ,10" Orientation="Horizontal">
-                                <Label Text="{Binding Name}"/>
+                                <Label Text="{Binding Name}"
+                                       HorizontalOptions="StartAndExpand"/>
                                 <Label Text="Ausgeliehen"
-                                       IsVisible="{Binding InUse}"
-                                       HorizontalOptions="EndAndExpand" TextColor="DarkRed"/>
+                                       IsVisible="{Binding Lent}"
+                                       HorizontalOptions="End" TextColor="DarkRed"/>
+                                <Label Text="Reserviert"
+                                       IsVisible="{Binding Reserved}"
+                                       HorizontalOptions="End" TextColor="DarkOrange"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

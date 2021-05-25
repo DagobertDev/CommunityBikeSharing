@@ -61,8 +61,11 @@
                         <Label Text="{Binding Name}"
                                HorizontalOptions="StartAndExpand"/>
                         <Label Text="Ausgeliehen"
-                               IsVisible="{Binding InUse}"
+                               IsVisible="{Binding Lent}"
                                HorizontalOptions="End" TextColor="DarkRed"/>
+                        <Label Text="Reserviert"
+                               IsVisible="{Binding Reserved}"
+                               HorizontalOptions="End" TextColor="DarkOrange"/>
                         <Label TextColor="Green" HorizontalOptions="End">
                             <Label.Text>
                                 <MultiBinding Converter="{StaticResource DistanceConverter}">

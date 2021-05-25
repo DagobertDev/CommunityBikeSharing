@@ -1,10 +1,13 @@
 ﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
+using CommunityBikeSharing.Models.Extensions;
+using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Stations;
 using Plugin.CloudFirestore;
@@ -21,13 +24,12 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 
 		private readonly ObservableCollection<Bike> _bikes = new ObservableCollection<Bike>();
 
-		private readonly NotifyCollectionChangedEventHandler _bikesChanged;
-
 		private readonly IBikeRepository _bikeRepository;
 		private readonly IAuthService _authService;
 		private readonly IMembershipRepository _membershipRepository;
 		private readonly ILocationService _locationService;
 		private readonly IStationRepository _stationRepository;
+		private readonly ICommunityRepository _communityRepository;
 		private string? _userId;
 
 		public BikeService(
@@ -36,7 +38,8 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			IAuthService authService,
 			IMembershipRepository membershipRepository,
 			ILocationService locationService,
-			IStationRepository stationRepository)
+			IStationRepository stationRepository,
+			ICommunityRepository communityRepository)
 		{
 			_context = context;
 			_bikeRepository = bikeRepository;
@@ -44,19 +47,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			_membershipRepository = membershipRepository;
 			_locationService = locationService;
 			_stationRepository = stationRepository;
-
-			_bikesChanged = (sender, args) =>
-			{
-				_bikes.Clear();
-
-				foreach (var bike in _allBikes.Values
-					.SelectMany(bikes => bikes)
-					.Where(bike => (!bike.InUse && bike.StationId == null)
-					               || bike.CurrentUser == _userId))
-				{
-					_bikes.Add(bike);
-				}
-			};
+			_communityRepository = communityRepository;
 		}
 
 		public ObservableCollection<Bike> ObserveBikesFromStation(Station station) =>
@@ -79,7 +70,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			{
 				foreach (var bike in _allBikes)
 				{
-					bike.Value.CollectionChanged -= _bikesChanged;
+					bike.Value.CollectionChanged -= BikesChanged;
 				}
 
 				_allBikes.Clear();
@@ -89,10 +80,24 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 					var communityBikes =
 						_bikeRepository.ObserveBikesFromCommunity(membership.CommunityId);
 
-					communityBikes.CollectionChanged += _bikesChanged;
+					communityBikes.CollectionChanged += BikesChanged;
 					_allBikes[membership.Id] = communityBikes;
 				}
 			};
+
+			void BikesChanged(object o, NotifyCollectionChangedEventArgs eventArgs)
+			{
+				_bikes.Clear();
+
+				foreach (var bike in _allBikes.Values
+					.SelectMany(bikes => bikes)
+					.Where(bike => bike.IsFreeFloating()
+					               && !bike.IsReserved()
+					               || bike.CurrentUser == _userId))
+				{
+					_bikes.Add(bike);
+				}
+			}
 
 			return _bikes;
 		}
@@ -101,6 +106,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		{
 			bike.CurrentUser = _userId;
 			bike.Location = null;
+			bike.ReservedUntil = null;
 
 			if (bike.StationId != null)
 			{
@@ -118,8 +124,22 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			await _bikeRepository.Update(bike);
 		}
 
+		public Task ReserveBike(Bike bike)
+		{
+			return _context.RunTransactionAsync(transaction =>
+			{
+				var community = _communityRepository.Get(bike.CommunityId, transaction);
+
+				bike.CurrentUser = _userId;
+				bike.ReservedUntil = DateTime.UtcNow.Add(community.ReserveTime);
+
+				_bikeRepository.Update(bike, transaction);
+			});
+		}
+
 		public async Task ReturnBike(Bike bike)
 		{
+			bike.ReservedUntil = null;
 			bike.CurrentUser = null;
 
 			var stations = await _stationRepository.GetStationsFromCommunity(bike.CommunityId);
