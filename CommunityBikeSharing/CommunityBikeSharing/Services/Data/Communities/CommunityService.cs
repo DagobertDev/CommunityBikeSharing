@@ -58,8 +58,12 @@ namespace CommunityBikeSharing.Services.Data.Communities
 		}
 
 		public Task Rename(Community community, string name)
+			=> _communityRepository.Update(community, nameof(Community.Name), name);
+
+		public Task UpdateReservationDuration(Community community, TimeSpan reservationTime)
 		{
-			community.Name = name;
+			// We can't just update the single field because TimeSpan needs to be converted.
+			community.ReserveTime = reservationTime;
 			return _communityRepository.Update(community);
 		}
 

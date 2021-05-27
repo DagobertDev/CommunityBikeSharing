@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using CommunityBikeSharing.Services.Data;
 using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Memberships;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +18,6 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IMembershipService _membershipService;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
-		private readonly IAuthService _authService;
 
 		private Community _community;
 		private CommunityMembership _membership;
@@ -54,7 +52,6 @@ namespace CommunityBikeSharing.ViewModels
 			IMembershipService membershipService,
 			IDialogService dialogService,
 			INavigationService navigationService,
-			IAuthService authService,
 			string id)
 		{
 			_id = id;
@@ -62,7 +59,7 @@ namespace CommunityBikeSharing.ViewModels
 			_membershipService = membershipService;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
-			_authService = authService;
+
 
 			CommunityMembersViewModel =
 				ActivatorUtilities.CreateInstance<CommunityMembersViewModel>(Startup.ServiceProvider, _id);
@@ -91,6 +88,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			var commands = new (string, ICommand)[]
 			{
+				("Reservierungsdauer festlegen", new Command(UpdateReservationDuration, CanUpdateReservationDuration)),
 				("Community umbenennen", new Command(RenameCommunity, CanRenameCommunity)),
 				("Community verlassen", new Command(LeaveCommunity, CanLeaveCommunity)),
 				("Community löschen", new Command(DeleteCommunity, CanDeleteCommunity))
@@ -98,6 +96,22 @@ namespace CommunityBikeSharing.ViewModels
 
 			await _dialogService.ShowActionSheet("Einstellungen", "Abbrechen", commands);
 		}
+
+		private async void UpdateReservationDuration()
+		{
+			var duration = await _dialogService.ShowTextEditor("Reservierungsdauer festlegen",
+				"Wie lange sollen Reservierungen gültig sein (in Stunden)?",
+				keyboard: IDialogService.KeyboardType.Numeric);
+
+			if (string.IsNullOrEmpty(duration))
+			{
+				return;
+			}
+
+			await _communityService.UpdateReservationDuration(Community, TimeSpan.FromHours(int.Parse(duration)));
+		}
+
+		private bool CanUpdateReservationDuration() => _membership.IsCommunityAdmin;
 
 		private async void RenameCommunity()
 		{

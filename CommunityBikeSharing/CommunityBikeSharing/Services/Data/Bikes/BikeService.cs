@@ -168,11 +168,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		public Task<Bike> Add(string name, string communityId)
 			=> _bikeRepository.Add(new Bike {Name = name, CommunityId = communityId});
 
-		public Task Rename(Bike bike, string name)
-		{
-			bike.Name = name;
-			return _bikeRepository.Update(bike);
-		}
+		public Task Rename(Bike bike, string name) => _bikeRepository.Update(bike, nameof(Bike.Name), name);
 
 		public async Task Delete(Bike bike)
 		{

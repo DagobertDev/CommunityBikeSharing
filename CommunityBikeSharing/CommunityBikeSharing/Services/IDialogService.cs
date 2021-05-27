@@ -27,7 +27,7 @@ namespace CommunityBikeSharing.Services
 
 		public enum KeyboardType
 		{
-			Default, Email
+			Default, Email, Numeric
 		}
 	}
 }

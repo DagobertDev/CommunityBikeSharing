@@ -24,7 +24,7 @@ namespace CommunityBikeSharing.Services.Data
 				return true;
 			}
 
-			result = null;
+			result = TimeSpan.Zero;
 			return false;
 		}
 
@@ -32,11 +32,11 @@ namespace CommunityBikeSharing.Services.Data
 		{
 			if (value is TimeSpan timeSpan)
 			{
-				result = timeSpan.Minutes;
+				result = timeSpan.TotalMinutes;
 				return true;
 			}
 
-			result = null;
+			result = 0;
 			return false;
 		}
 	}

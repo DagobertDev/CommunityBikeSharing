@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace CommunityBikeSharing.Services
 			{
 				IDialogService.KeyboardType.Default => Keyboard.Default,
 				IDialogService.KeyboardType.Email => Keyboard.Email,
+				IDialogService.KeyboardType.Numeric => Keyboard.Numeric,
 				_ => Keyboard.Default
 			};
 

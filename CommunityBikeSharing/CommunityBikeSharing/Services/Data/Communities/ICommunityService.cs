@@ -10,6 +10,7 @@ namespace CommunityBikeSharing.Services.Data.Communities
 	{
 		Task<Community> Create(string name);
 		Task Rename(Community community, string name);
+		Task UpdateReservationDuration(Community community, TimeSpan reservationTime);
 		Task Delete(Community community);
 		IObservable<Community> Observe(string id);
 		ObservableCollection<Community> GetCommunities();
