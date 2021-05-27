@@ -25,6 +25,14 @@ namespace CommunityBikeSharing.Services.Data.Memberships
 			=> Memberships.Document(CommunityMembership.GetId(community, user.Id))
 				.AsObservable().Select(snapshot => snapshot.ToObject<CommunityMembership>()!);
 
+		public async Task<ICollection<CommunityMembership>> GetMembershipsFromUser(string user)
+		{
+			var snapshot =
+				await Memberships.WhereEqualsTo(nameof(CommunityMembership.UserId), user).GetAsync();
+
+			return snapshot.ToObjects<CommunityMembership>().ToList();
+		}
+
 		public async Task<ICollection<CommunityMembership>> GetMembershipsFromCommunity(string community)
 		{
 			var doc =

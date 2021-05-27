@@ -10,6 +10,7 @@ namespace CommunityBikeSharing.Services.Data.Memberships
 	public interface IMembershipRepository : IRepository<CommunityMembership>
 	{
 		IObservable<CommunityMembership> Observe(string community, User user);
+		Task<ICollection<CommunityMembership>> GetMembershipsFromUser(string user);
 		Task<ICollection<CommunityMembership>> GetMembershipsFromCommunity(string community);
 		ObservableCollection<CommunityMembership> ObserveMembershipsFromCommunity(string communityId);
 		ObservableCollection<CommunityMembership> ObserveMembershipsFromUser(string userId);

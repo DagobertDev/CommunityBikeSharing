@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
+using CommunityBikeSharing.Services.Data.Memberships;
 
 namespace CommunityBikeSharing.Services.Data.Users
 {
@@ -11,15 +12,18 @@ namespace CommunityBikeSharing.Services.Data.Users
 		private readonly IUserRepository _userRepository;
 		private readonly IUserEmailRepository _userEmailRepository;
 		private readonly IAuthService _authService;
+		private readonly IMembershipRepository _membershipRepository;
 
 		public UserService(IFirestoreContext context,
 			IUserRepository userRepository,
 			IUserEmailRepository userEmailRepository,
+			IMembershipRepository membershipRepository,
 			IAuthService authService)
 		{
 			_context = context;
 			_userRepository = userRepository;
 			_userEmailRepository = userEmailRepository;
+			_membershipRepository = membershipRepository;
 			_authService = authService;
 		}
 
@@ -63,7 +67,21 @@ namespace CommunityBikeSharing.Services.Data.Users
 		public async Task<bool> UpdateUsername(string name)
 		{
 			await _authService.UpdateUsername(name);
-			await _userRepository.Update(_authService.GetCurrentUser());
+
+			var user = _authService.GetCurrentUser();
+
+			var memberships = await _membershipRepository.GetMembershipsFromUser(user.Id);
+
+			await _context.RunTransactionAsync(transaction =>
+			{
+				_userRepository.Update(_authService.GetCurrentUser(), nameof(User.Username), name, transaction);
+
+				foreach (var membership in memberships)
+				{
+					_membershipRepository.Update(membership, nameof(CommunityMembership.Name), name, transaction);
+				}
+			});
+
 			return true;
 		}
 	}
