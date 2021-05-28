@@ -1,4 +1,5 @@
-﻿using CommunityBikeSharing.Models;
+﻿#nullable enable
+using CommunityBikeSharing.Models;
 using CommunityBikeSharing.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
@@ -10,13 +11,18 @@ namespace CommunityBikeSharing.Views
 		public CommunitiesPage()
 		{
 			InitializeComponent();
-
-			BindingContext = Startup.ServiceProvider.GetService<CommunitiesViewModel>();
 		}
 
 		protected override async void OnAppearing()
 		{
-			await ((BaseViewModel)BindingContext).InitializeAsync();
+			if (BindingContext != null)
+			{
+				return;
+			}
+
+			var viewModel = Startup.ServiceProvider.GetService<CommunitiesViewModel>()!;
+			BindingContext = viewModel;
+			await viewModel.InitializeAsync();
 		}
 
 		private void OnCommunitySelected(object sender, ItemTappedEventArgs e)

@@ -17,15 +17,23 @@ namespace CommunityBikeSharing.Services.Data
 
 		public override bool ConvertFrom(DocumentObject value, out object? result)
 		{
-			if (value.Type == DocumentObjectType.Int64)
+			switch (value.Type)
 			{
-				var number = value.Int64;
-				result = TimeSpan.FromMinutes(number);
-				return true;
+				case DocumentObjectType.Int64:
+				{
+					var number = value.Int64;
+					result = TimeSpan.FromMinutes(number);
+					return true;
+				}
+				case DocumentObjectType.Double:
+				{
+					var number = value.Double;
+					result = TimeSpan.FromMinutes(number);
+					return true;
+				}
+				default:
+					throw new NotImplementedException($"{value.Type} can't be converted to {nameof(TimeSpan)}");
 			}
-
-			result = TimeSpan.Zero;
-			return false;
 		}
 
 		public override bool ConvertTo(object? value, out object? result)
@@ -37,7 +45,7 @@ namespace CommunityBikeSharing.Services.Data
 			}
 
 			result = 0;
-			return false;
+			return true;
 		}
 	}
 }
