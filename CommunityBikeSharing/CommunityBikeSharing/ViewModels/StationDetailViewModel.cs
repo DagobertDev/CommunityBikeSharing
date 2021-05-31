@@ -38,6 +38,7 @@ namespace CommunityBikeSharing.ViewModels
 			LendBikeCommand = new Command<Bike>(LendBike, bikeService.CanLendBike);
 			ReturnBikeCommand = new Command<Bike>(ReturnBike, bikeService.CanReturnBike);
 			ReserveBikeCommand = new Command<Bike>(ReserveBike, bikeService.CanReserveBike);
+			DeleteReservationCommand = new Command<Bike>(DeleteReservation, bikeService.CanDeleteReservation);
 		}
 
 		private Station? _station;
@@ -76,6 +77,7 @@ namespace CommunityBikeSharing.ViewModels
 		public Command<Bike> LendBikeCommand { get; }
 		public Command<Bike> ReturnBikeCommand { get; }
 		public Command<Bike> ReserveBikeCommand { get; }
+		public Command<Bike> DeleteReservationCommand { get; }
 
 		public async void OnBikeSelected(Bike bike)
 		{
@@ -83,7 +85,8 @@ namespace CommunityBikeSharing.ViewModels
 			{
 				("Fahrrad ausleihen", LendBikeCommand),
 				("Fahrrad zurückgeben", ReturnBikeCommand),
-				("Fahrrad reservieren", ReserveBikeCommand)
+				("Fahrrad reservieren", ReserveBikeCommand),
+				("Reservierung löschen", DeleteReservationCommand)
 			};
 
 			await _dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
@@ -104,6 +107,11 @@ namespace CommunityBikeSharing.ViewModels
 		private async void ReserveBike(Bike bike)
 		{
 			await _bikeService.ReserveBike(bike);
+		}
+
+		private async void DeleteReservation(Bike bike)
+		{
+			await _bikeService.DeleteReservation(bike);
 		}
 	}
 }

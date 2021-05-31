@@ -24,6 +24,6 @@ namespace CommunityBikeSharing.Models
 		public bool Lent => CurrentUser != null && ReservedUntil == null;
 
 		[Ignored]
-		public bool Reserved => ReservedUntil != null;
+		public bool Reserved => ReservedUntil >= DateTime.UtcNow;
 	}
 }

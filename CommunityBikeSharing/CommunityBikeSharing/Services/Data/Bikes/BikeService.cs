@@ -137,6 +137,15 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			});
 		}
 
+		public Task DeleteReservation(Bike bike)
+		{
+			return _context.RunTransactionAsync(transaction =>
+			{
+				_bikeRepository.Update(bike, nameof(Bike.ReservedUntil), null, transaction);
+				_bikeRepository.Update(bike, nameof(Bike.CurrentUser), null, transaction);
+			});
+		}
+
 		public async Task ReturnBike(Bike bike)
 		{
 			bike.ReservedUntil = null;

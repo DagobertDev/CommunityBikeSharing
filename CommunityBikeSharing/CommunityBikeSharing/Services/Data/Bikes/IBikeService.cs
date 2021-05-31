@@ -12,6 +12,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		Task Delete(Bike bike);
 		Task LendBike(Bike bike);
 		Task ReserveBike(Bike bike);
+		Task DeleteReservation(Bike bike);
 		Task ReturnBike(Bike bike);
 		ObservableCollection<Bike> ObserveBikesFromCommunity(string communityId);
 		ObservableCollection<Bike> ObserveBikesFromStation(Station station);
@@ -20,5 +21,6 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		bool CanLendBike(Bike bike) => !bike.Lent;
 		bool CanReturnBike(Bike bike) => bike.Lent;
 		bool CanReserveBike(Bike bike) => !bike.Lent && !bike.Reserved;
+		bool CanDeleteReservation(Bike bike) => bike.Reserved;
 	}
 }

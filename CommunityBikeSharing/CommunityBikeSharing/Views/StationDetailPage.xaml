@@ -16,10 +16,18 @@
                       ItemTapped="OnBikeSelected"
                       SelectionMode="None">
                 <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell x:DataType="models:Bike">
-                            <StackLayout Margin="30,10" Orientation="Horizontal">
-                                <Label Text="{Binding Name}"/>
+                    <DataTemplate x:DataType="models:Bike">
+                        <ViewCell>
+                            <StackLayout Margin="30,10"
+                                         Orientation="Horizontal">
+                                <Label Text="{Binding Name}"
+                                       HorizontalOptions="StartAndExpand"/>
+                                <Label Text="Ausgeliehen"
+                                       IsVisible="{Binding Lent}"
+                                       HorizontalOptions="End" TextColor="DarkRed"/>
+                                <Label Text="Reserviert"
+                                       IsVisible="{Binding Reserved}"
+                                       HorizontalOptions="End" TextColor="DarkOrange"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

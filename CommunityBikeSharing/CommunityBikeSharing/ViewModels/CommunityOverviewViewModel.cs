@@ -108,7 +108,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _communityService.UpdateReservationDuration(Community, TimeSpan.FromHours(int.Parse(duration)));
+			await _communityService.UpdateReservationDuration(Community, TimeSpan.FromHours(double.Parse(duration)));
 		}
 
 		private bool CanUpdateReservationDuration() => _membership.IsCommunityAdmin;
