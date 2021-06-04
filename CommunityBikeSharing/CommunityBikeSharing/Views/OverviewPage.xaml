@@ -6,6 +6,8 @@
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
              xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
              xmlns:behaviors="clr-namespace:CommunityBikeSharing.Views.Behaviors;assembly=CommunityBikeSharing"
+             xmlns:fa="clr-namespace:FontAwesome;assembly=CommunityBikeSharing"
+             xmlns:assets="clr-namespace:CommunityBikeSharing.Assets;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.OverviewPage"
              x:DataType="viewModels:OverviewViewModel"
              x:Name="Page"
@@ -37,6 +39,8 @@
                     <StackLayout Orientation="Horizontal"
                                  Margin="30, 10"
                                  Spacing="30">
+                        <Label Text="{x:Static fa:FontAwesomeIcons.Home}"
+                               FontFamily="{x:Static assets:Fonts.SolidIcons}"/>
                         <Label Text="{Binding Name}"
                                HorizontalOptions="StartAndExpand"/>
                         <Label Text="{Binding NumberOfBikes,
@@ -57,7 +61,10 @@
             <behaviors:StationBikeTemplateSelector.BikeTemplate>
                 <DataTemplate x:DataType="models:Bike">
                     <StackLayout Margin="30,10"
+                                 Spacing="30"
                                  Orientation="Horizontal">
+                        <Label Text="{x:Static fa:FontAwesomeIcons.Biking}"
+                               FontFamily="{x:Static assets:Fonts.SolidIcons}"/>
                         <Label Text="{Binding Name}"
                                HorizontalOptions="StartAndExpand"/>
                         <Label Text="Ausgeliehen"

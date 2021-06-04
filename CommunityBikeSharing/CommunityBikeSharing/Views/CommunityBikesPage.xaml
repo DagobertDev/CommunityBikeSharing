@@ -4,6 +4,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
              xmlns:models="clr-namespace:CommunityBikeSharing.Models;assembly=CommunityBikeSharing"
+             xmlns:fa="clr-namespace:FontAwesome;assembly=CommunityBikeSharing"
+             xmlns:assets="clr-namespace:CommunityBikeSharing.Assets;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.CommunityBikesPage"
              x:DataType="viewModels:CommunityBikesViewModel"
              Title="Fahrräder">
@@ -15,7 +17,9 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell x:DataType="models:Bike">
-                            <StackLayout Margin="30 ,10" Orientation="Horizontal">
+                            <StackLayout Margin="30 ,10" Spacing="30" Orientation="Horizontal">
+                                <Label Text="{x:Static fa:FontAwesomeIcons.Biking}"
+                                       FontFamily="{x:Static assets:Fonts.SolidIcons}"/>
                                 <Label Text="{Binding Name}"
                                        HorizontalOptions="StartAndExpand"/>
                                 <Label Text="Ausgeliehen"
