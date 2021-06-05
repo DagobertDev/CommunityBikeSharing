@@ -8,6 +8,7 @@
              xmlns:behaviors="clr-namespace:CommunityBikeSharing.Views.Behaviors;assembly=CommunityBikeSharing"
              xmlns:fa="clr-namespace:FontAwesome;assembly=CommunityBikeSharing"
              xmlns:assets="clr-namespace:CommunityBikeSharing.Assets;assembly=CommunityBikeSharing"
+             xmlns:views="clr-namespace:CommunityBikeSharing.Views;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.OverviewPage"
              x:DataType="viewModels:OverviewViewModel"
              x:Name="Page"
@@ -118,14 +119,14 @@
                 </CollectionView>
             </RefreshView>
 
-            <maps:Map
+            <views:OverviewMap
                 x:Name="Map"
                 IsShowingUser="True"
                 ItemsSource="{Binding AllItems}"
                 ItemTemplateSelector="{StaticResource MapItemTemplateSelector}"
                 MoveToLastRegionOnLayoutChange="False"
                 IsVisible="{Binding ShowMap}">
-            </maps:Map>
+            </views:OverviewMap>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
