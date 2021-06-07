@@ -12,5 +12,6 @@ namespace CommunityBikeSharing.Models
 
 		[DocumentConverter(typeof(TimeSpanConverter))]
 		public TimeSpan ReserveTime { get; set; } = TimeSpan.FromHours(2);
+		public bool ShowCurrentUser { get; set; }
 	}
 }

@@ -9,6 +9,7 @@ namespace CommunityBikeSharing.Services.Data.Memberships
 {
 	public interface IMembershipService
 	{
+		Task<CommunityMembership> Get(string community, string user);
 		IObservable<CommunityMembership> Observe(string community);
 		Task<ICollection<CommunityMembership>> GetMembershipsFromCommunity(string community);
 		ObservableCollection<CommunityMembership> ObserveMembershipsFromCommunity(string communityId);

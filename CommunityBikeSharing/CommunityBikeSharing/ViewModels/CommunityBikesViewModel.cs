@@ -8,6 +8,7 @@ using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
+using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Memberships;
 using Xamarin.Forms;
 
@@ -18,16 +19,19 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IDialogService _dialogService;
 		private readonly IBikeService _bikeService;
 		private readonly IMembershipService _membershipService;
+		private readonly ICommunityService _communityService;
 		private readonly string _communityId;
 
 		public CommunityBikesViewModel(IDialogService dialogService,
 			IBikeService bikeService,
 			IMembershipService membershipService,
+			ICommunityService communityService,
 			string id)
 		{
 			_dialogService = dialogService;
 			_bikeService = bikeService;
 			_membershipService = membershipService;
+			_communityService = communityService;
 
 			_communityId = id;
 
@@ -68,6 +72,17 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
+		private Community _community;
+		private Community Community
+		{
+			get => _community;
+			set
+			{
+				_community = value;
+				OnPropertyChanged();
+			}
+		}
+
 		public IEnumerable<Bike> SortedBikes => Bikes?.OrderBy(m => m.Name);
 
 		public ICommand AddBikeCommand => new Command(AddBike);
@@ -94,6 +109,10 @@ namespace CommunityBikeSharing.ViewModels
 				membership => CurrentUserMembership = membership,
 				exception => CurrentUserMembership = null);
 
+			_communityService.Observe(_communityId).Subscribe(
+				community => Community = community,
+				exception => Community = null);
+
 			return Task.CompletedTask;
 		}
 
@@ -103,6 +122,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			var actions = new []
 			{
+				("Aktuellen Ausleiher anzeigen", ShowCurrentLenderCommand),
 				("Fahrrad umbenennen", RenameBikeCommand),
 				("Fahrrad entfernen", DeleteBikeCommand)
 			};
@@ -143,5 +163,20 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		private bool CanDeleteBike(Bike bike) => CurrentUserMembership is {IsCommunityAdmin: true};
+
+		public ICommand ShowCurrentLenderCommand => new Command<Bike>(ShowCurrentLender, CanShowCurrentLender);
+
+		private async void ShowCurrentLender(Bike bike)
+		{
+			var lenderId = bike.CurrentUser;
+
+			var membership = await _membershipService.Get(_communityId, lenderId!);
+
+			await _dialogService.ShowMessage("", $"{membership.Name}");
+		}
+
+		private bool CanShowCurrentLender(Bike bike) => Community.ShowCurrentUser
+		                                                && bike.CurrentUser != null
+		                                                && CurrentUserMembership is {IsCommunityAdmin: true};
 	}
 }

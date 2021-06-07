@@ -28,7 +28,7 @@ namespace CommunityBikeSharing.Services.Data.Communities
 			_authService = authService;
 		}
 
-		public async Task<Community> Create(string name)
+		public async Task<Community> Create(string name, bool showCurrentUser)
 		{
 			var creator = _authService.GetCurrentUser();
 
@@ -37,7 +37,8 @@ namespace CommunityBikeSharing.Services.Data.Communities
 			var community = new Community
 			{
 				Id = communityId,
-				Name = name
+				Name = name,
+				ShowCurrentUser = showCurrentUser
 			};
 
 			var membership = new CommunityMembership

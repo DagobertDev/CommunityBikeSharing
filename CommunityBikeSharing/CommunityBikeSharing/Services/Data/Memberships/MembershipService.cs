@@ -21,6 +21,8 @@ namespace CommunityBikeSharing.Services.Data.Memberships
 			_authService = authService;
 		}
 
+		public Task<CommunityMembership> Get(string community, string user) => _membershipRepository.Get(community, user);
+
 		public IObservable<CommunityMembership> Observe(string community)
 		{
 			var user = _authService.GetCurrentUser();

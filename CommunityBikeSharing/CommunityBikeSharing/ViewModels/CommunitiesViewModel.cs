@@ -47,7 +47,11 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			var community = await _communityService.Create(name);
+			var showCurrentUser = await _dialogService.ShowConfirmation("Aktuellen Ausleiher anzeigen",
+				"Sollen Community-Administratoren sehen können, von wem ein Fahrrad zur Zeit ausgeliehen wird?",
+				"Ja", "Nein");
+
+			var community = await _communityService.Create(name, showCurrentUser);
 			OpenCommunityDetail(community);
 		}
 
