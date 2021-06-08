@@ -74,7 +74,9 @@
                         <Label Text="Reserviert"
                                IsVisible="{Binding Reserved}"
                                HorizontalOptions="End" TextColor="DarkOrange"/>
-                        <Label TextColor="Green" HorizontalOptions="End">
+                        <Label TextColor="Green" HorizontalOptions="End"
+                               IsVisible="{Binding Location,
+                                    Converter={StaticResource IsNotNull}}">
                             <Label.Text>
                                 <MultiBinding Converter="{StaticResource DistanceConverter}">
                                     <Binding Path="Location"/>
