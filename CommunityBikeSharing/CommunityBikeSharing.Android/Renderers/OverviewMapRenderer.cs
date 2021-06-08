@@ -1,12 +1,12 @@
 ﻿using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
 using CommunityBikeSharing.Droid.Renderers;
-using CommunityBikeSharing.Views;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 using Xamarin.Forms.Maps.Android;
 using View = Android.Views.View;
 using Android.Content;
+using CommunityBikeSharing.Controls;
 using CommunityBikeSharing.Models;
 
 [assembly: ExportRenderer(typeof(OverviewMap), typeof(OverviewMapRenderer))]

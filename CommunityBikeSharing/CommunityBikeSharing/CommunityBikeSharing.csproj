@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Plugin.CloudFirestore" Version="4.1.0" />
     <PackageReference Include="Plugin.FirebaseAuth" Version="4.1.0" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
@@ -24,5 +25,6 @@
     <EmbeddedResource Include="Assets\Font Awesome 5 Free-Solid-900.otf" />
     <None Remove="Assets\Font Awesome 5 Free-Regular-400.otf" />
     <EmbeddedResource Include="Assets\Font Awesome 5 Free-Regular-400.otf" />
+    <EmbeddedResource Include="Configuration\appsettings.json" />
   </ItemGroup>
 </Project>

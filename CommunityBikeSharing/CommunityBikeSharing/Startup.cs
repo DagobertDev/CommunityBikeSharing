@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
+using CommunityBikeSharing.Configuration;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data;
 using CommunityBikeSharing.Services.Data.Bikes;
@@ -9,6 +12,7 @@ using CommunityBikeSharing.Services.Data.Users;
 using CommunityBikeSharing.ViewModels;
 using CommunityBikeSharing.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace CommunityBikeSharing
 {
@@ -30,7 +34,9 @@ namespace CommunityBikeSharing
 
 		private static void ConfigureServices(IServiceCollection services)
 		{
-			services.AddSingleton<IAuthService, FirebaseAuthService>()
+			services.AddConfiguration()
+
+				.AddSingleton<IAuthService, FirebaseAuthService>()
 				.AddSingleton<IDialogService, DialogService>()
 				.AddSingleton<ILocationPicker, LocationPicker>()
 				.AddSingleton<ILocationService, LocationService>()
@@ -42,6 +48,25 @@ namespace CommunityBikeSharing
 				.AddViewModels()
 
 				.AddSingleton<App>();
+		}
+
+		private static IServiceCollection AddConfiguration(this IServiceCollection services)
+		{
+			var stream = Assembly.GetAssembly(typeof(AppSettings))
+				.GetManifestResourceStream("CommunityBikeSharing.Configuration.appsettings.json");
+
+			if (stream == null)
+			{
+				throw new Exception("Could not find configuration");
+			}
+
+			using var reader = new StreamReader(stream);
+
+			var json = reader.ReadToEnd();
+
+			var appSettings = JsonConvert.DeserializeObject<AppSettings>(json);
+
+			return services.AddSingleton(appSettings ?? throw new Exception("Could not load configuration"));
 		}
 
 		private static IServiceCollection AddRepositories(this IServiceCollection services) =>

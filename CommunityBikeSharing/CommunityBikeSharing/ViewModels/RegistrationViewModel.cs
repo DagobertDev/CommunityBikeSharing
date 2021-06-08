@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityBikeSharing.Configuration;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Users;
@@ -33,11 +34,15 @@ namespace CommunityBikeSharing.ViewModels
 
 		public RegistrationViewModel(IUserService userService,
 			IDialogService dialogService,
-			INavigationService navigationService)
+			INavigationService navigationService,
+			AppSettings appSettings)
 		{
 			_userService = userService;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
+
+			ToSUrl = appSettings.ToSUrl;
+			PrivacyStatementUrl = appSettings.PrivacyStatementUrl;
 		}
 
 		public string Email
@@ -69,6 +74,9 @@ namespace CommunityBikeSharing.ViewModels
 				OnPropertyChanged();
 			}
 		}
+
+		public string ToSUrl { get; }
+		public string PrivacyStatementUrl { get; }
 
 		public ICommand GoToLoginCommand => new Command(GoToLogin);
 		private async void GoToLogin() => await _navigationService.NavigateToRoot<LoginViewModel>();

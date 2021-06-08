@@ -1,6 +1,6 @@
 ﻿using Xamarin.Forms.Maps;
 
-namespace CommunityBikeSharing.Views
+namespace CommunityBikeSharing.Controls
 {
 	public class OverviewMap : Map { }
 }
