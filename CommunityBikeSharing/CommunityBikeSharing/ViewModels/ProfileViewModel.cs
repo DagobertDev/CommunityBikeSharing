@@ -29,6 +29,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			SignOutCommand = new Command(SignOut);
 			ChangeUsernameCommand = new Command(ChangeUserName);
+			ShowLicensesCommand = new Command(ShowLicenses);
 		}
 
 		public string WelcomeMessage
@@ -48,6 +49,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public ICommand SignOutCommand { get; }
 		public ICommand ChangeUsernameCommand { get; }
+		public ICommand ShowLicensesCommand { get; }
 
 		private async void SignOut()
 		{
@@ -71,6 +73,11 @@ namespace CommunityBikeSharing.ViewModels
 				await _dialogService.ShowError("Änderung fehlgeschlagen",
 					"Der gewählte Benutzername ist bereits vergeben.");
 			}
+		}
+
+		private async void ShowLicenses()
+		{
+			await _navigationService.NavigateTo<LicensesViewModel>();
 		}
 	}
 }

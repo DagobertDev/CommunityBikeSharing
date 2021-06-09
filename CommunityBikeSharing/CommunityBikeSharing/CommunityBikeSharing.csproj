@@ -26,5 +26,7 @@
     <None Remove="Assets\Font Awesome 5 Free-Regular-400.otf" />
     <EmbeddedResource Include="Assets\Font Awesome 5 Free-Regular-400.otf" />
     <EmbeddedResource Include="Configuration\appsettings.json" />
+    <EmbeddedResource Include="Licenses\**\LICENSE" />
+    <None Remove="Licenses\**\LICENSE" />
   </ItemGroup>
 </Project>
