@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -205,6 +206,14 @@ namespace CommunityBikeSharing.ViewModels
 		private async void ReserveBike(Bike bike)
 		{
 			await _bikeService.ReserveBike(bike);
+
+			var dateTime = bike.ReservedUntil!.Value.ToLocalTime();
+
+			string formattedDateTime = dateTime.ToString(dateTime.Date == DateTime.Now.Date ? "HH:mm" : "dd.MM, hh:mm");
+
+			await _dialogService.ShowMessage("Fahrrad reserviert",
+				$"Das Fahrrad wurde bis {formattedDateTime} reserviert. " +
+				"Es kann bis zu diesem Zeitpunkt nur von Ihnen ausgeliehen werden.");
 		}
 
 		private async void DeleteReservation(Bike bike)
