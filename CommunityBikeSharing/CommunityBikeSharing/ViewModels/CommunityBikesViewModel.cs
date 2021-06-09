@@ -176,7 +176,7 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		private bool CanShowCurrentLender(Bike bike) => Community.ShowCurrentUser
-		                                                && bike.CurrentUser != null
+		                                                && (bike.Lent || bike.Reserved)
 		                                                && CurrentUserMembership is {IsCommunityAdmin: true};
 	}
 }

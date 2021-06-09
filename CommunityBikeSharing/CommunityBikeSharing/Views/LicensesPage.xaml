@@ -6,7 +6,7 @@
              xmlns:licenses="clr-namespace:CommunityBikeSharing.Licenses;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.LicensesPage"
              x:DataType="viewModels:LicensesViewModel"
-             Title="Softwarelizensen">
+             Title="Softwarelizenzen">
     <ContentPage.Content>
         <ListView ItemsSource="{Binding Licenses}"
                   ItemTapped="OnLicenseSelected"

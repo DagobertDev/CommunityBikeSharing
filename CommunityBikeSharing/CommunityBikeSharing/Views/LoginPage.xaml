@@ -6,6 +6,9 @@
              x:Class="CommunityBikeSharing.Views.LoginPage"
              x:DataType="viewModels:LoginViewModel">
     <StackLayout>
+        <Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
+            <Label Text="Willkommen beim Community Bike-Sharing" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
+        </Frame>
         <Label Text="Login" FontSize="Title" Padding="30,10,30,10"/>
 
         <Label Text="Email eingeben:" Margin="30,0,30,0"/>
@@ -20,8 +23,13 @@
                 Command="{Binding LoginCommand}"
                 Margin="30,0"/>
 
-        <Button Text="Noch keinen Account? Hier registrieren"
-                Command="{Binding GoToRegistrationCommand}"
-                Margin="30,0"/>
+        <Label Text="Bereits registriert? Hier einloggen"
+               TextDecorations="Underline"
+               HorizontalTextAlignment="Center"
+               HorizontalOptions="Center">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding GoToRegistrationCommand}"/>
+            </Label.GestureRecognizers>
+        </Label>
     </StackLayout>
 </ContentPage>
