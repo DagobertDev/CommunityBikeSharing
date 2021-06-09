@@ -8,7 +8,6 @@
              xmlns:behaviors="clr-namespace:CommunityBikeSharing.Views.Behaviors;assembly=CommunityBikeSharing"
              xmlns:fa="clr-namespace:FontAwesome;assembly=CommunityBikeSharing"
              xmlns:assets="clr-namespace:CommunityBikeSharing.Assets;assembly=CommunityBikeSharing"
-             xmlns:views="clr-namespace:CommunityBikeSharing.Views;assembly=CommunityBikeSharing"
              xmlns:controls="clr-namespace:CommunityBikeSharing.Controls;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.OverviewPage"
              x:DataType="viewModels:OverviewViewModel"
@@ -39,7 +38,6 @@
             <behaviors:StationBikeTemplateSelector.StationTemplate>
                 <DataTemplate x:DataType="models:Station">
                     <StackLayout Orientation="Horizontal"
-                                 Margin="30, 10"
                                  Spacing="30">
                         <Label Text="{x:Static fa:FontAwesomeIcons.Home}"
                                FontFamily="{x:Static assets:Fonts.SolidIcons}"/>
@@ -62,9 +60,8 @@
             </behaviors:StationBikeTemplateSelector.StationTemplate>
             <behaviors:StationBikeTemplateSelector.BikeTemplate>
                 <DataTemplate x:DataType="models:Bike">
-                    <StackLayout Margin="30,10"
-                                 Spacing="30"
-                                 Orientation="Horizontal">
+                    <StackLayout Orientation="Horizontal"
+                                 Spacing="30">
                         <Label Text="{x:Static fa:FontAwesomeIcons.Biking}"
                                FontFamily="{x:Static assets:Fonts.SolidIcons}"/>
                         <Label Text="{Binding Name}"
@@ -101,24 +98,28 @@
 
     <ContentPage.Content>
         <StackLayout>
-            <Label Text="{Binding Heading}"
-                   FontSize="16"
-                   Margin="30, 20"/>
-
             <RefreshView IsRefreshing="{Binding IsRefreshing}"
                          Command="{Binding RefreshUserLocationCommand}"
                          IsVisible="{Binding ShowMap,
-                                    Converter={StaticResource BoolInverter}}"
-                         Margin="30, 0">
-                <CollectionView ItemsSource="{Binding AllItems}"
+                                    Converter={StaticResource BoolInverter}}">
+                <CollectionView ItemsSource="{Binding AllItemsGrouped}"
+                                IsGrouped="True"
                                 EmptyView="{Binding Summary}"
                                 ItemTemplate="{StaticResource ItemTemplateSelector}"
                                 SelectionMode="Single"
                                 SelectionChanged="OnItemSelected"
-                                VerticalScrollBarVisibility="Default">
+                                VerticalScrollBarVisibility="Default"
+                                Margin="30, 10">
                     <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Vertical"/>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="20"/>
                     </CollectionView.ItemsLayout>
+                    <CollectionView.GroupHeaderTemplate>
+                        <DataTemplate x:DataType="controls:ItemGroup">
+                            <Label Text="{Binding Name}"
+                                   FontSize="Large"
+                                   FontAttributes="Bold" />
+                        </DataTemplate>
+                    </CollectionView.GroupHeaderTemplate>
                 </CollectionView>
             </RefreshView>
 

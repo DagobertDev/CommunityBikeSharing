@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityBikeSharing.Controls;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
@@ -51,6 +52,26 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
+		public List<ItemGroup> AllItemsGrouped
+		{
+			get
+			{
+				var result = new List<ItemGroup>();
+
+				if (AllStations.Count > 0)
+				{
+					result.Add(new ItemGroup("Stationen", AllStations));
+				}
+
+				if (AllBikes.Count > 0)
+				{
+					result.Add(new ItemGroup("Freie Fahrräder", AllBikes.Where(bike => bike.StationId == null)));
+				}
+
+				return result;
+			}
+		}
+
 		private ObservableCollection<Station> _allStations = new ObservableCollection<Station>();
 		public ObservableCollection<Station> AllStations
 		{
@@ -67,8 +88,8 @@ namespace CommunityBikeSharing.ViewModels
 
 				void OnStationsChanged(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
 				{
-					OnPropertyChanged(nameof(SummaryVisible));
 					OnPropertyChanged(nameof(AllItems));
+					OnPropertyChanged(nameof(AllItemsGrouped));
 				}
 			}
 		}
@@ -90,8 +111,8 @@ namespace CommunityBikeSharing.ViewModels
 
 				void OnBikesChanged(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
 				{
-					OnPropertyChanged(nameof(SummaryVisible));
 					OnPropertyChanged(nameof(AllItems));
+					OnPropertyChanged(nameof(AllItemsGrouped));
 				}
 			}
 		}
@@ -123,7 +144,6 @@ namespace CommunityBikeSharing.ViewModels
 		public delegate void LocationChanged(Location location);
 		public event LocationChanged? OnLocationChanged;
 
-		public string Heading => "Verfügbare Fahrräder:";
 		public string Summary => "Zurzeit sind keine Fahrräder verfügbar. " +
 		                         "Treten Sie einer Community bei, um Fahrräder auszuleihen.";
 
@@ -148,8 +168,6 @@ namespace CommunityBikeSharing.ViewModels
 
 			await _dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
 		}
-
-		public bool SummaryVisible => AllStations?.Count == 0 &&  AllBikes?.Count == 0;
 
 		public override async Task InitializeAsync()
 		{
