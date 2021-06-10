@@ -44,15 +44,16 @@ namespace CommunityBikeSharing.ViewModels
 			DeleteReservationCommand = new Command<Bike>(DeleteReservation, bikeService.CanDeleteReservation);
 		}
 
-		public IEnumerable<object> AllItems
+		public IEnumerable<object> MapItems
 		{
 			get
 			{
-				return AllStations.Concat<object>(AllBikes.Where(bike => bike.StationId == null));
+				return AllStations.Concat<object>(
+					AllBikes.Where(bike => bike.StationId == null && bike.Location != null));
 			}
 		}
 
-		public List<ItemGroup> AllItemsGrouped
+		public List<ItemGroup> GroupedItems
 		{
 			get
 			{
@@ -63,7 +64,7 @@ namespace CommunityBikeSharing.ViewModels
 					result.Add(new ItemGroup("Stationen", AllStations));
 				}
 
-				if (AllBikes.Count > 0)
+				if (AllBikes.Any(bike => bike.StationId == null))
 				{
 					result.Add(new ItemGroup("Freie Fahrräder", AllBikes.Where(bike => bike.StationId == null)));
 				}
@@ -88,8 +89,8 @@ namespace CommunityBikeSharing.ViewModels
 
 				void OnStationsChanged(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
 				{
-					OnPropertyChanged(nameof(AllItems));
-					OnPropertyChanged(nameof(AllItemsGrouped));
+					OnPropertyChanged(nameof(MapItems));
+					OnPropertyChanged(nameof(GroupedItems));
 				}
 			}
 		}
@@ -111,8 +112,8 @@ namespace CommunityBikeSharing.ViewModels
 
 				void OnBikesChanged(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
 				{
-					OnPropertyChanged(nameof(AllItems));
-					OnPropertyChanged(nameof(AllItemsGrouped));
+					OnPropertyChanged(nameof(MapItems));
+					OnPropertyChanged(nameof(GroupedItems));
 				}
 			}
 		}

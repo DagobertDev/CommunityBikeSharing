@@ -102,7 +102,7 @@
                          Command="{Binding RefreshUserLocationCommand}"
                          IsVisible="{Binding ShowMap,
                                     Converter={StaticResource BoolInverter}}">
-                <CollectionView ItemsSource="{Binding AllItemsGrouped}"
+                <CollectionView ItemsSource="{Binding GroupedItems}"
                                 IsGrouped="True"
                                 EmptyView="{Binding Summary}"
                                 ItemTemplate="{StaticResource ItemTemplateSelector}"
@@ -126,7 +126,7 @@
             <controls:OverviewMap
                 x:Name="Map"
                 IsShowingUser="True"
-                ItemsSource="{Binding AllItems}"
+                ItemsSource="{Binding MapItems}"
                 ItemTemplateSelector="{StaticResource MapItemTemplateSelector}"
                 MoveToLastRegionOnLayoutChange="False"
                 IsVisible="{Binding ShowMap}">

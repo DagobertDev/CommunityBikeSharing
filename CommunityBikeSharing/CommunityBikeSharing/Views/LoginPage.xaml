@@ -26,7 +26,8 @@
         <Label Text="Bereits registriert? Hier einloggen"
                TextDecorations="Underline"
                HorizontalTextAlignment="Center"
-               HorizontalOptions="Center">
+               HorizontalOptions="Center"
+               Padding="5">
             <Label.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding GoToRegistrationCommand}"/>
             </Label.GestureRecognizers>
