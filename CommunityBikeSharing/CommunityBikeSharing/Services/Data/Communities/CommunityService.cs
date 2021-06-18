@@ -75,6 +75,7 @@ namespace CommunityBikeSharing.Services.Data.Communities
 				.GetAsync();
 
 			var bikes = await _context.Bikes(community.Id).GetAsync();
+			var stations = await _context.Stations(community.Id).GetAsync();
 
 			await _context.RunTransactionAsync(transaction =>
 			{
@@ -86,6 +87,11 @@ namespace CommunityBikeSharing.Services.Data.Communities
 				}
 
 				foreach (var document in bikes.Documents)
+				{
+					transaction.Delete(document.Reference);
+				}
+
+				foreach (var document in stations.Documents)
 				{
 					transaction.Delete(document.Reference);
 				}
