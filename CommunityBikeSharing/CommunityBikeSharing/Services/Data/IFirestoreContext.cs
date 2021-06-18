@@ -9,6 +9,7 @@ namespace CommunityBikeSharing.Services.Data
 		IFirestore Firestore { get; }
 		ICollectionReference Bikes(string communityId);
 		ICollectionReference Stations(string communityId);
+		ICollectionReference Locks(string communityId);
 		ICollectionReference Users { get; }
 		ICollectionReference CommunityUsers { get; }
 		ICollectionReference Communities { get; }

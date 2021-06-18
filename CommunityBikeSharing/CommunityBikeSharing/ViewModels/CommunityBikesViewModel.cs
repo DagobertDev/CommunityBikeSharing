@@ -9,6 +9,7 @@ using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
 using CommunityBikeSharing.Services.Data.Communities;
+using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Memberships;
 using Xamarin.Forms;
 
@@ -20,18 +21,21 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IBikeService _bikeService;
 		private readonly IMembershipService _membershipService;
 		private readonly ICommunityService _communityService;
+		private readonly ILockService _lockService;
 		private readonly string _communityId;
 
 		public CommunityBikesViewModel(IDialogService dialogService,
 			IBikeService bikeService,
 			IMembershipService membershipService,
 			ICommunityService communityService,
+			ILockService lockService,
 			string id)
 		{
 			_dialogService = dialogService;
 			_bikeService = bikeService;
 			_membershipService = membershipService;
 			_communityService = communityService;
+			_lockService = lockService;
 
 			_communityId = id;
 
@@ -124,7 +128,9 @@ namespace CommunityBikeSharing.ViewModels
 			{
 				("Aktuellen Ausleiher anzeigen", ShowCurrentLenderCommand),
 				("Fahrrad umbenennen", RenameBikeCommand),
-				("Fahrrad entfernen", DeleteBikeCommand)
+				("Fahrrad entfernen", DeleteBikeCommand),
+				("Schloss hinzufügen", AddLockCommand),
+				("Schloss entfernen", RemoveLockCommand),
 			};
 
 			_dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
@@ -178,5 +184,43 @@ namespace CommunityBikeSharing.ViewModels
 		private bool CanShowCurrentLender(Bike bike) => Community.ShowCurrentUser
 		                                                && (bike.Lent || bike.Reserved)
 		                                                && CurrentUserMembership is {IsCommunityAdmin: true};
+
+		public ICommand AddLockCommand => new Command<Bike>(AddLock, CanAddLock);
+
+		private async void AddLock(Bike bike)
+		{
+			var name = await _dialogService.ShowTextEditor("Name eingeben",
+				"Bitte geben Sie den Namen des Schlosses ein");
+
+			if (string.IsNullOrEmpty(name))
+			{
+				return;
+			}
+
+			var key = await _dialogService.ShowTextEditor("Schlüssel eingeben",
+				"Bitte geben Sie den Schlüssel des Schlosses ein");
+
+			await _lockService.Add(bike, name, key);
+		}
+
+		private bool CanAddLock(Bike bike) => !bike.HasLock &&
+		                                      CurrentUserMembership is {IsCommunityAdmin: true};
+
+		public ICommand RemoveLockCommand => new Command<Bike>(RemoveLock, CanRemoveLock);
+
+		private async void RemoveLock(Bike bike)
+		{
+			var confirmed =  await _dialogService.ShowConfirmation("Schloss entfernen", "Möchten Sie das Schloss wirklich entfernen?");
+
+			if (!confirmed)
+			{
+				return;
+			}
+
+			await _lockService.Remove(bike);
+		}
+
+		private bool CanRemoveLock(Bike bike) => bike.HasLock &&
+		                                         CurrentUserMembership is {IsCommunityAdmin: true};
 	}
 }

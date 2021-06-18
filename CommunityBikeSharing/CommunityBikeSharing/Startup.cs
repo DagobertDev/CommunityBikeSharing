@@ -6,6 +6,7 @@ using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data;
 using CommunityBikeSharing.Services.Data.Bikes;
 using CommunityBikeSharing.Services.Data.Communities;
+using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Stations;
 using CommunityBikeSharing.Services.Data.Users;
@@ -72,6 +73,7 @@ namespace CommunityBikeSharing
 		private static IServiceCollection AddRepositories(this IServiceCollection services) =>
 			services.AddSingleton<IBikeRepository, BikeRepository>()
 				.AddSingleton<ICommunityRepository, CommunityRepository>()
+				.AddSingleton<ILockRepository, LockRepository>()
 				.AddSingleton<IMembershipRepository, MembershipRepository>()
 				.AddSingleton<IStationRepository, StationRepository>()
 				.AddSingleton<IUserRepository, UserRepository>()
@@ -80,6 +82,7 @@ namespace CommunityBikeSharing
 		private static IServiceCollection AddDataServices(this IServiceCollection services) =>
 			services.AddSingleton<IBikeService, BikeService>()
 				.AddSingleton<ICommunityService, CommunityService>()
+				.AddSingleton<ILockService, LockService>()
 				.AddSingleton<IMembershipService, MembershipService>()
 				.AddSingleton<IStationService, StationService>()
 				.AddSingleton<IUserService, UserService>();

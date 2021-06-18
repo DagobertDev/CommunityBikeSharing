@@ -19,11 +19,15 @@ namespace CommunityBikeSharing.Models
 		public Location? Location { get; set; }
 		public string? StationId { get; set; }
 		public DateTime? ReservedUntil { get; set; }
+		public string? LockId { get; set; }
 
 		[Ignored]
 		public bool Lent => CurrentUser != null && ReservedUntil == null;
 
 		[Ignored]
 		public bool Reserved => ReservedUntil >= DateTime.UtcNow;
+
+		[Ignored]
+		public bool HasLock => !string.IsNullOrEmpty(LockId);
 	}
 }

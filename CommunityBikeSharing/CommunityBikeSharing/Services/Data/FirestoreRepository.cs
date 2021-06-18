@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.Threading.Tasks;
 using Plugin.CloudFirestore;
 
@@ -10,7 +11,8 @@ namespace CommunityBikeSharing.Services.Data
 		{
 			var document = GetNewDocument(model);
 			await document.SetAsync(model);
-			return model;
+			var snap = await document.GetAsync();
+			return snap.ToObject<T>() ?? throw new ApplicationException("Could not get model");
 		}
 
 		public Task Update(T model) => GetDocument(model).UpdateAsync(model);

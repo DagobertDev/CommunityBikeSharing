@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Models.Extensions;
 using CommunityBikeSharing.Services.Data.Communities;
+using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Stations;
 using Plugin.CloudFirestore;
@@ -30,6 +31,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		private readonly ILocationService _locationService;
 		private readonly IStationRepository _stationRepository;
 		private readonly ICommunityRepository _communityRepository;
+		private readonly ILockRepository _lockRepository;
 		private string? _userId;
 
 		public BikeService(
@@ -39,7 +41,8 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			IMembershipRepository membershipRepository,
 			ILocationService locationService,
 			IStationRepository stationRepository,
-			ICommunityRepository communityRepository)
+			ICommunityRepository communityRepository,
+			ILockRepository lockRepository)
 		{
 			_context = context;
 			_bikeRepository = bikeRepository;
@@ -48,6 +51,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			_locationService = locationService;
 			_stationRepository = stationRepository;
 			_communityRepository = communityRepository;
+			_lockRepository = lockRepository;
 		}
 
 		public ObservableCollection<Bike> ObserveBikesFromStation(Station station) =>
@@ -188,6 +192,20 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			}
 
 			var station = await _stationRepository.Get(bike.CommunityId, bike.StationId);
+
+			if (bike.HasLock)
+			{
+				var @lock = await _lockRepository.Get(bike.CommunityId, bike.LockId!);
+
+				await _context.RunTransactionAsync(transaction =>
+				{
+					_stationRepository.Update(station, nameof(Station.NumberOfBikes), FieldValue.Increment(-1), transaction);
+					_bikeRepository.Delete(bike, transaction);
+					_lockRepository.Delete(@lock, transaction);
+				});
+
+				return;
+			}
 
 			await _context.RunTransactionAsync(transaction =>
 			{
