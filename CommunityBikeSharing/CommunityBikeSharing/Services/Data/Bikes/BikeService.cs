@@ -11,6 +11,7 @@ using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Stations;
+using Microsoft.Extensions.DependencyInjection;
 using Plugin.CloudFirestore;
 using Xamarin.Essentials;
 
@@ -32,6 +33,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		private readonly IStationRepository _stationRepository;
 		private readonly ICommunityRepository _communityRepository;
 		private readonly ILockRepository _lockRepository;
+		private readonly ILockService _lockService;
 		private string? _userId;
 
 		public BikeService(
@@ -42,7 +44,8 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			ILocationService locationService,
 			IStationRepository stationRepository,
 			ICommunityRepository communityRepository,
-			ILockRepository lockRepository)
+			ILockRepository lockRepository,
+			ILockService lockService)
 		{
 			_context = context;
 			_bikeRepository = bikeRepository;
@@ -52,6 +55,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			_stationRepository = stationRepository;
 			_communityRepository = communityRepository;
 			_lockRepository = lockRepository;
+			_lockService = lockService;
 		}
 
 		public ObservableCollection<Bike> ObserveBikesFromStation(Station station) =>
@@ -108,6 +112,14 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 
 		public async Task LendBike(Bike bike)
 		{
+			if (bike.HasLock)
+			{
+				if (!await _lockService.OpenLock(bike))
+				{
+					return;
+				}
+			}
+
 			bike.CurrentUser = _userId;
 			bike.Location = null;
 			bike.ReservedUntil = null;
@@ -152,6 +164,14 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 
 		public async Task ReturnBike(Bike bike)
 		{
+			if (bike.HasLock)
+			{
+				if (!await _lockService.CloseLock(bike))
+				{
+					return;
+				}
+			}
+
 			bike.ReservedUntil = null;
 			bike.CurrentUser = null;
 

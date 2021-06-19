@@ -11,15 +11,18 @@ namespace CommunityBikeSharing.Services.Data.Locks
 		private readonly IFirestoreContext _context;
 		private readonly ILockRepository _lockRepository;
 		private readonly IBikeRepository _bikeRepository;
+		private readonly ILockControlService _lockControlService;
 
 		public LockService(
 			IFirestoreContext context,
 			ILockRepository lockRepository,
-			IBikeRepository bikeRepository)
+			IBikeRepository bikeRepository,
+			ILockControlService lockControlService)
 		{
 			_context = context;
 			_lockRepository = lockRepository;
 			_bikeRepository = bikeRepository;
+			_lockControlService = lockControlService;
 		}
 
 		public Task<Lock> Get(Bike bike)
@@ -62,6 +65,18 @@ namespace CommunityBikeSharing.Services.Data.Locks
 				_bikeRepository.Update(bike, nameof(Bike.LockId), null);
 				_lockRepository.Delete(@lock, transaction);
 			});
+		}
+
+		public async Task<bool> OpenLock(Bike bike)
+		{
+			var @lock = await Get(bike);
+			return await _lockControlService.OpenLock(@lock);
+		}
+
+		public async Task<bool> CloseLock(Bike bike)
+		{
+			var @lock = await Get(bike);
+			return await _lockControlService.CloseLock(@lock);
 		}
 	}
 }

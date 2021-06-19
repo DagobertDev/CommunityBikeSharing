@@ -38,7 +38,16 @@
       <string>mailto</string>
     </array>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Standort wird für das ausleihen und zurückgeben von Fahrrädern benötigt.</string>
+    <string>Standort wird für das Ausleihen und Zurückgeben von Fahrrädern benötigt.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>bluetooth-central</string>
+      <string>bluetooth-peripheral</string>
+    </array>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>Bluetooth wird zum Bedienen von elektronischen Schlössern benötigt</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Bluetooth wird zum Bedienen von elektronischen Schlössern benötigt</string>
   </dict>
 </plist>
 

@@ -9,5 +9,7 @@ namespace CommunityBikeSharing.Services.Data.Locks
 		Task<Lock> Get(Bike bike);
 		Task Add(Bike bike, string name, string key);
 		Task Remove(Bike bike);
+		Task<bool> OpenLock(Bike bike);
+		Task<bool> CloseLock(Bike bike);
 	}
 }

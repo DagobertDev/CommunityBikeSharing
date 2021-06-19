@@ -82,6 +82,8 @@ namespace CommunityBikeSharing
 		private static IServiceCollection AddDataServices(this IServiceCollection services) =>
 			services.AddSingleton<IBikeService, BikeService>()
 				.AddSingleton<ICommunityService, CommunityService>()
+				.AddSingleton<ILockControlService, LockItLockControlService>()
+				.AddSingleton<ILockKeyService, LockKeyService>()
 				.AddSingleton<ILockService, LockService>()
 				.AddSingleton<IMembershipService, MembershipService>()
 				.AddSingleton<IStationService, StationService>()
