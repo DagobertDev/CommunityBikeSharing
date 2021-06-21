@@ -176,8 +176,13 @@ namespace CommunityBikeSharing.ViewModels
 
 			AllStations = _stationService.GetAvailableStations();
 
-			UserLocation = await _locationService.GetCurrentLocation();
-			OnLocationChanged?.Invoke(UserLocation);
+			var location = await _locationService.GetCurrentLocation();
+
+			if (location != null)
+			{
+				UserLocation = location;
+				OnLocationChanged?.Invoke(UserLocation);
+			}
 		}
 
 		private bool _isRefreshing;
@@ -194,7 +199,15 @@ namespace CommunityBikeSharing.ViewModels
 		private async void RefreshUserLocation()
 		{
 			IsRefreshing = true;
-			UserLocation = await _locationService.GetCurrentLocation();
+
+			var location = await _locationService.GetCurrentLocation();
+
+			if (location != null)
+			{
+				UserLocation = location;
+				OnLocationChanged?.Invoke(UserLocation);
+			}
+
 			IsRefreshing = false;
 		}
 

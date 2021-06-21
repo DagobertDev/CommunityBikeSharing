@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 
@@ -12,22 +13,22 @@ namespace CommunityBikeSharing.Services
 			_dialogService = dialogService;
 		}
 
-		public async Task<Location> GetCurrentLocation()
+		public async Task<Location?> GetCurrentLocation()
 		{
 			try
 			{
-				var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+				var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
 				var location = await Geolocation.GetLocationAsync(request);
 				return location.IsFromMockProvider ? null : location;
 			}
 			catch (FeatureNotEnabledException)
 			{
-				await _dialogService.ShowError("Standort nicht aktiviert",
+				await _dialogService.ShowError("Standort aktivieren",
 					"Bitte aktivieren Sie die Standortfunktion des Gerätes.");
 			}
 			catch (PermissionException)
 			{
-				await _dialogService.ShowError("Standort nicht erlaubt",
+				await _dialogService.ShowError("Standort erlauben",
 					"Bitte erlauben Sie der App den Zugriff auf den Standort des Gerätes.");
 			}
 			catch (Exception)

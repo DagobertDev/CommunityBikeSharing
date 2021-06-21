@@ -164,6 +164,13 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 
 		public async Task ReturnBike(Bike bike)
 		{
+			var location = await _locationService.GetCurrentLocation();
+
+			if (location == null)
+			{
+				return;
+			}
+
 			if (bike.HasLock)
 			{
 				if (!await _lockService.CloseLock(bike))
@@ -176,7 +183,6 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			bike.CurrentUser = null;
 
 			var stations = await _stationRepository.GetStationsFromCommunity(bike.CommunityId);
-			var location = await _locationService.GetCurrentLocation();
 
 			var closeStation = stations.SingleOrDefault(station =>
 				station.Location.CalculateDistance(location, DistanceUnits.Kilometers) < 0.1);
