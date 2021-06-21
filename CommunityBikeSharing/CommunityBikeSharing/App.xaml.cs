@@ -1,7 +1,5 @@
 ﻿using System;
-using CommunityBikeSharing.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing
 {

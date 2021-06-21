@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Converters;
 

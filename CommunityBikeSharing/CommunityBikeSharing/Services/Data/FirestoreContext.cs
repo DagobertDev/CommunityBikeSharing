@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Plugin.CloudFirestore;
+﻿using Plugin.CloudFirestore;
 
 namespace CommunityBikeSharing.Services.Data
 {

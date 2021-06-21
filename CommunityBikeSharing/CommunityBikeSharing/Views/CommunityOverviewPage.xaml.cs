@@ -8,13 +8,13 @@ namespace CommunityBikeSharing.Views
 	[QueryProperty(nameof(CommunityId), "param")]
 	public partial class CommunityOverviewPage
 	{
-		string _communityId = "";
+		private string _communityId = string.Empty;
 		public string CommunityId
 		{
 			get => _communityId;
 			set
 			{
-				_communityId = Uri.UnescapeDataString(value ?? string.Empty);
+				_communityId = Uri.UnescapeDataString(value);
 				OnPropertyChanged();
 			}
 		}

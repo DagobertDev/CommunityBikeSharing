@@ -25,13 +25,13 @@ namespace CommunityBikeSharing.Views
 			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 
-		private string _license = "";
+		private string _license = string.Empty;
 		public string License
 		{
 			get => _license;
 			set
 			{
-				_license = Uri.UnescapeDataString(value ?? string.Empty);
+				_license = Uri.UnescapeDataString(value);
 				OnPropertyChanged();
 			}
 		}

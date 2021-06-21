@@ -10,6 +10,10 @@ namespace CommunityBikeSharing.Services
 {
 	public class LockItLockControlService : ILockControlService
 	{
+		private static readonly TimeSpan MaxTurnOnBluetoothDuration = TimeSpan.FromSeconds(5);
+		private static readonly TimeSpan MaxScanDuration = TimeSpan.FromSeconds(5);
+		private static readonly TimeSpan MaxAuthDuration = TimeSpan.FromSeconds(10);
+
 		private readonly ILockKeyService _lockKeyService;
 		private readonly IDialogService _dialogService;
 
@@ -53,7 +57,7 @@ namespace CommunityBikeSharing.Services
 					TaskCompletionSource<bool> bleResult = new TaskCompletionSource<bool>();
 
 					_adapter.WhenStatusChanged()
-						.Timeout(TimeSpan.FromSeconds(5))
+						.Timeout(MaxTurnOnBluetoothDuration)
 						.Subscribe(status =>
 						{
 							if (status == AdapterStatus.PoweredOn)
@@ -73,7 +77,7 @@ namespace CommunityBikeSharing.Services
 			var result = new TaskCompletionSource<IDevice?>();
 
 			_adapter.ScanUntilDeviceFound(@lock.Name)
-				.Timeout(TimeSpan.FromSeconds(5))
+				.Timeout(MaxScanDuration)
 				.Subscribe(device =>
 				{
 					device.WhenConnected().Subscribe(async _ =>
@@ -118,7 +122,7 @@ namespace CommunityBikeSharing.Services
 				var authStatus = await lockControlService.GetKnownCharacteristics(AuthenticationStatusGuid);
 
 				authStatus.WhenNotificationReceived()
-					.Timeout(TimeSpan.FromSeconds(10))
+					.Timeout(MaxAuthDuration)
 					.Subscribe(notification =>
 					{
 						result.TrySetResult(notification.Data[0] == 0);

@@ -83,16 +83,16 @@ namespace CommunityBikeSharing.ViewModels
 				await _authService.ResetPassword(_email);
 
 				await _dialogService.ShowMessage("Passwort zurückgesetzt",
-					$"Eine Email zum Zurücksetzen des Passwortes wurde an {Email} gesendet.", "Ok");
+					$"Eine Email zum Zurücksetzen des Passwortes wurde an {Email} gesendet.");
 			}
 			catch (AuthError e)
 			{
-				await _dialogService.ShowError("Fehler", GetErrorMessage(e.Reason), "Ok");
+				await _dialogService.ShowError("Fehler", GetErrorMessage(e.Reason));
 			}
 		}
 
 		private Task ShowLoginError(AuthError.AuthErrorReason reason) =>
-			_dialogService.ShowError("Login fehlgeschlagen", GetErrorMessage(reason), "Ok");
+			_dialogService.ShowError("Login fehlgeschlagen", GetErrorMessage(reason));
 
 		private string GetErrorMessage(AuthError.AuthErrorReason reason)
 		{

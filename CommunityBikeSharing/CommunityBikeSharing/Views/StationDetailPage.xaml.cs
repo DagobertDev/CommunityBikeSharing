@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.ViewModels;
 using Xamarin.Forms;

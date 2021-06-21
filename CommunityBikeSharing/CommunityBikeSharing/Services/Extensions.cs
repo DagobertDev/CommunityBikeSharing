@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Plugin.CloudFirestore;
+﻿using Plugin.CloudFirestore;
 using Xamarin.Essentials;
 using Xamarin.Forms.Maps;
 

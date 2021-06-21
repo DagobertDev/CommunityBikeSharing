@@ -8,10 +8,12 @@ namespace CommunityBikeSharing.Views.Behaviors
 	public class LocationsToDistanceConverter : IMultiValueConverter
 	{
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			var firstValue = (Location)values[0];
-			var secondValue = (Location)values[1];
+			if (values.Length != 2)
+			{
+				return string.Empty;
+			}
 
-			if (firstValue == null || secondValue == null)
+			if (!(values[0] is Location firstValue) || !(values[1] is Location secondValue))
 			{
 				return string.Empty;
 			}

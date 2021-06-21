@@ -225,13 +225,11 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async void LendBike(Bike bike)
 		{
-			//TODO: Open lock
 			await _bikeService.LendBike(bike);
 		}
 
 		private async void ReturnBike(Bike bike)
 		{
-			// TODO: Close lock
 			await _bikeService.ReturnBike(bike);
 		}
 

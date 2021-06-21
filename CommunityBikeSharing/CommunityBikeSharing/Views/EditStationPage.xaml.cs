@@ -26,24 +26,24 @@ namespace CommunityBikeSharing.Views
 			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 
-		private string _communityId = "";
+		private string _communityId = string.Empty;
 		public string CommunityId
 		{
 			get => _communityId;
 			set
 			{
-				_communityId = Uri.UnescapeDataString(value ?? string.Empty);
+				_communityId = Uri.UnescapeDataString(value);
 				OnPropertyChanged();
 			}
 		}
 
-		private string _stationId = "";
+		private string _stationId = string.Empty;
 		public string StationId
 		{
 			get => _stationId;
 			set
 			{
-				_stationId = Uri.UnescapeDataString(value ?? string.Empty);
+				_stationId = Uri.UnescapeDataString(value);
 				OnPropertyChanged();
 			}
 		}

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;

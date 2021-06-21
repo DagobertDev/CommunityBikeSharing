@@ -1,10 +1,9 @@
 ﻿using CommunityBikeSharing.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
 {
-	public partial class RegistrationPage : ContentPage
+	public partial class RegistrationPage
 	{
 		public RegistrationPage()
 		{
