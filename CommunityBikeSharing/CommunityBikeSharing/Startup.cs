@@ -30,7 +30,7 @@ namespace CommunityBikeSharing
 
 			ServiceProvider = services.BuildServiceProvider();
 
-			return ServiceProvider.GetService<App>();
+			return ServiceProvider.GetService<App>()!;
 		}
 
 		private static void ConfigureServices(IServiceCollection services)

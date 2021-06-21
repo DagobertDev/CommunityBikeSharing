@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -36,9 +37,10 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private ObservableCollection<CommunityMembership> _members;
+		private ObservableCollection<CommunityMembership>? _members;
 
-		public ObservableCollection<CommunityMembership> Members
+		[DisallowNull]
+		public ObservableCollection<CommunityMembership>? Members
 		{
 			get => _members;
 			set
@@ -61,7 +63,9 @@ namespace CommunityBikeSharing.ViewModels
 		public bool AddMemberVisible => CurrentUserMembership is {Role: CommunityRole.CommunityAdmin};
 
 		public IEnumerable<CommunityMembership> SortedMembers
-			=> Members?.OrderBy(m => m.Role).ThenBy(m => m.Name);
+			=> Members?.OrderBy(m => m.Role)
+				   .ThenBy(m => m.Name)
+			   ?? Enumerable.Empty<CommunityMembership>();
 
 		public ICommand EditMembershipCommand => new Command<CommunityMembership>(EditMembership);
 
@@ -88,6 +92,7 @@ namespace CommunityBikeSharing.ViewModels
 			_userService = userService;
 			_authService = authService;
 			_communityId = communityId;
+
 			_membersChanged = (sender, args) =>
 			{
 				OnPropertyChanged(nameof(SortedMembers));
@@ -95,10 +100,12 @@ namespace CommunityBikeSharing.ViewModels
 			};
 		}
 
-		public override async Task InitializeAsync()
+		public override Task InitializeAsync()
 		{
 			_authService.ObserveCurrentUser().Subscribe(user => _currentUser = user);
 			Members = _membershipService.ObserveMembershipsFromCommunity(_communityId);
+
+			return Task.CompletedTask;
 		}
 
 		public ICommand AddMemberCommand => new Command(AddMember);

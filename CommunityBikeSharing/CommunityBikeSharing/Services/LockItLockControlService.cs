@@ -6,8 +6,6 @@ using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data.Locks;
 using Plugin.BluetoothLE;
 
-#nullable enable
-
 namespace CommunityBikeSharing.Services
 {
 	public class LockItLockControlService : ILockControlService

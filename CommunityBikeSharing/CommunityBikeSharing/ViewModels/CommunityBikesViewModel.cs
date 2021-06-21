@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -44,9 +45,10 @@ namespace CommunityBikeSharing.ViewModels
 
 		private readonly NotifyCollectionChangedEventHandler _bikesChanged;
 
-		private ObservableCollection<Bike> _bikes;
+		private ObservableCollection<Bike>? _bikes;
 
-		public ObservableCollection<Bike> Bikes
+		[DisallowNull]
+		public ObservableCollection<Bike>? Bikes
 		{
 			get => _bikes;
 			set
@@ -64,8 +66,8 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private CommunityMembership _currentUserMembership;
-		private CommunityMembership CurrentUserMembership
+		private CommunityMembership? _currentUserMembership;
+		private CommunityMembership? CurrentUserMembership
 		{
 			get => _currentUserMembership;
 			set
@@ -76,8 +78,8 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private Community _community;
-		private Community Community
+		private Community? _community;
+		private Community? Community
 		{
 			get => _community;
 			set
@@ -87,7 +89,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		public IEnumerable<Bike> SortedBikes => Bikes?.OrderBy(m => m.Name);
+		public IEnumerable<Bike> SortedBikes => Bikes?.OrderBy(m => m.Name) ?? Enumerable.Empty<Bike>();
 
 		public ICommand AddBikeCommand => new Command(AddBike);
 		public bool CanAddBike => CurrentUserMembership is {IsCommunityAdmin: true};
@@ -181,7 +183,7 @@ namespace CommunityBikeSharing.ViewModels
 			await _dialogService.ShowMessage("", $"{membership.Name}");
 		}
 
-		private bool CanShowCurrentLender(Bike bike) => Community.ShowCurrentUser
+		private bool CanShowCurrentLender(Bike bike) => Community is {ShowCurrentUser: true}
 		                                                && (bike.Lent || bike.Reserved)
 		                                                && CurrentUserMembership is {IsCommunityAdmin: true};
 

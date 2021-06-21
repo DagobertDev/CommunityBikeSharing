@@ -10,9 +10,9 @@ namespace CommunityBikeSharing.Services
 	public class FirebaseAuthService : IAuthService
 	{
 		private readonly IAuth _auth = CrossFirebaseAuth.Current.Instance;
-		private IObservable<User> _user;
+		private IObservable<User>? _user;
 
-		public async Task<User> Register(string email, string password)
+		public async Task<User?> Register(string email, string password)
 		{
 			if (string.IsNullOrEmpty(email))
 			{
@@ -24,7 +24,7 @@ namespace CommunityBikeSharing.Services
 				throw new AuthError(AuthError.AuthErrorReason.MissingPassword);
 			}
 
-			IUser user;
+			IUser? user;
 
 			try
 			{
@@ -137,7 +137,7 @@ namespace CommunityBikeSharing.Services
 			}
 		}
 
-		public string GetCurrentUserId() => _auth.CurrentUser?.Uid;
+		public string GetCurrentUserId() => _auth.CurrentUser?.Uid ?? string.Empty;
 
 		public IObservable<User> ObserveCurrentUser()
 		{

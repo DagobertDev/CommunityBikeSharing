@@ -14,7 +14,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IDialogService _dialogService;
 		private readonly IUserService _userService;
 
-		private string _welcomeMessage;
+		private string _welcomeMessage = string.Empty;
 
 		public ProfileViewModel(
 			INavigationService navigationService,

@@ -24,9 +24,8 @@ namespace CommunityBikeSharing.ViewModels
 				{AuthError.AuthErrorReason.Undefined, "Unbekannter Fehler."}
 			};
 
-		private string _email;
-
-		private string _password;
+		private string _email = string.Empty;
+		private string _password = string.Empty;
 
 		public LoginViewModel(IAuthService authService,
 			IDialogService dialogService,

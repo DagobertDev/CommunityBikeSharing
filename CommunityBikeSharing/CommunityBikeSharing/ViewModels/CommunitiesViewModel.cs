@@ -10,9 +10,8 @@ namespace CommunityBikeSharing.ViewModels
 {
 	public class CommunitiesViewModel : BaseViewModel
 	{
-		private ObservableCollection<Community> _communities;
-
-		public ObservableCollection<Community> Communities
+		private ObservableCollection<Community>? _communities;
+		public ObservableCollection<Community>? Communities
 		{
 			get => _communities;
 			set
@@ -62,9 +61,10 @@ namespace CommunityBikeSharing.ViewModels
 			await _navigationService.NavigateTo<CommunityOverviewViewModel>(community.Id);
 		}
 
-		public override async Task InitializeAsync()
+		public override Task InitializeAsync()
 		{
 			Communities = _communityService.GetCommunities();
+			return Task.CompletedTask;
 		}
 	}
 }

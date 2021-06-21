@@ -71,7 +71,7 @@ namespace CommunityBikeSharing.ViewModels
 				ActivatorUtilities.CreateInstance<CommunityStationsViewModel>(Startup.ServiceProvider, _id);
 		}
 
-		public override async Task InitializeAsync()
+		public override Task InitializeAsync()
 		{
 			_communityService.Observe(_id).Subscribe(
 				community => Community = community,
@@ -80,6 +80,8 @@ namespace CommunityBikeSharing.ViewModels
 			_membershipService.Observe(_id).Subscribe(
 				membership => _membership = membership,
 				exception => _navigationService.NavigateBack());
+
+			return Task.CompletedTask;
 		}
 
 		public ICommand OpenSettingsCommand => new Command(OpenSettings);

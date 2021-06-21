@@ -1,5 +1,4 @@
-﻿#nullable enable
-using CommunityBikeSharing.Services.Data;
+﻿using CommunityBikeSharing.Services.Data;
 using Plugin.CloudFirestore.Attributes;
 using Xamarin.Essentials;
 

@@ -56,7 +56,7 @@ namespace CommunityBikeSharing.Services.Data.Locks
 		{
 			var @lock = new Lock
 			{
-				Id = bike.LockId,
+				Id = bike.LockId ?? throw new NullReferenceException(nameof(Bike.LockId)),
 				CommunityId = bike.CommunityId,
 			};
 
