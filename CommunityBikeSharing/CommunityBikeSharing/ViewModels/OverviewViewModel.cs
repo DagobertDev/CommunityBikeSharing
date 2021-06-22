@@ -10,7 +10,9 @@ using CommunityBikeSharing.Controls;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
+using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Stations;
+using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -23,25 +25,30 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IStationService _stationService;
 		private readonly INavigationService _navigationService;
 		private readonly IDialogService _dialogService;
+		private readonly ILockService _lockService;
 
 		public OverviewViewModel(
 			IBikeService bikeService,
 			ILocationService locationService,
 			IStationService stationService,
 			INavigationService navigationService,
-			IDialogService dialogService)
+			IDialogService dialogService,
+			ILockService lockService)
 		{
 			_bikeService = bikeService;
 			_locationService = locationService;
 			_stationService = stationService;
 			_navigationService = navigationService;
 			_dialogService = dialogService;
+			_locationService = locationService;
 
 			ShowBikeOnMapCommand = new Command<Bike>(ShowBikeOnMap, CanShowBikeOnMap);
 			LendBikeCommand = new Command<Bike>(LendBike, bikeService.CanLendBike);
 			ReturnBikeCommand = new Command<Bike>(ReturnBike, bikeService.CanReturnBike);
 			ReserveBikeCommand = new Command<Bike>(ReserveBike, bikeService.CanReserveBike);
 			DeleteReservationCommand = new Command<Bike>(DeleteReservation, bikeService.CanDeleteReservation);
+			TakeBreakCommand = new Command<Bike>(TakeBreak, CanTakeBreak);
+			EndBreakCommand = new Command<Bike>(EndBreak, CanEndBreak);
 		}
 
 		public IEnumerable<object> MapItems
@@ -155,6 +162,8 @@ namespace CommunityBikeSharing.ViewModels
 		public Command<Bike> ReturnBikeCommand { get; }
 		public Command<Bike> ReserveBikeCommand { get; }
 		public Command<Bike> DeleteReservationCommand { get; }
+		public Command<Bike> TakeBreakCommand { get; }
+		public Command<Bike> EndBreakCommand { get; }
 
 		public async void OnBikeSelected(Bike bike)
 		{
@@ -164,7 +173,9 @@ namespace CommunityBikeSharing.ViewModels
 				("Fahrrad ausleihen", LendBikeCommand),
 				("Fahrrad zurückgeben", ReturnBikeCommand),
 				("Fahrrad reservieren", ReserveBikeCommand),
-				("Reservierung löschen", DeleteReservationCommand)
+				("Reservierung löschen", DeleteReservationCommand),
+				("Pause machen", TakeBreakCommand),
+				("Pause beenden", EndBreakCommand),
 			};
 
 			await _dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
@@ -250,6 +261,20 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			await _bikeService.DeleteReservation(bike);
 		}
+
+		private async void TakeBreak(Bike bike)
+		{
+			await _lockService.CloseLock(bike);
+		}
+
+		private bool CanTakeBreak(Bike bike) => bike.Lent && bike.HasLock && bike.LockState != Lock.State.Closed;
+
+		private async void EndBreak(Bike bike)
+		{
+			await _lockService.OpenLock(bike);
+		}
+
+		private bool CanEndBreak(Bike bike) => bike.Lent && bike.HasLock && bike.LockState != Lock.State.Open;
 
 		public ICommand ToggleMapCommand => new Command(ToggleMap);
 

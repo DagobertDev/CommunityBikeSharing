@@ -9,5 +9,13 @@ namespace CommunityBikeSharing.Models
 		public string CommunityId { get; set; }
 		public string Name { get; set; }
 		public string Key { get; set; }
+
+		public enum State
+		{
+			None,
+			Unknown,
+			Open,
+			Closed
+		}
 	}
 }

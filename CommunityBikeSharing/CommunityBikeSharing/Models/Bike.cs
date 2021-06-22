@@ -1,6 +1,7 @@
 ﻿using System;
 using CommunityBikeSharing.Services.Data;
 using Plugin.CloudFirestore.Attributes;
+using Plugin.CloudFirestore.Converters;
 using Xamarin.Essentials;
 
 namespace CommunityBikeSharing.Models
@@ -19,6 +20,9 @@ namespace CommunityBikeSharing.Models
 		public string? StationId { get; set; }
 		public DateTime? ReservedUntil { get; set; }
 		public string? LockId { get; set; }
+
+		[DocumentConverter(typeof(EnumStringConverter))]
+		public Lock.State LockState { get; set; } = Lock.State.None;
 
 		[Ignored]
 		public bool Lent => CurrentUser != null && ReservedUntil == null;

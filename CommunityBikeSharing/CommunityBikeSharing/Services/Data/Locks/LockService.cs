@@ -49,7 +49,10 @@ namespace CommunityBikeSharing.Services.Data.Locks
 
 			@lock = await _lockRepository.Add(@lock);
 
-			await _bikeRepository.Update(bike, nameof(Bike.LockId), @lock.Id);
+			bike.LockId = @lock.Id;
+			bike.LockState = Lock.State.Unknown;
+
+			await _bikeRepository.Update(bike);
 		}
 
 		public Task Remove(Bike bike)
@@ -70,13 +73,27 @@ namespace CommunityBikeSharing.Services.Data.Locks
 		public async Task<bool> OpenLock(Bike bike)
 		{
 			var @lock = await Get(bike);
-			return await _lockControlService.OpenLock(@lock);
+			var result = await _lockControlService.OpenLock(@lock);
+
+			if (result)
+			{
+				bike.LockState = Lock.State.Open;
+			}
+
+			return result;
 		}
 
 		public async Task<bool> CloseLock(Bike bike)
 		{
 			var @lock = await Get(bike);
-			return await _lockControlService.CloseLock(@lock);
+			var result = await _lockControlService.CloseLock(@lock);
+
+			if (result)
+			{
+				bike.LockState = Lock.State.Closed;
+			}
+
+			return result;
 		}
 	}
 }
