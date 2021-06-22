@@ -46,7 +46,7 @@ namespace CommunityBikeSharing.Services
 		{
 			if (_adapter.Status != AdapterStatus.PoweredOn)
 			{
-				if (!_adapter.CanControlAdapterState() && !await TurnOnBle())
+				if (!_adapter.CanControlAdapterState() || !await TurnOnBle())
 				{
 					await _dialogService.ShowError("Bluetooth anschalten",
 						"Schalten Sie Bluetooth ein, um das Schloss zu bedienen");
