@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data.Bikes;
@@ -66,6 +65,7 @@ namespace CommunityBikeSharing.Services.Data.Locks
 			return _context.RunTransactionAsync(transaction =>
 			{
 				_bikeRepository.Update(bike, nameof(Bike.LockId), null);
+				_bikeRepository.Update(bike, nameof(Bike.LockState), Lock.State.None);
 				_lockRepository.Delete(@lock, transaction);
 			});
 		}

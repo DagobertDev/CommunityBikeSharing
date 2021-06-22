@@ -13,6 +13,7 @@ namespace CommunityBikeSharing.Services
 		private static readonly TimeSpan MaxTurnOnBluetoothDuration = TimeSpan.FromSeconds(5);
 		private static readonly TimeSpan MaxScanDuration = TimeSpan.FromSeconds(5);
 		private static readonly TimeSpan MaxAuthDuration = TimeSpan.FromSeconds(10);
+		private static readonly TimeSpan OpenCloseLockDuration = TimeSpan.FromSeconds(10);
 
 		private readonly ILockKeyService _lockKeyService;
 		private readonly IDialogService _dialogService;
@@ -169,15 +170,42 @@ namespace CommunityBikeSharing.Services
 
 			var service = await device.GetKnownService(LockControlServiceGuid);
 			var openCloseCharacteristic = await service.GetKnownCharacteristics(ControlLockGuid);
+			var lockState = await service.GetKnownCharacteristics(LockStateGuid);
+
+			var currentValue = await lockState.Read();
+
+			if ((currentValue.Data[0] == 0 && open) || (currentValue.Data[0] == 1 && !open))
+			{
+				device.CancelConnection();
+				return true;
+			}
 
 			var data = open ? OpenPackage() : ClosePackage();
 
 			data = CreateAes(keys).CreateEncryptor().TransformFinalBlock(data, 0, data.Length);
 
+			var statusChange = new TaskCompletionSource<bool>();
+
+			lockState.WhenNotificationReceived()
+				.Timeout(OpenCloseLockDuration)
+				.Subscribe(notification =>
+				{
+					// Check if new lock state is as expected. 0 == open, 1 == closed
+					statusChange.TrySetResult((notification.Data[0] == 0 && open) || (notification.Data[0] == 1 && !open));
+				}, exception =>
+				{
+					statusChange.TrySetResult(false);
+				});
+
+			await lockState.EnableNotifications();
+
 			await openCloseCharacteristic.Write(data);
+
+			var result = await statusChange.Task;
+
 			device.CancelConnection();
 
-			return true;
+			return result;
 		}
 
 		public Task<bool> OpenLock(Lock @lock) => OpenCloseLock(@lock, true);
