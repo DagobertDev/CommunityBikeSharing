@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -11,7 +10,6 @@ using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Stations;
-using Microsoft.Extensions.DependencyInjection;
 using Plugin.CloudFirestore;
 using Xamarin.Essentials;
 
@@ -211,31 +209,31 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 
 		public async Task Delete(Bike bike)
 		{
-			if (bike.StationId == null)
+			Station? station = null;
+
+			if (bike.StationId != null)
 			{
-				await _bikeRepository.Delete(bike);
-				return;
+				station = await _stationRepository.Get(bike.CommunityId, bike.StationId);
 			}
 
-			var station = await _stationRepository.Get(bike.CommunityId, bike.StationId);
+			Lock? @lock = null;
 
 			if (bike.HasLock)
 			{
-				var @lock = await _lockRepository.Get(bike.CommunityId, bike.LockId!);
-
-				await _context.RunTransactionAsync(transaction =>
-				{
-					_stationRepository.Update(station, nameof(Station.NumberOfBikes), FieldValue.Increment(-1), transaction);
-					_bikeRepository.Delete(bike, transaction);
-					_lockRepository.Delete(@lock, transaction);
-				});
-
-				return;
+				@lock = await _lockRepository.Get(bike.CommunityId, bike.LockId!);
 			}
 
 			await _context.RunTransactionAsync(transaction =>
 			{
-				_stationRepository.Update(station, nameof(Station.NumberOfBikes), FieldValue.Increment(-1), transaction);
+				if (station != null)
+				{
+					_stationRepository.Update(station, nameof(Station.NumberOfBikes), FieldValue.Increment(-1), transaction);
+				}
+				if (@lock != null)
+				{
+					_lockRepository.Delete(@lock, transaction);
+				}
+
 				_bikeRepository.Delete(bike, transaction);
 			});
 		}
