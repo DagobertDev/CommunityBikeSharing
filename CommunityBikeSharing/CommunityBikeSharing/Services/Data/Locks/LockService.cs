@@ -78,6 +78,7 @@ namespace CommunityBikeSharing.Services.Data.Locks
 			if (result)
 			{
 				bike.LockState = Lock.State.Open;
+				await _bikeRepository.Update(bike, nameof(Bike.LockState), bike.LockState.ToString());
 			}
 
 			return result;
@@ -91,6 +92,7 @@ namespace CommunityBikeSharing.Services.Data.Locks
 			if (result)
 			{
 				bike.LockState = Lock.State.Closed;
+				await _bikeRepository.Update(bike, nameof(Bike.LockState), bike.LockState.ToString());
 			}
 
 			return result;

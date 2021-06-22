@@ -132,6 +132,8 @@ namespace CommunityBikeSharing.ViewModels
 				("Fahrrad umbenennen", RenameBikeCommand),
 				("Fahrrad entfernen", DeleteBikeCommand),
 				("Schloss hinzufügen", AddLockCommand),
+				("Schloss öffnen", OpenLockCommand),
+				("Schloss schließen", CloseLockCommand),
 				("Schloss entfernen", RemoveLockCommand),
 			};
 
@@ -207,6 +209,27 @@ namespace CommunityBikeSharing.ViewModels
 
 		private bool CanAddLock(Bike bike) => !bike.HasLock &&
 		                                      CurrentUserMembership is {IsCommunityAdmin: true};
+
+		public ICommand OpenLockCommand => new Command<Bike>(OpenLock, CanOpenLock);
+		private async void OpenLock(Bike bike)
+		{
+			await _lockService.OpenLock(bike);
+		}
+
+		private bool CanOpenLock(Bike bike) => bike.HasLock &&
+		                                       bike.LockState != Lock.State.Open &&
+		                                       CurrentUserMembership is {IsCommunityAdmin: true};
+
+		public ICommand CloseLockCommand => new Command<Bike>(CloseLock, CanCloseLock);
+
+		private async void CloseLock(Bike bike)
+		{
+			await _lockService.CloseLock(bike);
+		}
+
+		private bool CanCloseLock(Bike bike) => bike.HasLock &&
+		                                        bike.LockState != Lock.State.Closed &&
+		                                        CurrentUserMembership is {IsCommunityAdmin: true};
 
 		public ICommand RemoveLockCommand => new Command<Bike>(RemoveLock, CanRemoveLock);
 
