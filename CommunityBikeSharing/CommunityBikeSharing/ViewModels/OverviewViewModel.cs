@@ -41,6 +41,7 @@ namespace CommunityBikeSharing.ViewModels
 			_navigationService = navigationService;
 			_dialogService = dialogService;
 			_locationService = locationService;
+			_lockService = lockService;
 
 			ShowBikeOnMapCommand = new Command<Bike>(ShowBikeOnMap, CanShowBikeOnMap);
 			LendBikeCommand = new Command<Bike>(LendBike, bikeService.CanLendBike);
