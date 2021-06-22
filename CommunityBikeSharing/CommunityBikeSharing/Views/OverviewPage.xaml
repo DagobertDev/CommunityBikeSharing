@@ -72,6 +72,9 @@
                         <Label Text="Reserviert"
                                IsVisible="{Binding Reserved}"
                                HorizontalOptions="End" TextColor="DarkOrange"/>
+                        <Label Text="{Binding LockState,
+                                    Converter={StaticResource LockStateIconConverter}}"
+                               FontFamily="{x:Static assets:Fonts.SolidIcons}"/>
                         <Label TextColor="Green" HorizontalOptions="End"
                                IsVisible="{Binding Location,
                                     Converter={StaticResource IsNotNull}}">

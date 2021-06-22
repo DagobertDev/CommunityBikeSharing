@@ -28,6 +28,11 @@
                                 <Label Text="Reserviert"
                                        IsVisible="{Binding Reserved}"
                                        HorizontalOptions="End" TextColor="DarkOrange"/>
+                                <Label Text="{Binding LockState,
+                                            Converter={StaticResource LockStateIconConverter}}"
+                                       FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                                       IsVisible="{Binding Lent,
+                                            Converter={StaticResource BoolInverter}}"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

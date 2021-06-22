@@ -8,5 +8,6 @@
         <behaviors:PositionToLocationConverter x:Key="PositionConverter" />
         <behaviors:BoolInverter x:Key="BoolInverter" />
         <behaviors:IsNotNullConverter x:Key="IsNotNull" />
+        <behaviors:LockStateIconConverter x:Key="LockStateIconConverter" />
     </Application.Resources>
 </Application>
