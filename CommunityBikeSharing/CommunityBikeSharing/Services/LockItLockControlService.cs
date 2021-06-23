@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -81,7 +82,7 @@ namespace CommunityBikeSharing.Services
 				.Timeout(MaxScanDuration)
 				.Subscribe(device =>
 				{
-					device.WhenConnected().Subscribe(async _ =>
+					device.WhenConnected().Take(1).Subscribe(async _ =>
 					{
 						var success = await Authenticate(key, device);
 
@@ -123,6 +124,7 @@ namespace CommunityBikeSharing.Services
 				var authStatus = await lockControlService.GetKnownCharacteristics(AuthenticationStatusGuid);
 
 				authStatus.WhenNotificationReceived()
+					.Take(1)
 					.Timeout(MaxAuthDuration)
 					.Subscribe(notification =>
 					{
@@ -136,7 +138,7 @@ namespace CommunityBikeSharing.Services
 			}
 
 			var authenticationCharacteristic = await lockControlService.GetKnownCharacteristics(AuthenticationGuid);
-			authenticationCharacteristic.WhenNotificationReceived().Subscribe(async notification =>
+			authenticationCharacteristic.WhenNotificationReceived().Take(1).Subscribe(async notification =>
 			{
 				var challenge = notification.Data;
 
