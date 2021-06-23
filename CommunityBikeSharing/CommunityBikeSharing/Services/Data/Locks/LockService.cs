@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data.Bikes;
+using Plugin.CloudFirestore;
 
 namespace CommunityBikeSharing.Services.Data.Locks
 {
@@ -64,8 +65,8 @@ namespace CommunityBikeSharing.Services.Data.Locks
 
 			return _context.RunTransactionAsync(transaction =>
 			{
-				_bikeRepository.Update(bike, nameof(Bike.LockId), null);
-				_bikeRepository.Update(bike, nameof(Bike.LockState), Lock.State.None);
+				_bikeRepository.Update(bike, nameof(Bike.LockId), null, transaction);
+				_bikeRepository.Update(bike, nameof(Bike.LockState), Lock.State.None.ToString(), transaction);
 				_lockRepository.Delete(@lock, transaction);
 			});
 		}
