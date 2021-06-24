@@ -4,6 +4,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
              xmlns:views="clr-namespace:CommunityBikeSharing.Views;assembly=CommunityBikeSharing"
+             xmlns:fa="clr-namespace:FontAwesome;assembly=CommunityBikeSharing"
+             xmlns:assets="clr-namespace:CommunityBikeSharing.Assets;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.CommunityOverviewPage"
              Title="{Binding Name}"
              x:DataType="viewModels:CommunityOverviewViewModel">
@@ -15,7 +17,34 @@
                      Command="{Binding OpenSettingsCommand}"/>
     </TabbedPage.ToolbarItems>
 
-    <views:CommunityMembersPage BindingContext="{Binding CommunityMembersViewModel}"/>
-    <views:CommunityBikesPage BindingContext="{Binding CommunityBikesViewModel}"/>
-    <views:CommunityStationsPage BindingContext="{Binding CommunityStationsViewModel}"/>
+    <views:CommunityMembersPage BindingContext="{Binding CommunityMembersViewModel}">
+        <Page.IconImageSource>
+            <OnPlatform x:TypeArguments="ImageSource">
+                <On Platform="iOS">
+                    <FontImageSource FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                                     Glyph="{x:Static fa:FontAwesomeIcons.User}"/>
+                </On>
+            </OnPlatform>
+        </Page.IconImageSource>
+    </views:CommunityMembersPage>
+    <views:CommunityBikesPage BindingContext="{Binding CommunityBikesViewModel}">
+        <Page.IconImageSource>
+            <OnPlatform x:TypeArguments="ImageSource">
+                <On Platform="iOS">
+                    <FontImageSource FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                                     Glyph="{x:Static fa:FontAwesomeIcons.Bicycle}"/>
+                </On>
+            </OnPlatform>
+        </Page.IconImageSource>
+    </views:CommunityBikesPage>
+    <views:CommunityStationsPage BindingContext="{Binding CommunityStationsViewModel}">
+        <Page.IconImageSource>
+            <OnPlatform x:TypeArguments="ImageSource">
+                <On Platform="iOS">
+                    <FontImageSource FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                                     Glyph="{x:Static fa:FontAwesomeIcons.Home}"/>
+                </On>
+            </OnPlatform>
+        </Page.IconImageSource>
+    </views:CommunityStationsPage>
 </TabbedPage>
