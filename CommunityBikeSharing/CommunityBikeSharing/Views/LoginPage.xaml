@@ -23,7 +23,7 @@
                 Command="{Binding LoginCommand}"
                 Margin="30,0"/>
 
-        <Label Text="Bereits registriert? Hier einloggen"
+        <Label Text="Noch nicht registriert? Hier registrieren"
                TextDecorations="Underline"
                HorizontalTextAlignment="Center"
                HorizontalOptions="Center"
