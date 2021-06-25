@@ -33,7 +33,7 @@ namespace CommunityBikeSharing.iOS.Renderers
 			var annotationView = base.GetViewForAnnotation(mapView, annotation);
 			var pin = GetPinForAnnotation(annotation);
 
-			switch (pin.BindingContext)
+			switch (pin?.BindingContext)
 			{
 				case Bike _:
 					annotationView.Image = GetUIImageFromImageSource(bike);
