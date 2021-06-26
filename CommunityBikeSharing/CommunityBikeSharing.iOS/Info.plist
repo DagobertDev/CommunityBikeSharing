@@ -32,8 +32,6 @@
 	<string>LaunchScreen</string>
 	<key>CFBundleName</key>
 	<string>CommunityBikeSharing</string>
-	<key>XSAppIconAssets</key>
-	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>mailto</string>
@@ -49,5 +47,7 @@
 	<string>Bluetooth wird zum Bedienen von elektronischen Schlössern benötigt</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Bluetooth wird zum Bedienen von elektronischen Schlössern benötigt</string>
+	<key>XSAppIconAssets</key>
+	<string>Assets.xcassets/AppIcon.appiconset</string>
 </dict>
 </plist>
