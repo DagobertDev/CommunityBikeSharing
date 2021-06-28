@@ -12,6 +12,7 @@ using CommunityBikeSharing.Services.Data.Bikes;
 using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Memberships;
+using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -23,6 +24,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IMembershipService _membershipService;
 		private readonly ICommunityService _communityService;
 		private readonly ILockService _lockService;
+		private readonly IQRCodeScanner _qrCodeScanner;
 		private readonly string _communityId;
 
 		public CommunityBikesViewModel(IDialogService dialogService,
@@ -30,6 +32,7 @@ namespace CommunityBikeSharing.ViewModels
 			IMembershipService membershipService,
 			ICommunityService communityService,
 			ILockService lockService,
+			IQRCodeScanner qrCodeScanner,
 			string id)
 		{
 			_dialogService = dialogService;
@@ -37,6 +40,7 @@ namespace CommunityBikeSharing.ViewModels
 			_membershipService = membershipService;
 			_communityService = communityService;
 			_lockService = lockService;
+			_qrCodeScanner = qrCodeScanner;
 
 			_communityId = id;
 
@@ -131,7 +135,8 @@ namespace CommunityBikeSharing.ViewModels
 				("Aktuellen Ausleiher anzeigen", ShowCurrentLenderCommand),
 				("Fahrrad umbenennen", RenameBikeCommand),
 				("Fahrrad entfernen", DeleteBikeCommand),
-				("Schloss hinzufügen", AddLockCommand),
+				("Schloss hinzufügen (manuell)", AddLockCommand),
+				("Schloss hinzufügen (QR-Code)", AddLockWithQRCodeCommand),
 				("Schloss öffnen", OpenLockCommand),
 				("Schloss schließen", CloseLockCommand),
 				("Schloss entfernen", RemoveLockCommand),
@@ -209,6 +214,29 @@ namespace CommunityBikeSharing.ViewModels
 
 		private bool CanAddLock(Bike bike) => !bike.HasLock &&
 		                                      CurrentUserMembership is {IsCommunityAdmin: true};
+		
+		public ICommand AddLockWithQRCodeCommand => new Command<Bike>(AddLockWithQRCode, CanAddLock);
+		private async void AddLockWithQRCode(Bike bike)
+		{
+			var result = await _qrCodeScanner.Scan();
+
+			if (result == null)
+			{
+				return;
+			}
+			
+			var @lock = new { name = string.Empty, token = string.Empty };
+
+			@lock = JsonConvert.DeserializeAnonymousType(result, @lock);
+
+			if (@lock == null)
+			{
+				return;
+			}
+
+			await _lockService.Add(bike, @lock.name, @lock.token);
+		}
+
 
 		public ICommand OpenLockCommand => new Command<Bike>(OpenLock, CanOpenLock);
 		private async void OpenLock(Bike bike)

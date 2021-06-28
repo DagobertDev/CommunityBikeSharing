@@ -42,6 +42,7 @@ namespace CommunityBikeSharing
 				.AddSingleton<ILocationPicker, LocationPicker>()
 				.AddSingleton<ILocationService, LocationService>()
 				.AddSingleton<INavigationService, NavigationService>()
+				.AddSingleton<IQRCodeScanner, QRCodeScanner>()
 
 				.AddSingleton<IFirestoreContext, FirestoreContext>()
 				.AddRepositories()

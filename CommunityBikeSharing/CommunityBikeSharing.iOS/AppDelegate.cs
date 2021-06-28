@@ -30,6 +30,7 @@ namespace CommunityBikeSharing.iOS
         private void ConfigureServices(IServiceCollection services)
         {
 	        Firebase.Core.App.Configure();
+	        ZXing.Net.Mobile.Forms.iOS.Platform.Init();
         }
     }
 }

@@ -26,6 +26,7 @@ namespace CommunityBikeSharing.Droid
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+            ZXing.Net.Mobile.Android.PermissionsHandler.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
@@ -33,6 +34,7 @@ namespace CommunityBikeSharing.Droid
         private void ConfigureServices(IServiceCollection services)
         {
 	        FirebaseApp.InitializeApp(Application.Context);
+	        ZXing.Net.Mobile.Forms.Android.Platform.Init();
         }
     }
 }
