@@ -12,7 +12,7 @@ namespace CommunityBikeSharing.Services
 	public class LockItLockControlService : ILockControlService
 	{
 		private static readonly TimeSpan MaxTurnOnBluetoothDuration = TimeSpan.FromSeconds(5);
-		private static readonly TimeSpan MaxScanDuration = TimeSpan.FromSeconds(5);
+		private static readonly TimeSpan MaxScanDuration = TimeSpan.FromSeconds(10);
 		private static readonly TimeSpan MaxAuthDuration = TimeSpan.FromSeconds(10);
 		private static readonly TimeSpan OpenCloseLockDuration = TimeSpan.FromSeconds(10);
 
@@ -47,7 +47,7 @@ namespace CommunityBikeSharing.Services
 		{
 			if (_adapter.Status != AdapterStatus.PoweredOn)
 			{
-				if (!_adapter.CanControlAdapterState() || !await TurnOnBle())
+				if (!(_adapter.CanControlAdapterState() && await TurnOnBle()))
 				{
 					await _dialogService.ShowError("Bluetooth anschalten",
 						"Schalten Sie Bluetooth ein, um das Schloss zu bedienen");
