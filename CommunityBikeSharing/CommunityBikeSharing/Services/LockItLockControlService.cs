@@ -176,6 +176,7 @@ namespace CommunityBikeSharing.Services
 
 			var currentValue = await lockState.Read();
 
+			// Check if new status is the expected one
 			if ((currentValue.Data[0] == 0 && open) || (currentValue.Data[0] == 1 && !open))
 			{
 				device.CancelConnection();

@@ -1,28 +1,20 @@
-﻿using System.Threading.Tasks;
-using CommunityBikeSharing.Services;
-
-namespace CommunityBikeSharing.ViewModels
+﻿namespace CommunityBikeSharing.ViewModels
 {
 	public class LoadingViewModel : BaseViewModel
 	{
-		private readonly IAuthService _authService;
-		private readonly INavigationService _navigationService;
-
-		public LoadingViewModel(IAuthService authService, INavigationService navigationService)
+		public LoadingViewModel(string text)
 		{
-			_authService = authService;
-			_navigationService = navigationService;
+			Text = text;
 		}
 
-		public override async Task InitializeAsync()
+		private string _text = string.Empty;
+		public string Text
 		{
-			if (_authService.SignedIn)
+			get => _text;
+			set
 			{
-				await _navigationService.NavigateToRoot<OverviewViewModel>();
-			}
-			else
-			{
-				await _navigationService.NavigateToRoot<RegistrationViewModel>();
+				_text = value;
+				OnPropertyChanged();
 			}
 		}
 	}

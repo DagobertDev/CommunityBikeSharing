@@ -2,10 +2,15 @@
 
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="CommunityBikeSharing.Views.LoadingPage">
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             x:Class="CommunityBikeSharing.Views.LoadingPage"
+             x:DataType="viewModels:LoadingViewModel"
+             Shell.PresentationMode="Modal">
     <ContentPage.Content>
-        <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-            <ActivityIndicator IsRunning="True" />
+        <StackLayout HorizontalOptions="Center"
+                     VerticalOptions="Center">
+            <ActivityIndicator IsRunning="True"/>
+            <Label Text="{Binding Text}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

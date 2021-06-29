@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data.Bikes;
+using CommunityBikeSharing.ViewModels;
 using Plugin.CloudFirestore;
 
 namespace CommunityBikeSharing.Services.Data.Locks
@@ -12,17 +13,20 @@ namespace CommunityBikeSharing.Services.Data.Locks
 		private readonly ILockRepository _lockRepository;
 		private readonly IBikeRepository _bikeRepository;
 		private readonly ILockControlService _lockControlService;
+		private readonly INavigationService _navigationService;
 
 		public LockService(
 			IFirestoreContext context,
 			ILockRepository lockRepository,
 			IBikeRepository bikeRepository,
-			ILockControlService lockControlService)
+			ILockControlService lockControlService,
+			INavigationService navigationService)
 		{
 			_context = context;
 			_lockRepository = lockRepository;
 			_bikeRepository = bikeRepository;
 			_lockControlService = lockControlService;
+			_navigationService = navigationService;
 		}
 
 		public Task<Lock> Get(Bike bike)
@@ -73,6 +77,8 @@ namespace CommunityBikeSharing.Services.Data.Locks
 
 		public async Task<bool> OpenLock(Bike bike)
 		{
+			await _navigationService.NavigateTo<LoadingViewModel>("Schloss wird geöffnet.");
+			
 			var @lock = await Get(bike);
 			var result = await _lockControlService.OpenLock(@lock);
 
@@ -82,11 +88,14 @@ namespace CommunityBikeSharing.Services.Data.Locks
 				await _bikeRepository.Update(bike, nameof(Bike.LockState), bike.LockState.ToString());
 			}
 
+			await _navigationService.NavigateBack();
 			return result;
 		}
 
 		public async Task<bool> CloseLock(Bike bike)
 		{
+			await _navigationService.NavigateTo<LoadingViewModel>("Schloss wird abgeschlossen.");
+			
 			var @lock = await Get(bike);
 			var result = await _lockControlService.CloseLock(@lock);
 
@@ -96,6 +105,7 @@ namespace CommunityBikeSharing.Services.Data.Locks
 				await _bikeRepository.Update(bike, nameof(Bike.LockState), bike.LockState.ToString());
 			}
 
+			await _navigationService.NavigateBack();
 			return result;
 		}
 	}

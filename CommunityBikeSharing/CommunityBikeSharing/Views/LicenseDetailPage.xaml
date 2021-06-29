@@ -5,7 +5,8 @@
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.LicenseDetailPage"
              x:DataType="viewModels:LicenseDetailViewModel"
-             Title="{Binding Name}">
+             Title="{Binding Name}"
+             Shell.PresentationMode="Modal">
     <ContentPage.Content>
         <ScrollView Padding="20">
             <Label Text="{Binding Text}" />

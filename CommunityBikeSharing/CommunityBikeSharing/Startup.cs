@@ -100,6 +100,7 @@ namespace CommunityBikeSharing
 				.AddTransient<LicenseDetailViewModel>()
 				.AddTransient<LicensesViewModel>()
 				.AddTransient<LoadingViewModel>()
+				.AddTransient<StartupViewModel>()
 				.AddTransient<LoginViewModel>()
 				.AddTransient<MapModalViewModel>()
 				.AddTransient<OverviewViewModel>()

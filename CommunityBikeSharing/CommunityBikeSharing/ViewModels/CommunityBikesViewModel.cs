@@ -235,6 +235,8 @@ namespace CommunityBikeSharing.ViewModels
 			}
 
 			await _lockService.Add(bike, @lock.name, @lock.token);
+			await _dialogService.ShowMessage("Schloss hinzugefügt",
+				$"Das Schloss \"{@lock.name}\" wurde erfolgreich mit dem Fahrrad \"{bike.Name}\" verbunden.");
 		}
 
 
