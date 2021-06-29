@@ -7,7 +7,11 @@ namespace CommunityBikeSharing.Services
 	{
 		public async Task<string?> Scan()
 		{
-			var scanner = new MobileBarcodeScanner();
+			var scanner = new MobileBarcodeScanner
+			{
+				CancelButtonText = "Abbrechen"
+			};
+
 			var result = await scanner.Scan();
 			return result?.Text;
 		}
