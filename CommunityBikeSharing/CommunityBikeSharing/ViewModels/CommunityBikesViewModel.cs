@@ -208,6 +208,12 @@ namespace CommunityBikeSharing.ViewModels
 
 			var key = await _dialogService.ShowTextEditor("Schlüssel eingeben",
 				"Bitte geben Sie den Schlüssel des Schlosses ein");
+			
+			if (string.IsNullOrEmpty(key))
+			{
+				return;
+			}
+
 
 			await _lockService.Add(bike, name, key);
 		}
