@@ -31,6 +31,12 @@ namespace CommunityBikeSharing.Views
 			
 			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
+
+		protected override bool OnBackButtonPressed()
+		{
+			// Do nothing, user shouldn't manually go back
+			return true;
+		}
 	}
 }
 
