@@ -70,7 +70,15 @@ namespace CommunityBikeSharing.Services
 							bleResult.TrySetResult(false);
 						});
 
-					_adapter.SetAdapterState(true);
+					try
+					{
+						_adapter.SetAdapterState(true);
+					}
+					catch (Exception)
+					{
+						return Task.FromResult(false);
+					}
+
 					return bleResult.Task;
 				}
 			}
