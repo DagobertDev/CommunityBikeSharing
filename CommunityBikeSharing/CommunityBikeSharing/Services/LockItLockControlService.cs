@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -12,8 +11,8 @@ namespace CommunityBikeSharing.Services
 	public class LockItLockControlService : ILockControlService
 	{
 		private static readonly TimeSpan MaxTurnOnBluetoothDuration = TimeSpan.FromSeconds(5);
-		private static readonly TimeSpan MaxScanDuration = TimeSpan.FromSeconds(10);
-		private static readonly TimeSpan MaxAuthDuration = TimeSpan.FromSeconds(10);
+		private static readonly TimeSpan MaxScanDuration = TimeSpan.FromSeconds(12);
+		private static readonly TimeSpan MaxAuthDuration = TimeSpan.FromSeconds(3);
 		private static readonly TimeSpan OpenCloseLockDuration = TimeSpan.FromSeconds(10);
 
 		private readonly ILockKeyService _lockKeyService;
@@ -79,6 +78,7 @@ namespace CommunityBikeSharing.Services
 			var result = new TaskCompletionSource<IDevice?>();
 
 			_adapter.ScanUntilDeviceFound(@lock.Name)
+				.Take(1)
 				.Timeout(MaxScanDuration)
 				.Subscribe(device =>
 				{
@@ -96,6 +96,11 @@ namespace CommunityBikeSharing.Services
 							await _dialogService.ShowError("Authentifizierung fehlgeschlagen",
 								"Das Schloss konnte aufgrund eines Fehlers mit der Authentifizierung nicht geöffnet werden.");
 						}
+					}, async exception =>
+					{
+						result.TrySetResult(null);
+						await _dialogService.ShowError("Verbindung fehlgeschlagen",
+							"Die Verbindung zum Schloss ist fehlgeschlagen, obwohl das Schloss gefunden wurde.");
 					});
 
 					device.Connect(new ConnectionConfig
