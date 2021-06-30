@@ -5,7 +5,7 @@
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.LoadingPage"
              x:DataType="viewModels:LoadingViewModel"
-             Shell.PresentationMode="Modal">
+             Shell.PresentationMode="ModalNotAnimated">
     <ContentPage.Content>
         <StackLayout HorizontalOptions="Center"
                      VerticalOptions="Center">
