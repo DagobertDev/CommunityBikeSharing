@@ -18,7 +18,13 @@ namespace CommunityBikeSharing.Services
 			{
 				var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
 				var location = await Geolocation.GetLocationAsync(request);
-				return location.IsFromMockProvider ? null : location;
+
+				if (location == null || location.IsFromMockProvider)
+				{
+					return null;
+				}
+
+				return location;
 			}
 			catch (FeatureNotEnabledException)
 			{
