@@ -18,15 +18,15 @@ namespace CommunityBikeSharing.ViewModels
 	public class CommunityMembersViewModel : BaseViewModel
 	{
 		private readonly string _communityId;
-		private CommunityMembership _currentUserMembership;
+		private CommunityMembership? _currentUserMembership;
 		private readonly IMembershipService _membershipService;
 		private readonly IDialogService _dialogService;
 		private readonly IUserService _userService;
 		private readonly IAuthService _authService;
 
-		private User _currentUser;
+		private User? _currentUser;
 
-		private CommunityMembership CurrentUserMembership
+		private CommunityMembership? CurrentUserMembership
 		{
 			get => _currentUserMembership;
 			set
@@ -96,7 +96,7 @@ namespace CommunityBikeSharing.ViewModels
 			_membersChanged = (sender, args) =>
 			{
 				OnPropertyChanged(nameof(SortedMembers));
-				CurrentUserMembership = Members?.SingleOrDefault(m => m.UserId == _currentUser.Id);
+				CurrentUserMembership = Members?.SingleOrDefault(m => m.UserId == _currentUser?.Id);
 			};
 		}
 
@@ -169,7 +169,7 @@ namespace CommunityBikeSharing.ViewModels
 		private bool CanRemoveMember(CommunityMembership membership) => UserIsAdminAndEditsOtherUser(membership);
 
 		private bool UserIsAdminAndEditsOtherUser(CommunityMembership membership) =>
-			CurrentUserMembership.Role == CommunityRole.CommunityAdmin && CurrentUserMembership.Id != membership.Id;
+			CurrentUserMembership is {Role: CommunityRole.CommunityAdmin} && CurrentUserMembership.Id != membership.Id;
 
 		private async void SendInvitationMail(string mailAddress)
 		{

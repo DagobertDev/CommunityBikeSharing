@@ -12,8 +12,8 @@ namespace CommunityBikeSharing.Services
 		Task ResetPassword(string email);
 		Task UpdateUsername(string name);
 		string GetCurrentUserId();
-		IObservable<User> ObserveCurrentUser();
-		User GetCurrentUser();
+		IObservable<User?> ObserveCurrentUser();
+		User? GetCurrentUser();
 		bool SignedIn { get; }
 	}
 }

@@ -10,7 +10,7 @@ namespace CommunityBikeSharing.Services
 	public class FirebaseAuthService : IAuthService
 	{
 		private readonly IAuth _auth = CrossFirebaseAuth.Current.Instance;
-		private IObservable<User>? _user;
+		private IObservable<User?>? _user;
 
 		public async Task<User?> Register(string email, string password)
 		{
@@ -139,11 +139,11 @@ namespace CommunityBikeSharing.Services
 
 		public string GetCurrentUserId() => _auth.CurrentUser?.Uid ?? string.Empty;
 
-		public IObservable<User> ObserveCurrentUser()
+		public IObservable<User?> ObserveCurrentUser()
 		{
 			if (_user == null)
 			{
-				var user = new Subject<User>();
+				var user = new Subject<User?>();
 
 				_auth.IdToken += (sender, args) =>
 				{
@@ -161,7 +161,7 @@ namespace CommunityBikeSharing.Services
 			return _user.StartWith(GetCurrentUser());
 		}
 
-		public User GetCurrentUser()
+		public User? GetCurrentUser()
 		{
 			if (_auth.CurrentUser == null)
 			{
