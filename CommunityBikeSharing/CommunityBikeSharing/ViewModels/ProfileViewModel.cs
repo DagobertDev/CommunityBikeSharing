@@ -42,8 +42,17 @@ namespace CommunityBikeSharing.ViewModels
 				OnPropertyChanged();
 			}
 		}
+
+		private bool _initialized;
 		public override Task InitializeAsync()
 		{
+			if (_initialized)
+			{
+				return Task.CompletedTask;
+			}
+
+			_initialized = true;
+			
 			_authService.ObserveCurrentUser().Subscribe(user => WelcomeMessage = $"Benutzername: {user?.Username}");
 			return Task.CompletedTask;
 		}

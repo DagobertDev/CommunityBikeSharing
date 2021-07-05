@@ -13,7 +13,7 @@ namespace CommunityBikeSharing.Services
 		Task UpdateUsername(string name);
 		string GetCurrentUserId();
 		IObservable<User?> ObserveCurrentUser();
-		User? GetCurrentUser();
+		User GetCurrentUser();
 		UserData GetCurrentUserData();
 		Task DeleteCurrentUser();
 		Task<bool> Reauthenticate(string email, string password);

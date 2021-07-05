@@ -147,31 +147,34 @@ namespace CommunityBikeSharing.Services
 
 				_auth.IdToken += (sender, args) =>
 				{
-					user.OnNext(GetCurrentUser());
+					user.OnNext(SafeGetCurrentUser());
 				};
 
 				_auth.AuthState += (sender, args) =>
 				{
-					user.OnNext(GetCurrentUser());
+					user.OnNext(SafeGetCurrentUser());
 				};
 
-				_user = user;
+				_user = user.StartWith(SafeGetCurrentUser()).Replay(1).RefCount();
 			}
 
-			return _user.StartWith(GetCurrentUser());
+			return _user;
 		}
 
-		public User? GetCurrentUser()
+		private User? SafeGetCurrentUser() => SignedIn ? GetCurrentUser() : null;
+		public User GetCurrentUser()
 		{
-			if (_auth.CurrentUser == null)
+			var user = _auth.CurrentUser;
+			
+			if (user == null)
 			{
-				return null;
+				throw new NullReferenceException(nameof(IAuth.CurrentUser));
 			}
 
 			return new User
 			{
-				Id = _auth.CurrentUser.Uid,
-				Username = _auth.CurrentUser.DisplayName
+				Id = user.Uid,
+				Username = user.DisplayName ?? user.Email ?? throw new NullReferenceException(nameof(IUser.DisplayName))
 			};
 		}
 
