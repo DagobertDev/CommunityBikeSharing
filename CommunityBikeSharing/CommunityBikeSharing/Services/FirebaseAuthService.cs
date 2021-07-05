@@ -33,10 +33,10 @@ namespace CommunityBikeSharing.Services
 			}
 			catch (FirebaseAuthException e)
 			{
-				throw e.Reason switch
+				throw e.ErrorType switch
 				{
-					"WeakPassword" => new AuthError(AuthError.AuthErrorReason.WeakPassword),
-					"UserCollision" => new AuthError(AuthError.AuthErrorReason.EmailAlreadyUsed),
+					ErrorType.WeakPassword => new AuthError(AuthError.AuthErrorReason.WeakPassword),
+					ErrorType.UserCollision => new AuthError(AuthError.AuthErrorReason.EmailAlreadyUsed),
 					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
 				};
 			}
@@ -73,10 +73,10 @@ namespace CommunityBikeSharing.Services
 			}
 			catch (FirebaseAuthException e)
 			{
-				throw e.Reason switch
+				throw e.ErrorType switch
 				{
-					"InvalidUser" => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
-					"InvalidCredentials" => new AuthError(AuthError.AuthErrorReason.WrongPassword),
+					ErrorType.InvalidUser => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
+					ErrorType.InvalidCredentials => new AuthError(AuthError.AuthErrorReason.WrongPassword),
 					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
 				};
 			}
@@ -102,9 +102,9 @@ namespace CommunityBikeSharing.Services
 			}
 			catch (FirebaseAuthException e)
 			{
-				throw e.Reason switch
+				throw e.ErrorType switch
 				{
-					"InvalidCredentials" => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
+					ErrorType.InvalidUser => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
 					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
 				};
 			}
@@ -129,9 +129,9 @@ namespace CommunityBikeSharing.Services
 			}
 			catch (FirebaseAuthException e)
 			{
-				throw e.Reason switch
+				throw e.ErrorType switch
 				{
-					"InvalidCredentials" => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
+					ErrorType.InvalidCredentials => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
 					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
 				};
 			}
