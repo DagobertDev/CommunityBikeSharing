@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -10,9 +9,9 @@ using CommunityBikeSharing.Controls;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
+using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Stations;
-using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -26,6 +25,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly INavigationService _navigationService;
 		private readonly IDialogService _dialogService;
 		private readonly ILockService _lockService;
+		private readonly ICommunityService _communityService;
 
 		public OverviewViewModel(
 			IBikeService bikeService,
@@ -33,7 +33,8 @@ namespace CommunityBikeSharing.ViewModels
 			IStationService stationService,
 			INavigationService navigationService,
 			IDialogService dialogService,
-			ILockService lockService)
+			ILockService lockService,
+			ICommunityService communityService)
 		{
 			_bikeService = bikeService;
 			_locationService = locationService;
@@ -42,6 +43,7 @@ namespace CommunityBikeSharing.ViewModels
 			_dialogService = dialogService;
 			_locationService = locationService;
 			_lockService = lockService;
+			_communityService = communityService;
 
 			ShowBikeOnMapCommand = new Command<Bike>(ShowBikeOnMap, CanShowBikeOnMap);
 			LendBikeCommand = new Command<Bike>(LendBike, bikeService.CanLendBike);
@@ -50,6 +52,7 @@ namespace CommunityBikeSharing.ViewModels
 			DeleteReservationCommand = new Command<Bike>(DeleteReservation, bikeService.CanDeleteReservation);
 			TakeBreakCommand = new Command<Bike>(TakeBreak, CanTakeBreak);
 			EndBreakCommand = new Command<Bike>(EndBreak, CanEndBreak);
+			ReportProblemCommand = new Command<Bike>(async bike => await ReportProblem(bike), CanReportProblem);
 		}
 
 		public IEnumerable<object> MapItems
@@ -165,6 +168,7 @@ namespace CommunityBikeSharing.ViewModels
 		public Command<Bike> DeleteReservationCommand { get; }
 		public Command<Bike> TakeBreakCommand { get; }
 		public Command<Bike> EndBreakCommand { get; }
+		public Command<Bike> ReportProblemCommand { get; }
 
 		public async void OnBikeSelected(Bike bike)
 		{
@@ -177,6 +181,7 @@ namespace CommunityBikeSharing.ViewModels
 				("Reservierung löschen", DeleteReservationCommand),
 				("Pause machen", TakeBreakCommand),
 				("Pause beenden", EndBreakCommand),
+				("Problem melden", ReportProblemCommand),
 			};
 
 			await _dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
@@ -276,6 +281,32 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		private bool CanEndBreak(Bike bike) => bike.Lent && bike.HasLock && bike.LockState != Lock.State.Open;
+
+		private async Task ReportProblem(Bike bike)
+		{
+			var community = await _communityService.Get(bike.CommunityId);
+			var mailAddress = community.SupportEmail;
+			
+			try
+			{
+				var message = new EmailMessage
+				{
+					Subject = "Problem mit Fahrrad",
+					Body = $"Hallo Team von {community.Name},\n" +
+					       $"es gibt folgendes Problem mit dem Fahrrad {bike.Name}: \n", 
+					To = new List<string>{mailAddress}
+				};
+
+				await Email.ComposeAsync(message);
+			}
+			catch (Exception)
+			{
+				await _dialogService.ShowError("Versand fehlgeschlagen",
+					"Es konnte keine Mail-App auf dem Gerät gefunden werden");
+			}
+		}
+
+		private bool CanReportProblem(Bike bike) => true;
 
 		public ICommand ToggleMapCommand => new Command(ToggleMap);
 

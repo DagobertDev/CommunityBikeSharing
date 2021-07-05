@@ -69,6 +69,8 @@ namespace CommunityBikeSharing.Services.Data.Communities
 			return _communityRepository.Update(community);
 		}
 
+		public Task<Community> Get(string id) => _communityRepository.Get(id);
+
 		public async Task Delete(Community community)
 		{
 			var memberships = await _context.CommunityUsers
