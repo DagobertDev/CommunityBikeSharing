@@ -13,6 +13,10 @@
         <Button Text="Benutzernamen ändern"
                 Command="{Binding ChangeUsernameCommand}"
                 Margin="30,0"/>
+        
+        <Button Text="Account löschen"
+                Command="{Binding DeleteAccountCommand}"
+                Margin="30,0"/>
 
         <Button Text="Logout"
                 Command="{Binding SignOutCommand}"

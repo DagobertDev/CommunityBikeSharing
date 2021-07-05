@@ -30,6 +30,7 @@ namespace CommunityBikeSharing.ViewModels
 			SignOutCommand = new Command(SignOut);
 			ChangeUsernameCommand = new Command(ChangeUserName);
 			ShowLicensesCommand = new Command(ShowLicenses);
+			DeleteAccountCommand = new Command(async () => await DeleteAccount());
 		}
 
 		public string WelcomeMessage
@@ -50,12 +51,37 @@ namespace CommunityBikeSharing.ViewModels
 		public ICommand SignOutCommand { get; }
 		public ICommand ChangeUsernameCommand { get; }
 		public ICommand ShowLicensesCommand { get; }
+		public ICommand DeleteAccountCommand { get; }
 
 		private async void SignOut()
 		{
 			await _authService.SignOut();
 
 			await _navigationService.NavigateToRoot<RegistrationViewModel>();
+		}
+
+		private async Task DeleteAccount()
+		{
+			var confirmed = await _dialogService.ShowConfirmation("Account löschen", 
+				"Möchten Sie Ihren Account wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.");
+
+			if (!confirmed)
+			{
+				return;
+			}
+
+			var userData = _authService.GetCurrentUserData();
+			var password = await _dialogService.ShowTextEditor("Passwort eingeben", "Bitte geben Sie Ihr Passwort ein");
+
+			if (!await _authService.Reauthenticate(userData.Email, password))
+			{
+				await _dialogService.ShowError("Löschen fehlgeschlagen", "Ihr Account konnte nicht gelöscht werden");
+				return;
+			}
+			
+			await _userService.DeleteAccount();
+
+			await _navigationService.NavigateToRoot<LoginViewModel>();
 		}
 
 		private async void ChangeUserName()

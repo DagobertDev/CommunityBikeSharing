@@ -14,6 +14,9 @@ namespace CommunityBikeSharing.Services
 		string GetCurrentUserId();
 		IObservable<User?> ObserveCurrentUser();
 		User? GetCurrentUser();
+		UserData GetCurrentUserData();
+		Task DeleteCurrentUser();
+		Task<bool> Reauthenticate(string email, string password);
 		bool SignedIn { get; }
 	}
 }

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services.Data.Memberships;
@@ -62,6 +61,29 @@ namespace CommunityBikeSharing.Services.Data.Users
 		{
 			var user = await _authService.Register(email, password);
 			return await Add(user.Id, email);
+		}
+
+		public async Task DeleteAccount()
+		{
+			var user = _authService.GetCurrentUser();
+			var userData = _authService.GetCurrentUserData();
+			
+			if (user == null)
+			{
+				throw new NullReferenceException(nameof(user));
+			}
+			
+			await _context.RunTransactionAsync(transaction =>
+			{
+				_userRepository.Delete(user, transaction);
+				_userEmailRepository.Delete(new UserEmail
+				{
+					Id = userData.Email,
+					UserId = user.Id
+				}, transaction);
+			});
+
+			await _authService.DeleteCurrentUser();
 		}
 
 		public async Task<bool> UpdateUsername(string name)

@@ -175,6 +175,55 @@ namespace CommunityBikeSharing.Services
 			};
 		}
 
+		public UserData GetCurrentUserData()
+		{
+			var user = _auth.CurrentUser;
+			
+			if (user == null)
+			{
+				throw new NullReferenceException(nameof(IAuth.CurrentUser));
+			}
+
+			return new UserData
+			{
+				Email = user.Email ?? throw new NullReferenceException(nameof(IUser.Email))
+			};
+		}
+
+		public async Task<bool> Reauthenticate(string email, string password)
+		{
+			var user = _auth.CurrentUser;
+			
+			if (user == null)
+			{
+				throw new NullReferenceException(nameof(IAuth.CurrentUser));
+			}
+			
+			var credential = CrossFirebaseAuth.Current.EmailAuthProvider.GetCredential(email, password);
+			
+			try
+			{
+				await user.ReauthenticateAsync(credential);
+				return true;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		public Task DeleteCurrentUser()
+		{
+			var user = _auth.CurrentUser;
+			
+			if (user == null)
+			{
+				throw new NullReferenceException(nameof(IAuth.CurrentUser));
+			}
+			
+			return user.DeleteAsync();
+		}
+
 		public bool SignedIn => _auth.CurrentUser != null;
 	}
 }

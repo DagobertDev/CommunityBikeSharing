@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 
 namespace CommunityBikeSharing.Services.Data.Users
@@ -9,5 +8,6 @@ namespace CommunityBikeSharing.Services.Data.Users
 		Task<User?> GetUserByEmail(string email);
 		Task<bool> UpdateUsername(string name);
 		Task<User> Register(string email, string password);
+		Task DeleteAccount();
 	}
 }
