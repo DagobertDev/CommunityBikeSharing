@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
 using CommunityBikeSharing.Services.Data.Stations;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -34,11 +32,6 @@ namespace CommunityBikeSharing.ViewModels
 			_dialogService = dialogService;
 			_communityId = communityId;
 			_stationId = stationId;
-
-			LendBikeCommand = new Command<Bike>(LendBike, bikeService.CanLendBike);
-			ReturnBikeCommand = new Command<Bike>(ReturnBike, bikeService.CanReturnBike);
-			ReserveBikeCommand = new Command<Bike>(ReserveBike, bikeService.CanReserveBike);
-			DeleteReservationCommand = new Command<Bike>(DeleteReservation, bikeService.CanDeleteReservation);
 		}
 
 		private Station? _station;
@@ -73,51 +66,23 @@ namespace CommunityBikeSharing.ViewModels
 
 		public string Name => Station?.Name ?? string.Empty;
 		public string? Description => Station?.Description;
-
-		public Command<Bike> LendBikeCommand { get; }
-		public Command<Bike> ReturnBikeCommand { get; }
-		public Command<Bike> ReserveBikeCommand { get; }
-		public Command<Bike> DeleteReservationCommand { get; }
-
+		
 		public async void OnBikeSelected(Bike bike)
 		{
+			var bikeVM = App.GetViewModel<BikeViewModel>(BikeViewModel.GetNavigationParameters());
+			
 			var actions = new (string, ICommand) []
 			{
-				("Fahrrad ausleihen", LendBikeCommand),
-				("Fahrrad zurückgeben", ReturnBikeCommand),
-				("Fahrrad reservieren", ReserveBikeCommand),
-				("Reservierung löschen", DeleteReservationCommand)
+				("Fahrrad ausleihen", bikeVM.LendBikeCommand),
+				("Fahrrad zurückgeben", bikeVM.ReturnBikeCommand),
+				("Fahrrad reservieren", bikeVM.ReserveBikeCommand),
+				("Reservierung löschen", bikeVM.DeleteReservationCommand),
+				("Pause machen (Schloss schließen)", bikeVM.TakeBreakCommand),
+				("Pause beenden (Schloss öffnen)", bikeVM.EndBreakCommand),
+				("Problem melden", bikeVM.ReportProblemCommand),
 			};
 
 			await _dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
-		}
-
-		private async void LendBike(Bike bike)
-		{
-			await _bikeService.LendBike(bike);
-		}
-
-		private async void ReturnBike(Bike bike)
-		{
-			await _bikeService.ReturnBike(bike);
-		}
-
-		private async void ReserveBike(Bike bike)
-		{
-			await _bikeService.ReserveBike(bike);
-
-			var dateTime = bike.ReservedUntil!.Value.ToLocalTime();
-
-			string formattedDateTime = dateTime.ToString(dateTime.Date == DateTime.Now.Date ? "HH:mm" : "dd.MM, hh:mm");
-
-			await _dialogService.ShowMessage("Fahrrad reserviert",
-				$"Das Fahrrad wurde bis {formattedDateTime} reserviert. " +
-				"Es kann bis zu diesem Zeitpunkt nur von Ihnen ausgeliehen werden.");
-		}
-
-		private async void DeleteReservation(Bike bike)
-		{
-			await _bikeService.DeleteReservation(bike);
 		}
 	}
 }

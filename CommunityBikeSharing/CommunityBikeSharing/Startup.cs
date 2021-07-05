@@ -91,7 +91,8 @@ namespace CommunityBikeSharing
 				.AddSingleton<IUserService, UserService>();
 
 		private static IServiceCollection AddViewModels(this IServiceCollection services) =>
-			services.AddTransient<CommunitiesViewModel>()
+			services.AddTransient<BikeViewModel>()
+				.AddTransient<CommunitiesViewModel>()
 				.AddTransient<CommunityBikesViewModel>()
 				.AddTransient<CommunityMembersViewModel>()
 				.AddTransient<CommunityOverviewPage>()
