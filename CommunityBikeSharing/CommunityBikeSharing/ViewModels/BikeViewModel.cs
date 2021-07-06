@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
@@ -14,8 +13,6 @@ namespace CommunityBikeSharing.ViewModels
 {
 	public class BikeViewModel : BaseViewModel
 	{
-		public static IEnumerable<object> GetNavigationParameters() => Enumerable.Empty<object>();
-		
 		private readonly IBikeService _bikeService;
 		private readonly ILockService _lockService;
 		private readonly IDialogService _dialogService;

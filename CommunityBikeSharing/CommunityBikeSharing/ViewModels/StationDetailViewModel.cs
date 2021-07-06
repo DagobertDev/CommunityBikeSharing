@@ -69,7 +69,7 @@ namespace CommunityBikeSharing.ViewModels
 		
 		public async void OnBikeSelected(Bike bike)
 		{
-			var bikeVM = App.GetViewModel<BikeViewModel>(BikeViewModel.GetNavigationParameters());
+			var bikeVM = App.GetViewModel<BikeViewModel>();
 			
 			var actions = new (string, ICommand) []
 			{

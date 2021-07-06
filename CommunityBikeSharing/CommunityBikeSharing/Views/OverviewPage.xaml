@@ -131,8 +131,21 @@
                 IsShowingUser="True"
                 ItemsSource="{Binding MapItems}"
                 ItemTemplateSelector="{StaticResource MapItemTemplateSelector}"
-                MoveToLastRegionOnLayoutChange="False"
                 IsVisible="{Binding ShowMap}">
+                <x:Arguments>
+                    <maps:MapSpan>
+                        <x:Arguments>
+                            <maps:Position>
+                                <x:Arguments>
+                                    <x:Double>50.0</x:Double>
+                                    <x:Double>10.0</x:Double>
+                                </x:Arguments>
+                            </maps:Position>
+                            <x:Double>10</x:Double>
+                            <x:Double>10</x:Double>
+                        </x:Arguments>
+                    </maps:MapSpan>
+                </x:Arguments>
             </controls:OverviewMap>
         </StackLayout>
     </ContentPage.Content>

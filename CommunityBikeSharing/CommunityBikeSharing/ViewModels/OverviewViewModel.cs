@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -8,8 +9,6 @@ using CommunityBikeSharing.Controls;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
-using CommunityBikeSharing.Services.Data.Communities;
-using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Stations;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -115,17 +114,6 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private Location _userLocation = new Location();
-		public Location UserLocation
-		{
-			get => _userLocation;
-			set
-			{
-				_userLocation = value;
-				OnPropertyChanged();
-			}
-		}
-
 		private bool _showMap = Preferences.Get("ShowMap", false);
 		public bool ShowMap
 		{
@@ -139,8 +127,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		public delegate void LocationChanged(Location location);
-		public event LocationChanged? OnLocationChanged;
+		public event EventHandler<Location>? OnLocationChanged;
 
 		public string Summary => "Zurzeit sind keine Fahrräder verfügbar. " +
 		                         "Treten Sie einer Community bei, um Fahrräder auszuleihen.";
@@ -151,7 +138,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public async void OnBikeSelected(Bike bike)
 		{
-			var bikeVM = App.GetViewModel<BikeViewModel>(BikeViewModel.GetNavigationParameters());
+			var bikeVM = App.GetViewModel<BikeViewModel>();
 			
 			var actions = new (string, ICommand) []
 			{
@@ -178,8 +165,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			if (location != null)
 			{
-				UserLocation = location;
-				OnLocationChanged?.Invoke(UserLocation);
+				OnLocationChanged?.Invoke(this, location);
 			}
 		}
 
@@ -202,8 +188,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			if (location != null)
 			{
-				UserLocation = location;
-				OnLocationChanged?.Invoke(UserLocation);
+				OnLocationChanged?.Invoke(this, location);
 			}
 
 			IsRefreshing = false;
@@ -216,8 +201,9 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
+			OnLocationChanged?.Invoke(this, bike.Location);
+
 			ShowMap = true;
-			OnLocationChanged?.Invoke(bike.Location);
 		}
 		private bool CanShowBikeOnMap(Bike bike) => bike.Location != null && !ShowMap;
 

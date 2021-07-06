@@ -39,7 +39,7 @@ namespace CommunityBikeSharing.Views
 			ViewModel.OnLocationChanged -= LocationChanged;
 		}
 
-		private void LocationChanged(Location location)
+		private void LocationChanged(object sender, Location location)
 		{
 			Map.MoveToRegion(MapSpan.FromCenterAndRadius(
 				location.ToPosition(),
