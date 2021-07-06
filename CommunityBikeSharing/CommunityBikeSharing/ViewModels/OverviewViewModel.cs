@@ -40,6 +40,19 @@ namespace CommunityBikeSharing.ViewModels
 			ShowBikeOnMapCommand = new Command<Bike>(ShowBikeOnMap, CanShowBikeOnMap);
 		}
 
+		private Location _userLocation = new Location();
+
+		public Location UserLocation
+		{
+			get => _userLocation;
+			set
+			{
+				_userLocation = value;
+				OnLocationChanged?.Invoke(this, value);
+				OnPropertyChanged();
+			}
+		}
+
 		public IEnumerable<object> MapItems
 		{
 			get
@@ -165,7 +178,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			if (location != null)
 			{
-				OnLocationChanged?.Invoke(this, location);
+				UserLocation = location;
 			}
 		}
 
@@ -188,7 +201,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			if (location != null)
 			{
-				OnLocationChanged?.Invoke(this, location);
+				UserLocation = location;
 			}
 
 			IsRefreshing = false;
@@ -201,7 +214,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			OnLocationChanged?.Invoke(this, bike.Location);
+			UserLocation = bike.Location;
 
 			ShowMap = true;
 		}
