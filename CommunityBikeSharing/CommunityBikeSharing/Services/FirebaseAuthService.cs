@@ -110,6 +110,29 @@ namespace CommunityBikeSharing.Services
 			}
 		}
 
+		public async Task ChangePassword(string newPassword)
+		{
+			var user = _auth.CurrentUser;
+
+			if (user == null)
+			{
+				throw new NullReferenceException(nameof(IAuth.CurrentUser));
+			}
+
+			try
+			{
+				await user.UpdatePasswordAsync(newPassword);
+			}
+			catch (FirebaseAuthException e)
+			{
+				throw e.ErrorType switch
+				{
+					ErrorType.WeakPassword => new AuthError(AuthError.AuthErrorReason.WeakPassword),
+					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
+				};
+			}
+		}
+
 		public async Task UpdateUsername(string name)
 		{
 			var user = _auth.CurrentUser;

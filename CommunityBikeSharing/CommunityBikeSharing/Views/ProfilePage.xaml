@@ -2,29 +2,59 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             xmlns:assets="clr-namespace:CommunityBikeSharing.Assets;assembly=CommunityBikeSharing"
+             xmlns:fa="clr-namespace:FontAwesome;assembly=CommunityBikeSharing"
              x:Class="CommunityBikeSharing.Views.ProfilePage"
              x:DataType="viewModels:ProfileViewModel"
              Title="Profil">
 
-    <StackLayout>
-        <Label Text="{Binding WelcomeMessage}"
-               FontSize="16" Padding="30,20"/>
+    <StackLayout Margin="30">
+        <Label HorizontalOptions="Center">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="{x:Static fa:FontAwesomeIcons.User}" 
+                          FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                          FontSize="Medium"/>
+                    <Span Text="  "/>
+                    <Span Text="Account"/>
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
+        
+        <Label Text="{Binding WelcomeMessage}"/>
 
         <Button Text="Benutzernamen ändern"
-                Command="{Binding ChangeUsernameCommand}"
-                Margin="30,0"/>
+                Command="{Binding ChangeUsernameCommand}"/>
+        
+        <Button Text="Passwort ändern"
+                Command="{Binding ChangePasswordCommand}"/>
         
         <Button Text="Account löschen"
-                Command="{Binding DeleteAccountCommand}"
-                Margin="30,0"/>
+                Command="{Binding DeleteAccountCommand}"/>
 
         <Button Text="Logout"
-                Command="{Binding SignOutCommand}"
-                Margin="30,0"/>
+                Command="{Binding SignOutCommand}"/>
+
+        <BoxView 
+            HeightRequest="1"
+            Color="LightGray"
+            Margin ="20, 10"/>
+
+        <Label HorizontalOptions="Center">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="{x:Static fa:FontAwesomeIcons.InfoCircle}"
+                          FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                          FontSize="Medium"/>
+                    <Span Text="  "/>
+                    <Span Text="Über die App"/>
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
 
         <Button Text="Softwarelizensen"
-                Command="{Binding ShowLicensesCommand}"
-                Margin="30,0"/>
+                Command="{Binding ShowLicensesCommand}"/>
+
     </StackLayout>
 
 </ContentPage>

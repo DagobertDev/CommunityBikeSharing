@@ -10,6 +10,7 @@ namespace CommunityBikeSharing.Services
 		Task SignIn(string email, string password);
 		Task SignOut();
 		Task ResetPassword(string email);
+		Task ChangePassword(string newPassword);
 		Task UpdateUsername(string name);
 		string GetCurrentUserId();
 		IObservable<User?> ObserveCurrentUser();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Users;
 using Xamarin.Forms;
@@ -31,6 +32,7 @@ namespace CommunityBikeSharing.ViewModels
 			ChangeUsernameCommand = new Command(ChangeUserName);
 			ShowLicensesCommand = new Command(ShowLicenses);
 			DeleteAccountCommand = new Command(async () => await DeleteAccount());
+			ChangePasswordCommand = new Command(async () => await ChangePassword());
 		}
 
 		public string WelcomeMessage
@@ -61,6 +63,7 @@ namespace CommunityBikeSharing.ViewModels
 		public ICommand ChangeUsernameCommand { get; }
 		public ICommand ShowLicensesCommand { get; }
 		public ICommand DeleteAccountCommand { get; }
+		public ICommand ChangePasswordCommand { get; }
 
 		private async void SignOut()
 		{
@@ -96,7 +99,7 @@ namespace CommunityBikeSharing.ViewModels
 		private async void ChangeUserName()
 		{
 			var name = await _dialogService.ShowTextEditor("Benutzername eingeben",
-				"Bitte geben Sie ihren neuen Benutzernamen ein.");
+				"Bitte geben Sie Ihren neuen Benutzernamen ein.");
 
 			if (string.IsNullOrEmpty(name))
 			{
@@ -107,6 +110,47 @@ namespace CommunityBikeSharing.ViewModels
 			{
 				await _dialogService.ShowError("Änderung fehlgeschlagen",
 					"Der gewählte Benutzername ist bereits vergeben.");
+			}
+		}
+
+		private async Task ChangePassword()
+		{
+			var userData = _authService.GetCurrentUserData();
+			var oldPassword = await _dialogService.ShowTextEditor("Aktuelles Passwort eingeben", 
+				"Bitte geben Sie Ihr aktuelles Passwort ein:");
+
+			if (!await _authService.Reauthenticate(userData.Email, oldPassword))
+			{
+				await _dialogService.ShowError("Überprüfung fehlgeschlagen", "Das eingegebene Passwort ist ungültig.");
+				return;
+			}
+			
+			var newPassword = await _dialogService.ShowTextEditor("Neues Passwort eingeben",
+				"Bitte geben Sie Ihr neues Passwort ein:");
+
+			if (string.IsNullOrEmpty(newPassword))
+			{
+				return;
+			}
+
+			try
+			{
+				await _authService.ChangePassword(newPassword);
+				await _dialogService.ShowMessage("Passwort geändert", "Das Passwort wurde erfolgreich geändert");
+			}
+			catch (AuthError e)
+			{
+				switch (e.Reason)
+				{
+					case AuthError.AuthErrorReason.WeakPassword:
+						await _dialogService.ShowMessage("Passwort zu schwach", 
+							"Das Passwort muss aus mindestens 6 Zeichen bestehen");
+						break;
+					default:
+						await _dialogService.ShowMessage("Unbekannter Fehler", 
+							"Das Passwort konnte wegen unbekannten Gründen nicht geändert werden.");
+						break;
+				}
 			}
 		}
 
