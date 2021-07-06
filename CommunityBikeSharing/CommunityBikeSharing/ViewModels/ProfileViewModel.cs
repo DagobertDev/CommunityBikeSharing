@@ -85,6 +85,11 @@ namespace CommunityBikeSharing.ViewModels
 			var userData = _authService.GetCurrentUserData();
 			var password = await _dialogService.ShowTextEditor("Passwort eingeben", "Bitte geben Sie Ihr Passwort ein");
 
+			if (string.IsNullOrEmpty(password))
+			{
+				return;
+			}
+
 			if (!await _authService.Reauthenticate(userData.Email, password))
 			{
 				await _dialogService.ShowError("Löschen fehlgeschlagen", "Ihr Account konnte nicht gelöscht werden");
@@ -119,6 +124,11 @@ namespace CommunityBikeSharing.ViewModels
 			var oldPassword = await _dialogService.ShowTextEditor("Aktuelles Passwort eingeben", 
 				"Bitte geben Sie Ihr aktuelles Passwort ein:");
 
+			if (string.IsNullOrEmpty(oldPassword))
+			{
+				return;
+			}
+
 			if (!await _authService.Reauthenticate(userData.Email, oldPassword))
 			{
 				await _dialogService.ShowError("Überprüfung fehlgeschlagen", "Das eingegebene Passwort ist ungültig.");
@@ -148,7 +158,7 @@ namespace CommunityBikeSharing.ViewModels
 						break;
 					default:
 						await _dialogService.ShowMessage("Unbekannter Fehler", 
-							"Das Passwort konnte wegen unbekannten Gründen nicht geändert werden.");
+							"Das Passwort konnte aus unbekannten Gründen nicht geändert werden.");
 						break;
 				}
 			}

@@ -20,7 +20,7 @@ namespace CommunityBikeSharing.Services
 			=> MainThread.InvokeOnMainThreadAsync(()
 				=> Application.Current.MainPage.DisplayAlert(title, message, confirm, cancel));
 
-		public Task<string> ShowTextEditor(string title, string message, string confirm, string cancel,
+		public Task<string?> ShowTextEditor(string title, string message, string confirm, string cancel,
 			IDialogService.KeyboardType keyboardType)
 		{
 			var keyboard = keyboardType switch

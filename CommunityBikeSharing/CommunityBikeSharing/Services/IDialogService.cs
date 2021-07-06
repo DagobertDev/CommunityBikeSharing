@@ -11,12 +11,12 @@ namespace CommunityBikeSharing.Services
 		Task ShowMessage(string title, string message, string buttonText = "Ok");
 		Task ShowError(string title, string message, string buttonText = "Ok");
 		Task<bool> ShowConfirmation(string title, string message, string confirm = "Ja", string cancel = "Abbrechen");
-		Task<string> ShowTextEditor(string title, string message, string confirm = "Ok", string cancel = "Abbrechen",
+		Task<string?> ShowTextEditor(string title, string message, string confirm = "Ok", string cancel = "Abbrechen",
 			KeyboardType keyboard = KeyboardType.Default);
 
 		Task ShowActionSheet(string title, string cancel, IEnumerable<(string, Action)> actions);
 
-		Task ShowActionSheet(string title, string cancel, IEnumerable<(string, ICommand)> commands, object param = null)
+		Task ShowActionSheet(string title, string cancel, IEnumerable<(string, ICommand)> commands, object? param = null)
 		{
 			var actions = commands
 				.Where(c => c.Item2.CanExecute(param))
