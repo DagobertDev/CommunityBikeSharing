@@ -35,9 +35,9 @@ namespace CommunityBikeSharing.Services
 			{
 				throw e.ErrorType switch
 				{
-					ErrorType.WeakPassword => new AuthError(AuthError.AuthErrorReason.WeakPassword),
-					ErrorType.UserCollision => new AuthError(AuthError.AuthErrorReason.EmailAlreadyUsed),
-					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
+					ErrorType.WeakPassword => new AuthError(AuthError.AuthErrorReason.WeakPassword, e),
+					ErrorType.UserCollision => new AuthError(AuthError.AuthErrorReason.EmailAlreadyUsed, e),
+					_ => new AuthError(AuthError.AuthErrorReason.Undefined, e)
 				};
 			}
 
@@ -75,9 +75,9 @@ namespace CommunityBikeSharing.Services
 			{
 				throw e.ErrorType switch
 				{
-					ErrorType.InvalidUser => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
-					ErrorType.InvalidCredentials => new AuthError(AuthError.AuthErrorReason.WrongPassword),
-					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
+					ErrorType.InvalidUser => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress, e),
+					ErrorType.InvalidCredentials => new AuthError(AuthError.AuthErrorReason.WrongPassword, e),
+					_ => new AuthError(AuthError.AuthErrorReason.Undefined, e)
 				};
 			}
 		}
@@ -104,8 +104,8 @@ namespace CommunityBikeSharing.Services
 			{
 				throw e.ErrorType switch
 				{
-					ErrorType.InvalidUser => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
-					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
+					ErrorType.InvalidUser => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress, e),
+					_ => new AuthError(AuthError.AuthErrorReason.Undefined, e)
 				};
 			}
 		}
@@ -127,8 +127,8 @@ namespace CommunityBikeSharing.Services
 			{
 				throw e.ErrorType switch
 				{
-					ErrorType.WeakPassword => new AuthError(AuthError.AuthErrorReason.WeakPassword),
-					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
+					ErrorType.WeakPassword => new AuthError(AuthError.AuthErrorReason.WeakPassword, e),
+					_ => new AuthError(AuthError.AuthErrorReason.Undefined, e)
 				};
 			}
 		}
@@ -139,7 +139,7 @@ namespace CommunityBikeSharing.Services
 
 			if (user == null)
 			{
-				throw new AuthError(AuthError.AuthErrorReason.Undefined);
+				throw new NullReferenceException(nameof(IAuth.CurrentUser));
 			}
 
 			try
@@ -154,8 +154,8 @@ namespace CommunityBikeSharing.Services
 			{
 				throw e.ErrorType switch
 				{
-					ErrorType.InvalidCredentials => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress),
-					_ => new AuthError(AuthError.AuthErrorReason.Undefined)
+					ErrorType.InvalidCredentials => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress, e),
+					_ => new AuthError(AuthError.AuthErrorReason.Undefined, e)
 				};
 			}
 		}

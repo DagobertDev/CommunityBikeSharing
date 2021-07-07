@@ -9,6 +9,11 @@ namespace CommunityBikeSharing.Models
 			Reason = reason;
 		}
 
+		public AuthError(AuthErrorReason reason, Exception innerException) : base(reason.ToString(), innerException)
+		{
+			Reason = reason;
+		}
+
 		public AuthErrorReason Reason { get; }
 
 		public enum AuthErrorReason
