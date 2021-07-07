@@ -15,7 +15,8 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IDialogService _dialogService;
 		private readonly IUserService _userService;
 
-		private string _welcomeMessage = string.Empty;
+		private string _username = string.Empty;
+		private string _email = string.Empty;
 
 		public ProfileViewModel(
 			INavigationService navigationService,
@@ -30,17 +31,28 @@ namespace CommunityBikeSharing.ViewModels
 
 			SignOutCommand = new Command(SignOut);
 			ChangeUsernameCommand = new Command(ChangeUserName);
+			ChangeEmailCommand = new Command(async () => await ChangeEmail());
 			ShowLicensesCommand = new Command(ShowLicenses);
 			DeleteAccountCommand = new Command(async () => await DeleteAccount());
 			ChangePasswordCommand = new Command(async () => await ChangePassword());
 		}
 
-		public string WelcomeMessage
+		public string Username
 		{
-			get => _welcomeMessage;
+			get => _username;
 			private set
 			{
-				_welcomeMessage = value;
+				_username = value;
+				OnPropertyChanged();
+			}
+		}
+
+		public string Email
+		{
+			get => _email;
+			private set
+			{
+				_email = value;
 				OnPropertyChanged();
 			}
 		}
@@ -55,12 +67,16 @@ namespace CommunityBikeSharing.ViewModels
 
 			_initialized = true;
 			
-			_authService.ObserveCurrentUser().Subscribe(user => WelcomeMessage = $"Benutzername: {user?.Username}");
+			_authService.ObserveCurrentUser().Subscribe(user => Username = user?.Username ?? string.Empty);
+			
+			Email = _authService.GetCurrentUserData().Email;
+			
 			return Task.CompletedTask;
 		}
 
 		public ICommand SignOutCommand { get; }
 		public ICommand ChangeUsernameCommand { get; }
+		public ICommand ChangeEmailCommand { get; }
 		public ICommand ShowLicensesCommand { get; }
 		public ICommand DeleteAccountCommand { get; }
 		public ICommand ChangePasswordCommand { get; }
@@ -82,7 +98,6 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			var userData = _authService.GetCurrentUserData();
 			var password = await _dialogService.ShowTextEditor("Passwort eingeben", "Bitte geben Sie Ihr Passwort ein");
 
 			if (string.IsNullOrEmpty(password))
@@ -90,7 +105,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			if (!await _authService.Reauthenticate(userData.Email, password))
+			if (!await _authService.Reauthenticate(Email, password))
 			{
 				await _dialogService.ShowError("Löschen fehlgeschlagen", "Ihr Account konnte nicht gelöscht werden");
 				return;
@@ -118,9 +133,60 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
+		private async Task ChangeEmail()
+		{
+			var password = await _dialogService.ShowTextEditor("Passwort eingeben", "Bitte geben Sie Ihr Passwort ein");
+
+			if (string.IsNullOrEmpty(password))
+			{
+				return;
+			}
+
+			if (!await _authService.Reauthenticate(Email, password))
+			{
+				await _dialogService.ShowError("Verifizierung fehlgeschlagen", "Ihr Account konnte nicht verifiziert werden");
+				return;
+			}
+			
+			var email = await _dialogService.ShowTextEditor("Email eingeben",
+				"Bitte geben Sie Ihre neue Email-Adresse ein:", keyboard: IDialogService.KeyboardType.Email);
+
+			if (string.IsNullOrEmpty(email))
+			{
+				return;
+			}
+
+			try
+			{
+				await _userService.UpdateEmail(email);
+			}
+			catch (AuthError e)
+			{
+				switch (e.Reason)
+				{
+					case AuthError.AuthErrorReason.InvalidEmailAddress:
+						await _dialogService.ShowError("Email-Adresse ungültig", 
+							"Die angegebene Email-Adresse ist nicht gültig.");
+						return;
+					case AuthError.AuthErrorReason.EmailAlreadyUsed:
+						await _dialogService.ShowError("Email-Adresse bereits verwendet", 
+							"Die angegebene Email-Adresse wird bereits verwendet.");
+						return;
+					default:
+						await _dialogService.ShowError("Unbekannter Fehler", 
+							"Die Email-Adresse konnte aus unbekannten Gründen nicht geändert werden.");
+						return;
+				}
+			}
+			
+			Email = email;
+			
+			await _dialogService.ShowMessage("Email-Adresse geändert", 
+				$"Ihre Email-Adresse wurde zu \"{email}\" geändert");
+		}
+
 		private async Task ChangePassword()
 		{
-			var userData = _authService.GetCurrentUserData();
 			var oldPassword = await _dialogService.ShowTextEditor("Aktuelles Passwort eingeben", 
 				"Bitte geben Sie Ihr aktuelles Passwort ein:");
 
@@ -129,7 +195,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			if (!await _authService.Reauthenticate(userData.Email, oldPassword))
+			if (!await _authService.Reauthenticate(Email, oldPassword))
 			{
 				await _dialogService.ShowError("Überprüfung fehlgeschlagen", "Das eingegebene Passwort ist ungültig.");
 				return;

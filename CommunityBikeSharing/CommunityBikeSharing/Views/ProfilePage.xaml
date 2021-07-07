@@ -8,53 +8,71 @@
              x:DataType="viewModels:ProfileViewModel"
              Title="Profil">
 
-    <StackLayout Margin="30">
-        <Label HorizontalOptions="Center">
-            <Label.FormattedText>
-                <FormattedString>
-                    <Span Text="{x:Static fa:FontAwesomeIcons.User}" 
-                          FontFamily="{x:Static assets:Fonts.SolidIcons}"
-                          FontSize="Medium"/>
-                    <Span Text="  "/>
-                    <Span Text="Account"/>
-                </FormattedString>
-            </Label.FormattedText>
-        </Label>
+    <StackLayout>
+        <StackLayout Margin="30, 15">
+            <Label HorizontalOptions="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{x:Static fa:FontAwesomeIcons.User}" 
+                              FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                              FontSize="Medium"/>
+                        <Span Text="  "/>
+                        <Span Text="Account"/>
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Benutzername"
+                       FontAttributes="Bold"/>
+                <Label Text="{Binding Username}"
+                       HorizontalOptions="EndAndExpand"/>
+            </StackLayout>
+            
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Email-Adresse"
+                       FontAttributes="Bold"/>
+                <Label Text="{Binding Email}"
+                       HorizontalOptions="EndAndExpand"/>
+            </StackLayout>
+
+            <Button Text="Benutzernamen ändern"
+                    Command="{Binding ChangeUsernameCommand}"/>
+            
+            <Button Text="Email-Adresse ändern"
+                    Command="{Binding ChangeEmailCommand}"/>
+            
+            <Button Text="Passwort ändern"
+                    Command="{Binding ChangePasswordCommand}"/>
+            
+            <Button Text="Account löschen"
+                    Command="{Binding DeleteAccountCommand}"/>
+
+            <Button Text="Logout"
+                    Command="{Binding SignOutCommand}"/>
+
+        </StackLayout>
         
-        <Label Text="{Binding WelcomeMessage}"/>
+        <BoxView HeightRequest="1"
+                 Color="LightGray"/>
 
-        <Button Text="Benutzernamen ändern"
-                Command="{Binding ChangeUsernameCommand}"/>
-        
-        <Button Text="Passwort ändern"
-                Command="{Binding ChangePasswordCommand}"/>
-        
-        <Button Text="Account löschen"
-                Command="{Binding DeleteAccountCommand}"/>
+        <StackLayout Margin="30, 15">
+            
+            <Label HorizontalOptions="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{x:Static fa:FontAwesomeIcons.InfoCircle}"
+                              FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                              FontSize="Medium"/>
+                        <Span Text="  "/>
+                        <Span Text="Über die App"/>
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
 
-        <Button Text="Logout"
-                Command="{Binding SignOutCommand}"/>
+            <Button Text="Softwarelizensen"
+                    Command="{Binding ShowLicensesCommand}"/>
 
-        <BoxView 
-            HeightRequest="1"
-            Color="LightGray"
-            Margin ="20, 10"/>
-
-        <Label HorizontalOptions="Center">
-            <Label.FormattedText>
-                <FormattedString>
-                    <Span Text="{x:Static fa:FontAwesomeIcons.InfoCircle}"
-                          FontFamily="{x:Static assets:Fonts.SolidIcons}"
-                          FontSize="Medium"/>
-                    <Span Text="  "/>
-                    <Span Text="Über die App"/>
-                </FormattedString>
-            </Label.FormattedText>
-        </Label>
-
-        <Button Text="Softwarelizensen"
-                Command="{Binding ShowLicensesCommand}"/>
-
+        </StackLayout>
     </StackLayout>
-
 </ContentPage>

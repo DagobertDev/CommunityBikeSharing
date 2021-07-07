@@ -160,6 +160,30 @@ namespace CommunityBikeSharing.Services
 			}
 		}
 
+		public async Task UpdateEmail(string email)
+		{
+			var user = _auth.CurrentUser;
+
+			if (user == null)
+			{
+				throw new NullReferenceException(nameof(IAuth.CurrentUser));
+			}
+
+			try
+			{
+				await user.UpdateEmailAsync(email); 
+			}
+			catch (FirebaseAuthException e)
+			{
+				throw e.ErrorType switch
+				{
+					ErrorType.InvalidCredentials => new AuthError(AuthError.AuthErrorReason.UnknownEmailAddress, e),
+					ErrorType.UserCollision => new AuthError(AuthError.AuthErrorReason.EmailAlreadyUsed, e),
+					_ => new AuthError(AuthError.AuthErrorReason.Undefined, e)
+				};
+			}
+		}
+
 		public string GetCurrentUserId() => _auth.CurrentUser?.Uid ?? string.Empty;
 
 		public IObservable<User?> ObserveCurrentUser()

@@ -57,6 +57,29 @@ namespace CommunityBikeSharing.Services.Data.Users
 			return await _userRepository.Get(userEmail.UserId);
 		}
 
+		public async Task UpdateEmail(string newMail)
+		{
+			var user = _authService.GetCurrentUser();
+			var userData = _authService.GetCurrentUserData();
+			
+			await _authService.UpdateEmail(newMail);
+
+			await _context.RunTransactionAsync(transaction =>
+			{
+				_userEmailRepository.Delete(new UserEmail
+				{
+					Id = userData.Email,
+					UserId = user.Id
+				}, transaction);
+
+				_userEmailRepository.Add(new UserEmail
+				{
+					Id = newMail, 
+					UserId = user.Id
+				});
+			});
+		}
+
 		public async Task<User> Register(string email, string password)
 		{
 			var user = await _authService.Register(email, password);
