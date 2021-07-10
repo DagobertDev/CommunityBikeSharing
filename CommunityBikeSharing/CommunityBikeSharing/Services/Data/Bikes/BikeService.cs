@@ -202,6 +202,8 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			await _bikeRepository.Update(bike);
 		}
 
+		public IObservable<Bike?> Observe(string community, string bike) => _bikeRepository.Observe(community, bike);
+
 		public Task<Bike> Add(string name, string communityId)
 			=> _bikeRepository.Add(new Bike {Name = name, CommunityId = communityId});
 
@@ -234,7 +236,11 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 					_stationRepository.Update(oldStation, nameof(Station.NumberOfBikes), FieldValue.Increment(-1), transaction);
 				}
 
-				if (newStation != null)
+				if (newStation == null)
+				{
+					bike.Location = location;
+				}
+				else
 				{
 					_stationRepository.Update(newStation, nameof(Station.NumberOfBikes), FieldValue.Increment(1), transaction);
 					bike.StationId = newStation.Id;

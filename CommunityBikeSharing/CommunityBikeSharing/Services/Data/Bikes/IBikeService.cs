@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Xamarin.Essentials;
@@ -15,6 +16,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		Task ReserveBike(Bike bike);
 		Task DeleteReservation(Bike bike);
 		Task ReturnBike(Bike bike);
+		IObservable<Bike?> Observe(string community, string bike);
 		ObservableCollection<Bike> ObserveBikesFromCommunity(string communityId);
 		ObservableCollection<Bike> ObserveBikesFromStation(Station station);
 		ObservableCollection<Bike> GetAvailableBikes();

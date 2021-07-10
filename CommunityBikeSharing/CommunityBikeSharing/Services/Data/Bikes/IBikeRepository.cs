@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -11,5 +11,6 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		public ObservableCollection<Bike> ObserveBikesFromCommunity(string communityId);
 		public ObservableCollection<Bike> ObserveBikesFromStation(Station station);
 		public Task<IList<Bike>> GetBikesFromStation(Station station);
+		public IObservable<Bike?> Observe(string community, string bike);
 	}
 }

@@ -1,8 +1,8 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using Plugin.CloudFirestore;
@@ -36,6 +36,23 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 				bike.CommunityId = station.CommunityId;
 				return bike;
 			}).ToList();
+		}
+
+		public IObservable<Bike?> Observe(string community, string bike)
+		{
+			return Bikes(community).Document(bike).AsObservable()
+				.Select(snapshot =>
+				{
+					var b = snapshot.ToObject<Bike>();
+
+					if (b is not null)
+					{
+						b.CommunityId = community;
+					}
+
+					return b;
+				})
+				.Catch(Observable.Return<Bike?>(null));
 		}
 
 		private static ObservableCollection<Bike> ObserveBikes(IQuery query, string community)

@@ -97,6 +97,7 @@ namespace CommunityBikeSharing
 				.AddTransient<CommunityMembersViewModel>()
 				.AddTransient<CommunityOverviewPage>()
 				.AddTransient<CommunityStationsPage>()
+				.AddTransient<EditBikeViewModel>()
 				.AddTransient<EditStationViewModel>()
 				.AddTransient<LicenseDetailViewModel>()
 				.AddTransient<LicensesViewModel>()

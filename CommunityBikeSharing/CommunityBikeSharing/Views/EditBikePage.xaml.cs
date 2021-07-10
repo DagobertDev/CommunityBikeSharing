@@ -1,15 +1,14 @@
 ﻿using System;
 using CommunityBikeSharing.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
 {
 	[QueryProperty(nameof(CommunityId), "param")]
-	[QueryProperty(nameof(StationId), "param2")]
-	public partial class EditStationPage
+	[QueryProperty(nameof(BikeId), "param2")]
+	public partial class EditBikePage
 	{
-		public EditStationPage()
+		public EditBikePage()
 		{
 			InitializeComponent();
 		}
@@ -21,7 +20,7 @@ namespace CommunityBikeSharing.Views
 				return;
 			}
 
-			BindingContext = App.GetViewModel<EditStationViewModel>(CommunityId, StationId);
+			BindingContext = App.GetViewModel<EditBikeViewModel>(CommunityId, BikeId);
 
 			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
@@ -37,16 +36,15 @@ namespace CommunityBikeSharing.Views
 			}
 		}
 
-		private string _stationId = string.Empty;
-		public string StationId
+		private string _bikeId = string.Empty;
+		public string BikeId
 		{
-			get => _stationId;
+			get => _bikeId;
 			set
 			{
-				_stationId = Uri.UnescapeDataString(value);
+				_bikeId = Uri.UnescapeDataString(value);
 				OnPropertyChanged();
 			}
 		}
 	}
 }
-

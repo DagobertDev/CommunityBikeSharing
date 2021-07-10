@@ -9,10 +9,7 @@ using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
-using CommunityBikeSharing.Services.Data.Communities;
-using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Memberships;
-using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
@@ -22,32 +19,23 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly IDialogService _dialogService;
 		private readonly IBikeService _bikeService;
 		private readonly IMembershipService _membershipService;
-		private readonly ICommunityService _communityService;
-		private readonly ILockService _lockService;
-		private readonly IQRCodeScanner _qrCodeScanner;
-		private readonly ILocationPicker _locationPicker;
+		private readonly INavigationService _navigationService;
 		private readonly string _communityId;
 
 		public CommunityBikesViewModel(IDialogService dialogService,
 			IBikeService bikeService,
 			IMembershipService membershipService,
-			ICommunityService communityService,
-			ILockService lockService,
-			IQRCodeScanner qrCodeScanner,
-			ILocationPicker locationPicker,
+			INavigationService navigationService,
 			string id)
 		{
 			_dialogService = dialogService;
 			_bikeService = bikeService;
 			_membershipService = membershipService;
-			_communityService = communityService;
-			_lockService = lockService;
-			_qrCodeScanner = qrCodeScanner;
-			_locationPicker = locationPicker;
+			_navigationService = navigationService;
 
 			_communityId = id;
 
-			_bikesChanged = (sender, args) => OnPropertyChanged(nameof(SortedBikes));
+			_bikesChanged = (_, _) => OnPropertyChanged(nameof(SortedBikes));
 		}
 
 		private readonly NotifyCollectionChangedEventHandler _bikesChanged;
@@ -85,17 +73,6 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private Community? _community;
-		private Community? Community
-		{
-			get => _community;
-			set
-			{
-				_community = value;
-				OnPropertyChanged();
-			}
-		}
-
 		public IEnumerable<Bike> SortedBikes => Bikes?.OrderBy(m => m.Name) ?? Enumerable.Empty<Bike>();
 
 		public ICommand AddBikeCommand => new Command(AddBike);
@@ -122,186 +99,11 @@ namespace CommunityBikeSharing.ViewModels
 				membership => CurrentUserMembership = membership,
 				exception => CurrentUserMembership = null);
 
-			_communityService.Observe(_communityId).Subscribe(
-				community => Community = community,
-				exception => Community = null);
-
 			return Task.CompletedTask;
 		}
 
-		public ICommand EditBikeCommand => new Command<Bike>(EditBike);
-		public ICommand SetLocationCommand => new Command<Bike>(async bike => await SetLocation(bike), CanSetLocation);
+		public ICommand EditBikeCommand => new Command<Bike>(async bike => await EditBike(bike));
 
-		private void EditBike(Bike bike)
-		{
-			var actions = new []
-			{
-				("Aktuellen Ausleiher anzeigen", ShowCurrentLenderCommand),
-				("Fahrrad umbenennen", RenameBikeCommand),
-				("Fahrrad entfernen", DeleteBikeCommand),
-				("Standort festlegen", SetLocationCommand),
-				("Schloss hinzufügen (manuell)", AddLockCommand),
-				("Schloss hinzufügen (QR-Code)", AddLockWithQRCodeCommand),
-				("Schloss öffnen", OpenLockCommand),
-				("Schloss schließen", CloseLockCommand),
-				("Schloss entfernen", RemoveLockCommand),
-			};
-
-			_dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
-		}
-
-		public ICommand RenameBikeCommand => new Command<Bike>(RenameBike, CanRenameBike);
-
-		private async void RenameBike(Bike bike)
-		{
-			var name = await _dialogService.ShowTextEditor(
-				"Fahrrad umbenennen", "Bitte geben Sie den neuen Namen ein:");
-
-			if (string.IsNullOrEmpty(name))
-			{
-				return;
-			}
-
-			await _bikeService.Rename(bike, name);
-		}
-
-		private bool CanRenameBike(Bike bike) => CurrentUserMembership is {IsCommunityAdmin: true};
-
-		public ICommand DeleteBikeCommand => new Command<Bike>(DeleteBike, CanDeleteBike);
-
-		private async void DeleteBike(Bike bike)
-		{
-			var confirmed = await _dialogService.ShowConfirmation(
-				"Fahrrad entfernen", $"Wollen Sie das Fahrrad \"{bike.Name}\" wirklich entfernen?");
-
-			if (!confirmed)
-			{
-				return;
-			}
-
-			await _bikeService.Delete(bike);
-		}
-
-		private bool CanDeleteBike(Bike bike) => CurrentUserMembership is {IsCommunityAdmin: true};
-
-		private async Task SetLocation(Bike bike)
-		{
-			var location = await _locationPicker.PickLocation();
-
-			if (location == null)
-			{
-				return;
-			}
-			
-			await _bikeService.UpdateLocation(bike, location);
-			await _dialogService.ShowMessage("Standort aktualisiert", "Der Standort des Fahrrads wurde aktualisiert");
-		}
-
-		private bool CanSetLocation(Bike bike) => !bike.Lent && CurrentUserMembership is {IsCommunityAdmin: true};
-
-		public ICommand ShowCurrentLenderCommand => new Command<Bike>(ShowCurrentLender, CanShowCurrentLender);
-
-		private async void ShowCurrentLender(Bike bike)
-		{
-			var lenderId = bike.CurrentUser;
-
-			var membership = await _membershipService.Get(_communityId, lenderId!);
-
-			await _dialogService.ShowMessage("", $"{membership.Name}");
-		}
-
-		private bool CanShowCurrentLender(Bike bike) => Community is {ShowCurrentUser: true}
-		                                                && (bike.Lent || bike.Reserved)
-		                                                && CurrentUserMembership is {IsCommunityAdmin: true};
-
-		public ICommand AddLockCommand => new Command<Bike>(AddLock, CanAddLock);
-
-		private async void AddLock(Bike bike)
-		{
-			var name = await _dialogService.ShowTextEditor("Name eingeben",
-				"Bitte geben Sie den Namen des Schlosses ein");
-
-			if (string.IsNullOrEmpty(name))
-			{
-				return;
-			}
-
-			var key = await _dialogService.ShowTextEditor("Schlüssel eingeben",
-				"Bitte geben Sie den Schlüssel des Schlosses ein");
-			
-			if (string.IsNullOrEmpty(key))
-			{
-				return;
-			}
-
-
-			await _lockService.Add(bike, name, key);
-		}
-
-		private bool CanAddLock(Bike bike) => !bike.HasLock &&
-		                                      CurrentUserMembership is {IsCommunityAdmin: true};
-		
-		public ICommand AddLockWithQRCodeCommand => new Command<Bike>(AddLockWithQRCode, CanAddLock);
-		private async void AddLockWithQRCode(Bike bike)
-		{
-			var result = await _qrCodeScanner.Scan();
-
-			if (result == null)
-			{
-				return;
-			}
-			
-			var @lock = new { name = string.Empty, token = string.Empty };
-
-			@lock = JsonConvert.DeserializeAnonymousType(result, @lock);
-
-			if (@lock == null)
-			{
-				return;
-			}
-
-			await _lockService.Add(bike, @lock.name, @lock.token);
-			await _dialogService.ShowMessage("Schloss hinzugefügt",
-				$"Das Schloss \"{@lock.name}\" wurde erfolgreich mit dem Fahrrad \"{bike.Name}\" verbunden.");
-		}
-
-
-		public ICommand OpenLockCommand => new Command<Bike>(OpenLock, CanOpenLock);
-		private async void OpenLock(Bike bike)
-		{
-			await _lockService.OpenLock(bike);
-		}
-
-		private bool CanOpenLock(Bike bike) => bike.HasLock &&
-		                                       bike.LockState != Lock.State.Open &&
-		                                       CurrentUserMembership is {IsCommunityAdmin: true};
-
-		public ICommand CloseLockCommand => new Command<Bike>(CloseLock, CanCloseLock);
-
-		private async void CloseLock(Bike bike)
-		{
-			await _lockService.CloseLock(bike);
-		}
-
-		private bool CanCloseLock(Bike bike) => bike.HasLock &&
-		                                        bike.LockState != Lock.State.Closed &&
-		                                        CurrentUserMembership is {IsCommunityAdmin: true};
-
-		public ICommand RemoveLockCommand => new Command<Bike>(RemoveLock, CanRemoveLock);
-
-		private async void RemoveLock(Bike bike)
-		{
-			var confirmed =  await _dialogService.ShowConfirmation("Schloss entfernen", "Möchten Sie das Schloss wirklich entfernen?");
-
-			if (!confirmed)
-			{
-				return;
-			}
-
-			await _lockService.Remove(bike);
-		}
-
-		private bool CanRemoveLock(Bike bike) => bike.HasLock &&
-		                                         CurrentUserMembership is {IsCommunityAdmin: true};
+		private Task EditBike(Bike bike) => _navigationService.NavigateTo<EditBikeViewModel>(bike.CommunityId, bike.Id);
 	}
 }

@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:fa="clr-namespace:FontAwesome;assembly=CommunityBikeSharing"
+             xmlns:assets="clr-namespace:CommunityBikeSharing.Assets;assembly=CommunityBikeSharing"
+             xmlns:viewModels="clr-namespace:CommunityBikeSharing.ViewModels;assembly=CommunityBikeSharing"
+             x:Class="CommunityBikeSharing.Views.EditBikePage"
+             x:DataType="viewModels:EditBikeViewModel"
+             Title="Fahrrad bearbeiten">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Button" ApplyToDerivedTypes="True">
+                <Setter Property="IsVisible" Value="{Binding Source={RelativeSource Self}, Path=IsEnabled}"/>
+                <Setter Property="CommandParameter" Value="{Binding Bike}"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ScrollView>
+        <StackLayout>
+            <StackLayout Margin="30, 15">
+                <Label HorizontalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{x:Static fa:FontAwesomeIcons.Bicycle}" 
+                                  FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                                  FontSize="Medium"/>
+                            <Span Text="  "/>
+                            <Span Text="Allgemein"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Name"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding Name}"
+                           HorizontalOptions="EndAndExpand"/>
+                </StackLayout>
+                
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Ausleihstatus"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding LendState}"
+                           HorizontalOptions="EndAndExpand"/>
+                </StackLayout>
+                
+                <Button Text="Aktuellen Ausleiher anzeigen"
+                        Command="{Binding ShowCurrentLenderCommand}"/>
+
+                <Button Text="Fahrrad umbenennen"
+                        Command="{Binding RenameBikeCommand}"/>
+                
+                <Button Text="Standort festlegen"
+                        Command="{Binding SetLocationCommand}"/>
+                
+                <Button Text="Fahrrad löschen"
+                        Command="{Binding DeleteBikeCommand}"/>
+
+            </StackLayout>
+            
+            <BoxView HeightRequest="1"
+                     Color="LightGray"/>
+
+            <StackLayout Margin="30, 15">
+                
+                <Label HorizontalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{x:Static fa:FontAwesomeIcons.Key}"
+                                  FontFamily="{x:Static assets:Fonts.SolidIcons}"
+                                  FontSize="Medium"/>
+                            <Span Text="  "/>
+                            <Span Text="Schloss"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Status"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding LockState}"
+                           HorizontalOptions="EndAndExpand"/>
+                </StackLayout>
+                
+
+                <Button Text="Schloss hinzufügen (manuell)"
+                        Command="{Binding AddLockCommand}"/>
+                
+                <Button Text="Schloss hinzufügen (QR-Code)"
+                        Command="{Binding AddLockWithQRCodeCommand}"/>
+                
+                <Button Text="Schloss öffnen"
+                        Command="{Binding OpenLockCommand}"/>
+                
+                <Button Text="Schloss schließen"
+                        Command="{Binding CloseLockCommand}"/>
+                
+                <Button Text="Schloss entfernen"
+                        Command="{Binding RemoveLockCommand}"/>
+
+            </StackLayout>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
