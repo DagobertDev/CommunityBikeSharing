@@ -1,7 +1,7 @@
-﻿#nullable enable
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
+using Xamarin.Essentials;
 
 namespace CommunityBikeSharing.Services.Data.Bikes
 {
@@ -9,6 +9,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 	{
 		Task<Bike> Add(string name, string communityId);
 		Task Rename(Bike bike, string name);
+		Task UpdateLocation(Bike bike, Location location);
 		Task Delete(Bike bike);
 		Task LendBike(Bike bike);
 		Task ReserveBike(Bike bike);

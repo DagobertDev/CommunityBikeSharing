@@ -25,6 +25,7 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly ICommunityService _communityService;
 		private readonly ILockService _lockService;
 		private readonly IQRCodeScanner _qrCodeScanner;
+		private readonly ILocationPicker _locationPicker;
 		private readonly string _communityId;
 
 		public CommunityBikesViewModel(IDialogService dialogService,
@@ -33,6 +34,7 @@ namespace CommunityBikeSharing.ViewModels
 			ICommunityService communityService,
 			ILockService lockService,
 			IQRCodeScanner qrCodeScanner,
+			ILocationPicker locationPicker,
 			string id)
 		{
 			_dialogService = dialogService;
@@ -41,6 +43,7 @@ namespace CommunityBikeSharing.ViewModels
 			_communityService = communityService;
 			_lockService = lockService;
 			_qrCodeScanner = qrCodeScanner;
+			_locationPicker = locationPicker;
 
 			_communityId = id;
 
@@ -127,6 +130,7 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		public ICommand EditBikeCommand => new Command<Bike>(EditBike);
+		public ICommand SetLocationCommand => new Command<Bike>(async bike => await SetLocation(bike), CanSetLocation);
 
 		private void EditBike(Bike bike)
 		{
@@ -135,6 +139,7 @@ namespace CommunityBikeSharing.ViewModels
 				("Aktuellen Ausleiher anzeigen", ShowCurrentLenderCommand),
 				("Fahrrad umbenennen", RenameBikeCommand),
 				("Fahrrad entfernen", DeleteBikeCommand),
+				("Standort festlegen", SetLocationCommand),
 				("Schloss hinzufügen (manuell)", AddLockCommand),
 				("Schloss hinzufügen (QR-Code)", AddLockWithQRCodeCommand),
 				("Schloss öffnen", OpenLockCommand),
@@ -178,6 +183,21 @@ namespace CommunityBikeSharing.ViewModels
 		}
 
 		private bool CanDeleteBike(Bike bike) => CurrentUserMembership is {IsCommunityAdmin: true};
+
+		private async Task SetLocation(Bike bike)
+		{
+			var location = await _locationPicker.PickLocation();
+
+			if (location == null)
+			{
+				return;
+			}
+			
+			await _bikeService.UpdateLocation(bike, location);
+			await _dialogService.ShowMessage("Standort aktualisiert", "Der Standort des Fahrrads wurde aktualisiert");
+		}
+
+		private bool CanSetLocation(Bike bike) => !bike.Lent && CurrentUserMembership is {IsCommunityAdmin: true};
 
 		public ICommand ShowCurrentLenderCommand => new Command<Bike>(ShowCurrentLender, CanShowCurrentLender);
 

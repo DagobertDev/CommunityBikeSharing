@@ -207,6 +207,43 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 
 		public Task Rename(Bike bike, string name) => _bikeRepository.Update(bike, nameof(Bike.Name), name);
 
+		public async Task UpdateLocation(Bike bike, Location location)
+		{
+			if (bike.Lent)
+			{
+				throw new ApplicationException("Can't set location of bike that's used");
+			}
+
+			Station? oldStation = null;
+
+			if (bike.StationId != null)
+			{
+				oldStation = await _stationRepository.Get(bike.CommunityId, bike.StationId);
+				bike.StationId = null;
+			}
+			
+			var stations = await _stationRepository.GetStationsFromCommunity(bike.CommunityId);
+
+			var newStation = stations.SingleOrDefault(station =>
+				station.Location.CalculateDistance(location, DistanceUnits.Kilometers) < 0.1);
+
+			await _context.RunTransactionAsync(transaction =>
+			{
+				if (oldStation != null)
+				{
+					_stationRepository.Update(oldStation, nameof(Station.NumberOfBikes), FieldValue.Increment(-1), transaction);
+				}
+
+				if (newStation != null)
+				{
+					_stationRepository.Update(newStation, nameof(Station.NumberOfBikes), FieldValue.Increment(1), transaction);
+					bike.StationId = newStation.Id;
+				}
+
+				_bikeRepository.Update(bike, transaction);
+			});
+		}
+
 		public async Task Delete(Bike bike)
 		{
 			Station? station = null;
