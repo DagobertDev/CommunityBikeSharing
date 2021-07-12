@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using CommunityBikeSharing.Licenses;
 using CommunityBikeSharing.Services;
 
@@ -24,9 +25,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public List<License> Licenses { get; }
 
-		public async void OnLicenseSelected(License license)
-		{
-			await _navigationService.NavigateTo<LicenseDetailViewModel>(license.Path);
-		}
+		public Task OnLicenseSelected(License license)
+			=> _navigationService.NavigateTo<LicenseDetailViewModel>(license.Path);
 	}
 }

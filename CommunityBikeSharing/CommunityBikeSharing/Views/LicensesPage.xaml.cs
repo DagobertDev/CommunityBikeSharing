@@ -1,7 +1,6 @@
 ﻿using CommunityBikeSharing.Licenses;
 using CommunityBikeSharing.ViewModels;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace CommunityBikeSharing.Views
 {
@@ -11,12 +10,12 @@ namespace CommunityBikeSharing.Views
 		{
 			InitializeComponent();
 
-			BindingContext = Startup.ServiceProvider.GetService<LicensesViewModel>();
+			BindingContext = App.GetViewModel<LicensesViewModel>();
 		}
 
-		private void OnLicenseSelected(object sender, ItemTappedEventArgs args)
+		private async void OnLicenseSelected(object sender, ItemTappedEventArgs args)
 		{
-			((LicensesViewModel)BindingContext).OnLicenseSelected((License)args.Item);
+			await ((LicensesViewModel)BindingContext).OnLicenseSelected((License)args.Item);
 		}
 	}
 }

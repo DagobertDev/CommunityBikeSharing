@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace CommunityBikeSharing
 {
@@ -12,8 +11,8 @@ namespace CommunityBikeSharing
             MainPage = new AppShell();
         }
 
-	    public static T GetViewModel<T>() => Startup.ServiceProvider.GetService<T>()
-	                                         ?? throw new ArgumentException($"{typeof(T).Name} is not a registered view model");
+	    public static T GetViewModel<T>() where T : notnull => Startup.ServiceProvider.GetRequiredService<T>();
+
 	    public static T GetViewModel<T>(params object[] parameter) =>
 		    ActivatorUtilities.CreateInstance<T>(Startup.ServiceProvider, parameter);
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using CommunityBikeSharing.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
@@ -26,8 +25,7 @@ namespace CommunityBikeSharing.Views
 
 		protected override async void OnAppearing()
 		{
-			BindingContext = ActivatorUtilities.CreateInstance<LoadingViewModel>(
-				Startup.ServiceProvider, Text);
+			BindingContext = App.GetViewModel<LoadingViewModel>(Text);
 			
 			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}

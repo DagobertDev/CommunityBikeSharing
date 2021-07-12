@@ -6,46 +6,15 @@ using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Memberships;
-using Microsoft.Extensions.DependencyInjection;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
 	public class CommunityOverviewViewModel : BaseViewModel
 	{
-		private readonly string _id;
 		private readonly ICommunityService _communityService;
 		private readonly IMembershipService _membershipService;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
-
-		private Community _community;
-		private CommunityMembership _membership;
-
-		private Community Community
-		{
-			get => _community;
-			set
-			{
-				_community = value;
-				OnPropertyChanged();
-				OnPropertyChanged(nameof(Name));
-			}
-		}
-
-		public string Name
-		{
-			get => _community.Name;
-			set
-			{
-				_community.Name = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public CommunityMembersViewModel CommunityMembersViewModel { get; }
-		public CommunityBikesViewModel CommunityBikesViewModel { get; }
-		public CommunityStationsViewModel CommunityStationsViewModel { get; }
 
 		public CommunityOverviewViewModel(
 			ICommunityService communityService,
@@ -54,7 +23,6 @@ namespace CommunityBikeSharing.ViewModels
 			INavigationService navigationService,
 			string id)
 		{
-			_id = id;
 			_communityService = communityService;
 			_membershipService = membershipService;
 			_dialogService = dialogService;
@@ -62,45 +30,74 @@ namespace CommunityBikeSharing.ViewModels
 
 
 			CommunityMembersViewModel =
-				ActivatorUtilities.CreateInstance<CommunityMembersViewModel>(Startup.ServiceProvider, _id);
+				App.GetViewModel<CommunityMembersViewModel>(id);
 
 			CommunityBikesViewModel =
-				ActivatorUtilities.CreateInstance<CommunityBikesViewModel>(Startup.ServiceProvider, _id);
+				App.GetViewModel<CommunityBikesViewModel>(id);
 
 			CommunityStationsViewModel =
-				ActivatorUtilities.CreateInstance<CommunityStationsViewModel>(Startup.ServiceProvider, _id);
-		}
+				App.GetViewModel<CommunityStationsViewModel>(id);
 
-		public override Task InitializeAsync()
-		{
-			_communityService.Observe(_id).Subscribe(
+			OpenSettingsCommand = CreateCommand(OpenSettings);
+
+			PropertyChanged += (_, args) =>
+			{
+				if (args.PropertyName == nameof(Community))
+				{
+					OnPropertyChanged(nameof(Name));
+				}
+			};
+			
+			_communityService.Observe(id).Subscribe(
 				community => Community = community,
 				exception => _navigationService.NavigateBack());
 
-			_membershipService.Observe(_id).Subscribe(
-				membership => _membership = membership,
+			_membershipService.Observe(id).Subscribe(
+				membership => Membership = membership,
 				exception => _navigationService.NavigateBack());
-
-			return Task.CompletedTask;
 		}
 
-		public ICommand OpenSettingsCommand => new Command(OpenSettings);
-
-		private async void OpenSettings()
+		public ICommand OpenSettingsCommand { get; }
+		
+		private Community? _community;
+		private Community? Community
 		{
-			var commands = new (string, ICommand)[]
+			get => _community;
+			set => SetProperty(ref _community, value);
+		}
+		
+		private CommunityMembership? _membership;
+		private CommunityMembership? Membership
+		{
+			get => _membership;
+			set => SetProperty(ref _membership, value);
+		}
+
+		public string Name => Community?.Name ?? string.Empty;
+		public CommunityMembersViewModel CommunityMembersViewModel { get; }
+		public CommunityBikesViewModel CommunityBikesViewModel { get; }
+		public CommunityStationsViewModel CommunityStationsViewModel { get; }
+
+		private async Task OpenSettings()
+		{
+			var commands = new[]
 			{
-				("Reservierungsdauer festlegen", new Command(UpdateReservationDuration, CanUpdateReservationDuration)),
-				("Community umbenennen", new Command(RenameCommunity, CanRenameCommunity)),
-				("Community verlassen", new Command(LeaveCommunity, CanLeaveCommunity)),
-				("Community löschen", new Command(DeleteCommunity, CanDeleteCommunity))
+				("Reservierungsdauer festlegen", CreateCommand(UpdateReservationDuration, CanUpdateReservationDuration)),
+				("Community umbenennen", CreateCommand(RenameCommunity, CanRenameCommunity)),
+				("Community verlassen", CreateCommand(LeaveCommunity, CanLeaveCommunity)),
+				("Community löschen", CreateCommand(DeleteCommunity, CanDeleteCommunity))
 			};
 
 			await _dialogService.ShowActionSheet("Einstellungen", "Abbrechen", commands);
 		}
 
-		private async void UpdateReservationDuration()
+		private async Task UpdateReservationDuration()
 		{
+			if (Community is null)
+			{
+				throw new NullReferenceException(nameof(Community));
+			}
+			
 			var duration = await _dialogService.ShowTextEditor("Reservierungsdauer festlegen",
 				"Wie lange sollen Reservierungen gültig sein (in Stunden)?",
 				keyboard: IDialogService.KeyboardType.Numeric);
@@ -113,10 +110,15 @@ namespace CommunityBikeSharing.ViewModels
 			await _communityService.UpdateReservationDuration(Community, TimeSpan.FromHours(double.Parse(duration)));
 		}
 
-		private bool CanUpdateReservationDuration() => _membership.IsCommunityAdmin;
+		private bool CanUpdateReservationDuration() => Membership is {IsCommunityAdmin: true};
 
-		private async void RenameCommunity()
+		private async Task RenameCommunity()
 		{
+			if (Community is null)
+			{
+				throw new NullReferenceException(nameof(Community));
+			}
+			
 			var name = await _dialogService.ShowTextEditor("Community umbenennen",
 				"Wie soll die Community heißen?");
 
@@ -128,10 +130,15 @@ namespace CommunityBikeSharing.ViewModels
 			await _communityService.Rename(Community, name);
 		}
 
-		private bool CanRenameCommunity() => _membership.IsCommunityAdmin;
+		private bool CanRenameCommunity() => Membership is {IsCommunityAdmin: true};
 
-		private async void DeleteCommunity()
+		private async Task DeleteCommunity()
 		{
+			if (Community is null)
+			{
+				throw new NullReferenceException(nameof(Community));
+			}
+			
 			var confirmed = await _dialogService.ShowConfirmation("Community löschen",
 				$"Möchten Sie die Community \"{Name}\" wirklich löschen?");
 
@@ -144,10 +151,20 @@ namespace CommunityBikeSharing.ViewModels
 			await _navigationService.NavigateBack();
 		}
 
-		private bool CanDeleteCommunity() => _membership.IsCommunityAdmin;
+		private bool CanDeleteCommunity() => Membership is {IsCommunityAdmin: true};
 
-		private async void LeaveCommunity()
+		private async Task LeaveCommunity()
 		{
+			if (Community is null)
+			{
+				throw new NullReferenceException(nameof(Community));
+			}
+			
+			if (Membership is null)
+			{
+				throw new NullReferenceException(nameof(Membership));
+			}
+			
 			var confirmed = await _dialogService.ShowConfirmation("Community verlassen",
 				$"Möchten Sie die Community \"{Name}\" wirklich verlassen?");
 
@@ -157,9 +174,9 @@ namespace CommunityBikeSharing.ViewModels
 			}
 
 			var allUsers =
-				await _membershipService.GetMembershipsFromCommunity(_community.Id);
+				await _membershipService.GetMembershipsFromCommunity(Community.Id);
 
-			if (_membership.IsCommunityAdmin && allUsers.Count(user => user.IsCommunityAdmin) <= 1)
+			if (Membership.IsCommunityAdmin && allUsers.Count(user => user.IsCommunityAdmin) <= 1)
 			{
 				await _dialogService.ShowError("Fehler",
 					"Der letzte Community-Admin kann die Community nicht verlassen. " +
@@ -167,7 +184,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			await _membershipService.Delete(_membership);
+			await _membershipService.Delete(Membership);
 			await _navigationService.NavigateBack();
 		}
 

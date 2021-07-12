@@ -5,7 +5,6 @@ using CommunityBikeSharing.Configuration;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Users;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -26,10 +25,6 @@ namespace CommunityBikeSharing.ViewModels
 				{AuthError.AuthErrorReason.Undefined, "Unbekannter Fehler."}
 			};
 
-		private string _email = string.Empty;
-		private string _password = string.Empty;
-		private string _repeatedPassword = string.Empty;
-
 		public RegistrationViewModel(IUserService userService,
 			IDialogService dialogService,
 			INavigationService navigationService,
@@ -41,47 +36,41 @@ namespace CommunityBikeSharing.ViewModels
 
 			ToSUrl = appSettings.ToSUrl;
 			PrivacyStatementUrl = appSettings.PrivacyStatementUrl;
-		}
 
+			GoToLoginCommand = CreateCommand(GoToLogin);
+			RegisterCommand = CreateCommand(Register);
+		}
+		
+		public ICommand GoToLoginCommand { get; }
+		public ICommand RegisterCommand { get; }
+
+		private string _email = string.Empty;
 		public string Email
 		{
 			get => _email;
-			set
-			{
-				_email = value;
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _email, value);
 		}
 
+		private string _password = string.Empty;
 		public string Password
 		{
 			get => _password;
-			set
-			{
-				_password = value;
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _password, value);
 		}
 
+		private string _repeatedPassword = string.Empty;
 		public string RepeatedPassword
 		{
 			get => _repeatedPassword;
-			set
-			{
-				_repeatedPassword = value;
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _repeatedPassword, value);
 		}
 
 		public string ToSUrl { get; }
 		public string PrivacyStatementUrl { get; }
 
-		public ICommand GoToLoginCommand => new Command(GoToLogin);
-		private async void GoToLogin() => await _navigationService.NavigateToRoot<LoginViewModel>();
+		private Task GoToLogin() => _navigationService.NavigateToRoot<LoginViewModel>();
 
-		public ICommand RegisterCommand => new Command(Register);
-
-		private async void Register()
+		private async Task Register()
 		{
 			if (Password != RepeatedPassword)
 			{

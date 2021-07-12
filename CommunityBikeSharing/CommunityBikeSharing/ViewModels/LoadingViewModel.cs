@@ -11,11 +11,7 @@
 		public string Text
 		{
 			get => _text;
-			set
-			{
-				_text = value;
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _text, value);
 		}
 	}
 }

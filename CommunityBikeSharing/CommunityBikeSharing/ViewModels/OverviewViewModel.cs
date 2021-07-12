@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -10,16 +7,14 @@ using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
 using CommunityBikeSharing.Services.Data.Stations;
+using Xamarin.CommunityToolkit.ObjectModel;
 using Xamarin.Essentials;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
 	public class OverviewViewModel : BaseViewModel
 	{
-		private readonly IBikeService _bikeService;
 		private readonly ILocationService _locationService;
-		private readonly IStationService _stationService;
 		private readonly INavigationService _navigationService;
 		private readonly IDialogService _dialogService;
 
@@ -30,37 +25,71 @@ namespace CommunityBikeSharing.ViewModels
 			INavigationService navigationService,
 			IDialogService dialogService)
 		{
-			_bikeService = bikeService;
 			_locationService = locationService;
-			_stationService = stationService;
 			_navigationService = navigationService;
 			_dialogService = dialogService;
 			_locationService = locationService;
 
-			ShowBikeOnMapCommand = new Command<Bike>(ShowBikeOnMap, CanShowBikeOnMap);
+			ShowBikeOnMapCommand = CreateCommand<Bike>(ShowBikeOnMap, CanShowBikeOnMap);
+			RefreshUserLocationCommand = CreateCommand(RefreshUserLocation);
+			ToggleMapCommand = CreateCommand(ToggleMap);
+			
+			ShowMap	= Preferences.Get("ShowMap", false);
+
+			PropertyChanged += (_, args) =>
+			{
+				if (args.PropertyName == nameof(ShowMap)) 
+				{
+					OnPropertyChanged(nameof(ToggleMapText));
+					Preferences.Set("ShowMap", ShowMap);
+				}
+			};
+			
+			var bikes = bikeService.GetAvailableBikes();
+			bikes.CollectionChanged += (_, _) =>
+			{
+				AllBikes.ReplaceRange(bikes);
+
+				OnPropertyChanged(nameof(MapItems));
+				OnPropertyChanged(nameof(GroupedItems));
+			};
+
+			var stations = stationService.GetAvailableStations();
+			stations.CollectionChanged += (_, _) =>
+			{
+				AllStations.ReplaceRange(stations);
+				
+				OnPropertyChanged(nameof(MapItems));
+				OnPropertyChanged(nameof(GroupedItems));
+			};
 		}
 
-		private Location _userLocation = new Location();
+		public override async Task InitializeAsync()
+		{
+			var location = await _locationService.GetCurrentLocation();
 
+			if (location != null)
+			{
+				UserLocation = location;
+			}
+		}
+
+		public ICommand ShowBikeOnMapCommand { get; }
+		public ICommand RefreshUserLocationCommand { get; }
+		public ICommand ToggleMapCommand { get; }
+		
+		public ObservableRangeCollection<Station> AllStations { get; } = new();
+		public ObservableRangeCollection<Bike> AllBikes { get; } = new();
+
+		private Location _userLocation = new();
 		public Location UserLocation
 		{
 			get => _userLocation;
-			set
-			{
-				_userLocation = value;
-				OnLocationChanged?.Invoke(this, value);
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _userLocation, value);
 		}
 
 		public IEnumerable<object> MapItems
-		{
-			get
-			{
-				return AllStations.Concat<object>(
-					AllBikes.Where(bike => bike.StationId == null && bike.Location != null));
-			}
-		}
+			=> AllStations.Concat<object>(AllBikes.Where(bike => bike.StationId is null && bike.Location is not null));
 
 		public List<ItemGroup> GroupedItems
 		{
@@ -73,87 +102,35 @@ namespace CommunityBikeSharing.ViewModels
 					result.Add(new ItemGroup("Stationen", AllStations));
 				}
 
-				if (AllBikes.Any(bike => bike.StationId == null))
+				var bikes = AllBikes.Where(bike => bike.StationId is null).ToList();
+
+				if (bikes.Count > 0)
 				{
-					result.Add(new ItemGroup("Freie Fahrräder", AllBikes.Where(bike => bike.StationId == null)));
+					result.Add(new ItemGroup("Freie Fahrräder", bikes));
 				}
 
 				return result;
 			}
 		}
 
-		private ObservableCollection<Station> _allStations = new ObservableCollection<Station>();
-		public ObservableCollection<Station> AllStations
-		{
-			get => _allStations;
-			set
-			{
-				_allStations.CollectionChanged -= OnStationsChanged;
-
-				value.CollectionChanged += OnStationsChanged;
-
-				_allStations = value;
-				OnPropertyChanged();
-				OnStationsChanged();
-
-				void OnStationsChanged(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
-				{
-					OnPropertyChanged(nameof(MapItems));
-					OnPropertyChanged(nameof(GroupedItems));
-				}
-			}
-		}
-
-
-		private ObservableCollection<Bike> _allBikes = new ObservableCollection<Bike>();
-		public ObservableCollection<Bike> AllBikes
-		{
-			get => _allBikes;
-			set
-			{
-				_allBikes.CollectionChanged -= OnBikesChanged;
-
-				value.CollectionChanged += OnBikesChanged;
-
-				_allBikes = value;
-				OnPropertyChanged();
-				OnBikesChanged();
-
-				void OnBikesChanged(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
-				{
-					OnPropertyChanged(nameof(MapItems));
-					OnPropertyChanged(nameof(GroupedItems));
-				}
-			}
-		}
-
-		private bool _showMap = Preferences.Get("ShowMap", false);
+		private bool _showMap;
 		public bool ShowMap
 		{
 			get => _showMap;
-			set
-			{
-				_showMap = value;
-				OnPropertyChanged();
-				OnPropertyChanged(nameof(ToggleMapText));
-				Preferences.Set("ShowMap", value);
-			}
+			set => SetProperty(ref _showMap, value);
 		}
-
-		public event EventHandler<Location>? OnLocationChanged;
 
 		public string Summary => "Zurzeit sind keine Fahrräder verfügbar. " +
 		                         "Treten Sie einer Community bei, um Fahrräder auszuleihen.";
 
 		public string ToggleMapText => ShowMap ? "Zur Listenansicht" : "Zur Kartenansicht";
 
-		public Command<Bike> ShowBikeOnMapCommand { get; }
 
-		public async void OnBikeSelected(Bike bike)
+		public async Task OnBikeSelected(Bike bike)
 		{
 			var bikeVM = App.GetViewModel<BikeViewModel>();
 			
-			var actions = new (string, ICommand) []
+			var actions = new[]
 			{
 				("Auf Karte anzeigen", ShowBikeOnMapCommand),
 				("Fahrrad ausleihen", bikeVM.LendBikeCommand),
@@ -168,32 +145,14 @@ namespace CommunityBikeSharing.ViewModels
 			await _dialogService.ShowActionSheet(bike.Name, "Abbrechen", actions, bike);
 		}
 
-		public override async Task InitializeAsync()
-		{
-			AllBikes = _bikeService.GetAvailableBikes();
-
-			AllStations = _stationService.GetAvailableStations();
-
-			var location = await _locationService.GetCurrentLocation();
-
-			if (location != null)
-			{
-				UserLocation = location;
-			}
-		}
-
 		private bool _isRefreshing;
 		public bool IsRefreshing
 		{
 			get => _isRefreshing;
-			set
-			{
-				_isRefreshing = value;
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _isRefreshing, value);
 		}
-		public ICommand RefreshUserLocationCommand => new Command(RefreshUserLocation);
-		private async void RefreshUserLocation()
+
+		private async Task RefreshUserLocation()
 		{
 			IsRefreshing = true;
 
@@ -209,7 +168,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		private void ShowBikeOnMap(Bike bike)
 		{
-			if (bike.Location == null)
+			if (bike.Location is null)
 			{
 				return;
 			}
@@ -220,17 +179,10 @@ namespace CommunityBikeSharing.ViewModels
 		}
 		private bool CanShowBikeOnMap(Bike bike) => bike.Location != null && !ShowMap;
 
-		public ICommand ToggleMapCommand => new Command(ToggleMap);
+		private void ToggleMap() => ShowMap = !ShowMap;
 
-		private void ToggleMap()
-		{
-			ShowMap = !ShowMap;
-		}
-
-		public async void OnStationSelected(Station station)
-		{
-			await _navigationService.NavigateTo<StationDetailViewModel>(
+		public Task OnStationSelected(Station station) =>
+			_navigationService.NavigateTo<StationDetailViewModel>(
 				StationDetailViewModel.NavigationParameters(station.CommunityId, station.Id));
-		}
 	}
 }

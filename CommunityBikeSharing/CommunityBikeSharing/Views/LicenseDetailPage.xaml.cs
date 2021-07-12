@@ -1,6 +1,5 @@
 ﻿using System;
 using CommunityBikeSharing.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
 
 namespace CommunityBikeSharing.Views
@@ -20,8 +19,7 @@ namespace CommunityBikeSharing.Views
 				return;
 			}
 
-			BindingContext = ActivatorUtilities.CreateInstance<LicenseDetailViewModel>(
-				Startup.ServiceProvider, License);
+			BindingContext = App.GetViewModel<LicenseDetailViewModel>(License);
 			await ((BaseViewModel)BindingContext).InitializeAsync();
 		}
 

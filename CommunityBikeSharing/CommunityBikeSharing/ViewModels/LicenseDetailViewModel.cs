@@ -20,21 +20,15 @@ namespace CommunityBikeSharing.ViewModels
 		public string Text
 		{
 			get => _text;
-			set
-			{
-				_text = value;
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _text, value);
 		}
 
-		public override Task InitializeAsync()
+		public override async Task InitializeAsync()
 		{
 			var assembly = Assembly.GetAssembly(typeof(LicensesViewModel));
 
 			using var reader = new StreamReader(assembly.GetManifestResourceStream(License.Path) ?? Stream.Null);
-			Text = reader.ReadToEnd();
-
-			return Task.CompletedTask;
+			Text = await reader.ReadToEndAsync();
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
@@ -7,7 +8,6 @@ using CommunityBikeSharing.Services.Data.Communities;
 using CommunityBikeSharing.Services.Data.Locks;
 using CommunityBikeSharing.Services.Data.Memberships;
 using Newtonsoft.Json;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -51,15 +51,36 @@ namespace CommunityBikeSharing.ViewModels
 			_communityId = communityId;
 			_bikeId = bikeId;
 			
-			SetLocationCommand = new Command<Bike>(async bike => await SetLocation(bike), CanSetLocation);
-			RenameBikeCommand = new Command<Bike>(async bike => await RenameBike(bike), CanRenameBike); 
-			DeleteBikeCommand = new Command<Bike>(async bike => await DeleteBike(bike), CanDeleteBike); 
-			ShowCurrentLenderCommand = new Command<Bike>(async bike => await ShowCurrentLender(bike), CanShowCurrentLender); 
-			AddLockCommand = new Command<Bike>(async bike => await AddLock(bike), CanAddLock); 
-			AddLockWithQRCodeCommand = new Command<Bike>(async bike => await AddLockWithQRCode(bike), CanAddLock); 
-			OpenLockCommand = new Command<Bike>(async bike => await OpenLock(bike), CanOpenLock); 
-			CloseLockCommand = new Command<Bike>(async bike => await CloseLock(bike), CanCloseLock); 
-			RemoveLockCommand = new Command<Bike>(async bike => await RemoveLock(bike), CanRemoveLock);
+			SetLocationCommand = CreateCommand<Bike>(SetLocation, CanSetLocation);
+			RenameBikeCommand = CreateCommand<Bike>(RenameBike, CanRenameBike); 
+			DeleteBikeCommand = CreateCommand<Bike>(DeleteBike, CanDeleteBike); 
+			ShowCurrentLenderCommand = CreateCommand<Bike>(ShowCurrentLender, CanShowCurrentLender); 
+			AddLockCommand = CreateCommand<Bike>(AddLock, CanAddLock); 
+			AddLockWithQRCodeCommand = CreateCommand<Bike>(AddLockWithQRCode, CanAddLock); 
+			OpenLockCommand = CreateCommand<Bike>(OpenLock, CanOpenLock); 
+			CloseLockCommand = CreateCommand<Bike>(CloseLock, CanCloseLock); 
+			RemoveLockCommand = CreateCommand<Bike>(RemoveLock, CanRemoveLock);
+
+			PropertyChanged += (_, args) =>
+			{
+				switch (args.PropertyName)
+				{
+					case nameof(Bike):
+					{
+						OnPropertyChanged(nameof(Name));
+						OnPropertyChanged(nameof(LendState));
+						OnPropertyChanged(nameof(LockState));
+						break;
+					}
+
+					case nameof(CurrentUserMembership):
+					{
+						// Needed to update permissions for the commands
+						OnPropertyChanged(nameof(Bike));
+						break;
+					}
+				}
+			};
 		}
 
 		public override Task InitializeAsync()
@@ -81,68 +102,45 @@ namespace CommunityBikeSharing.ViewModels
 		public Bike? Bike
 		{
 			get => _bike;
-			set
-			{
-				_bike = value;
-				OnPropertyChanged();
-				OnPropertyChanged(nameof(Name));
-				OnPropertyChanged(nameof(LendState));
-				OnPropertyChanged(nameof(LockState));
-			}
+			set => SetProperty(ref _bike, value);
 		}
 		
 		private CommunityMembership? _currentUserMembership;
 		private CommunityMembership? CurrentUserMembership
 		{
 			get => _currentUserMembership;
-			set
-			{
-				_currentUserMembership = value;
-				OnPropertyChanged();
-				// Needed to update permissions for the commands
-				OnPropertyChanged(nameof(Bike));
-			}
+			set => SetProperty(ref _currentUserMembership, value);
 		}
 
 		public string Name => Bike?.Name ?? string.Empty;
 
-		public string LendState
-		{
-			get
+		public string LendState => 
+			Bike switch 
 			{
-				return Bike switch
-				{
-					null => string.Empty,
-					{Lent: true} => "Ausgeliehen",
-					{Reserved: true} => "Reserviert",
-					{} => "Verfügbar"
-				};
-			}
-		}
-		
-		public string LockState
-		{
-			get
-			{
-				return Bike?.LockState switch
-				{
-					Lock.State.None => "Kein Schloss vorhanden",
-					Lock.State.Open => "Geöffnet",
-					Lock.State.Closed => "Geschlossen",
-					_ => "Unbekannt"
-				};
-			}
-		}
+				null => string.Empty, 
+				{Lent: true} => "Ausgeliehen", 
+				{Reserved: true} => "Reserviert", 
+				{} => "Verfügbar"
+			};
 
-		public Command SetLocationCommand { get; }
-		public Command RenameBikeCommand { get; }
-		public Command DeleteBikeCommand { get; }
-		public Command ShowCurrentLenderCommand { get; } 
-		public Command AddLockCommand { get; }
-		public Command AddLockWithQRCodeCommand { get; }
-		public Command OpenLockCommand { get; }
-		public Command CloseLockCommand { get; }
-		public Command RemoveLockCommand { get; }
+		public string LockState =>
+			Bike?.LockState switch
+			{
+				Lock.State.None => "Kein Schloss vorhanden",
+				Lock.State.Open => "Geöffnet",
+				Lock.State.Closed => "Geschlossen",
+				_ => "Unbekannt"
+			};
+
+		public ICommand SetLocationCommand { get; }
+		public ICommand RenameBikeCommand { get; }
+		public ICommand DeleteBikeCommand { get; }
+		public ICommand ShowCurrentLenderCommand { get; } 
+		public ICommand AddLockCommand { get; }
+		public ICommand AddLockWithQRCodeCommand { get; }
+		public ICommand OpenLockCommand { get; }
+		public ICommand CloseLockCommand { get; }
+		public ICommand RemoveLockCommand { get; }
 
 		private async Task RenameBike(Bike bike)
 		{

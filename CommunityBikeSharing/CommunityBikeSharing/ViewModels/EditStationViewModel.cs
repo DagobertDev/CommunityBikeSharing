@@ -5,7 +5,6 @@ using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Stations;
 using Xamarin.Essentials;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -30,6 +29,21 @@ namespace CommunityBikeSharing.ViewModels
 			_dialogService = dialogService;
 			CommunityId = communityId;
 			StationId = stationId;
+
+			PickLocationCommand = CreateCommand(PickLocation);
+			ConfirmCommand = CreateCommand(Confirm);
+			CancelCommand = CreateCommand(Cancel);
+			DeleteCommand = CreateCommand(Delete);
+
+			PropertyChanged += (_, args) =>
+			{
+				if (args.PropertyName == nameof(Station))
+				{
+					OnPropertyChanged(nameof(Name));
+					OnPropertyChanged(nameof(Description));
+					OnPropertyChanged(nameof(Location));
+				}
+			};
 		}
 
 		public override async Task InitializeAsync()
@@ -43,22 +57,20 @@ namespace CommunityBikeSharing.ViewModels
 				Station.CommunityId = CommunityId;
 			}
 		}
+		
+		public ICommand PickLocationCommand { get; }
+		public ICommand ConfirmCommand { get; }
+		public ICommand CancelCommand { get; }
+		public ICommand DeleteCommand { get; }
 
 		private string CommunityId { get; }
 		private string? StationId { get; }
 
-		private Station _station = new Station();
+		private Station _station = new();
 		private Station Station
 		{
 			get => _station;
-			set
-			{
-				_station = value;
-				OnPropertyChanged();
-				OnPropertyChanged(nameof(Name));
-				OnPropertyChanged(nameof(Description));
-				OnPropertyChanged(nameof(Location));
-			}
+			set => SetProperty(ref _station, value);
 		}
 
 		[AllowNull]
@@ -95,8 +107,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		public bool AlreadyExists => !string.IsNullOrEmpty(StationId);
 
-		public ICommand PickLocationCommand => new Command(PickLocation);
-		private async void PickLocation()
+		private async Task PickLocation()
 		{
 			var location = await _locationPicker.PickLocation();
 			if (location != null)
@@ -105,8 +116,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		public ICommand ConfirmCommand => new Command(Confirm);
-		private async void Confirm()
+		private async Task Confirm()
 		{
 			if (string.IsNullOrEmpty(Name))
 			{
@@ -127,15 +137,10 @@ namespace CommunityBikeSharing.ViewModels
 				_navigationService.NavigateBack());
 		}
 
-		public ICommand CancelCommand => new Command(Cancel);
-		private async void Cancel()
-		{
-			await _navigationService.NavigateBack();
-		}
+		private Task Cancel() => _navigationService.NavigateBack();
 
-		public ICommand DeleteCommand => new Command(Delete);
 		public bool DeleteVisible => AlreadyExists;
-		private async void Delete()
+		private async Task Delete()
 		{
 			var confirmed = await _dialogService.ShowConfirmation("Station wirklich löschen?",
 				$"Möchten Sie die Station \"{Name}\" wirklich löschen?");

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -24,9 +23,6 @@ namespace CommunityBikeSharing.ViewModels
 				{AuthError.AuthErrorReason.Undefined, "Unbekannter Fehler."}
 			};
 
-		private string _email = string.Empty;
-		private string _password = string.Empty;
-
 		public LoginViewModel(IAuthService authService,
 			IDialogService dialogService,
 			INavigationService navigationService)
@@ -34,35 +30,33 @@ namespace CommunityBikeSharing.ViewModels
 			_authService = authService;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
+
+			GoToRegistrationCommand = CreateCommand(GoToRegistration);
+			LoginCommand = CreateCommand(Login);
+			ResetPasswordCommand = CreateCommand(ResetPassword);
 		}
 
+		public ICommand GoToRegistrationCommand { get; }
+		public ICommand LoginCommand { get; }
+		public ICommand ResetPasswordCommand { get; }
+
+		private string _email = string.Empty;
 		public string Email
 		{
 			get => _email;
-			set
-			{
-				_email = value;
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _email, value);
 		}
 
+		private string _password = string.Empty;
 		public string Password
 		{
 			get => _password;
-			set
-			{
-				_password = value;
-				OnPropertyChanged();
-			}
+			set => SetProperty(ref _password, value);
 		}
 
-		public ICommand GoToRegistrationCommand => new Command(GoToRegistration);
-		private async void GoToRegistration() => await _navigationService.NavigateToRoot<RegistrationViewModel>();
+		private async Task GoToRegistration() => await _navigationService.NavigateToRoot<RegistrationViewModel>();
 
-		public ICommand LoginCommand => new Command(Login);
-		public ICommand ResetPasswordCommand => new Command(ResetPassword);
-
-		private async void Login()
+		private async Task Login()
 		{
 			try
 			{
@@ -76,7 +70,7 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private async void ResetPassword()
+		private async Task ResetPassword()
 		{
 			try
 			{

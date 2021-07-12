@@ -4,23 +4,11 @@ using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Communities;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
 	public class CommunitiesViewModel : BaseViewModel
 	{
-		private ObservableCollection<Community>? _communities;
-		public ObservableCollection<Community>? Communities
-		{
-			get => _communities;
-			set
-			{
-				_communities = value;
-				OnPropertyChanged();
-			}
-		}
-
 		private readonly ICommunityService _communityService;
 		private readonly IDialogService _dialogService;
 		private readonly INavigationService _navigationService;
@@ -32,11 +20,19 @@ namespace CommunityBikeSharing.ViewModels
 			_communityService = communityService;
 			_dialogService = dialogService;
 			_navigationService = navigationService;
+
+			AddCommunityCommand = CreateCommand(AddCommunity);
+			OpenCommunityDetailCommand = CreateCommand<Community>(OpenCommunityOverview);
+			
+			Communities = _communityService.GetCommunities();
 		}
 
-		public ICommand AddCommunityCommand => new Command(AddCommunity);
+		public ICommand AddCommunityCommand { get; }
+		public ICommand OpenCommunityDetailCommand { get; }
 
-		private async void AddCommunity()
+		public ObservableCollection<Community> Communities { get; }
+
+		private async Task AddCommunity()
 		{
 			var name = await _dialogService.ShowTextEditor("Name der Community",
 				"Bitte geben Sie den Namen der neuen Community ein");
@@ -60,20 +56,10 @@ namespace CommunityBikeSharing.ViewModels
 				"Ja", "Nein");
 
 			var community = await _communityService.Create(name, showCurrentUser, supportEmail);
-			OpenCommunityDetail(community);
+			await OpenCommunityOverview(community);
 		}
 
-		public ICommand OpenCommunityDetailCommand => new Command<Community>(OpenCommunityDetail);
-
-		private async void OpenCommunityDetail(Community community)
-		{
-			await _navigationService.NavigateTo<CommunityOverviewViewModel>(community.Id);
-		}
-
-		public override Task InitializeAsync()
-		{
-			Communities = _communityService.GetCommunities();
-			return Task.CompletedTask;
-		}
+		private Task OpenCommunityOverview(Community community)
+			=> _navigationService.NavigateTo<CommunityOverviewViewModel>(community.Id);
 	}
 }

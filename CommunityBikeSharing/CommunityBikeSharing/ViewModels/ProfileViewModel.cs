@@ -4,7 +4,6 @@ using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Users;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -14,9 +13,6 @@ namespace CommunityBikeSharing.ViewModels
 		private readonly INavigationService _navigationService;
 		private readonly IDialogService _dialogService;
 		private readonly IUserService _userService;
-
-		private string _username = string.Empty;
-		private string _email = string.Empty;
 
 		public ProfileViewModel(
 			INavigationService navigationService,
@@ -29,49 +25,18 @@ namespace CommunityBikeSharing.ViewModels
 			_dialogService = dialogService;
 			_userService = userService;
 
-			SignOutCommand = new Command(SignOut);
-			ChangeUsernameCommand = new Command(ChangeUserName);
-			ChangeEmailCommand = new Command(async () => await ChangeEmail());
-			ShowLicensesCommand = new Command(ShowLicenses);
-			DeleteAccountCommand = new Command(async () => await DeleteAccount());
-			ChangePasswordCommand = new Command(async () => await ChangePassword());
-		}
+			SignOutCommand = CreateCommand(SignOut);
+			ChangeUsernameCommand = CreateCommand(ChangeUserName);
+			ChangeEmailCommand = CreateCommand(ChangeEmail);
+			ShowLicensesCommand = CreateCommand(ShowLicenses);
+			DeleteAccountCommand = CreateCommand(DeleteAccount);
+			ChangePasswordCommand = CreateCommand(ChangePassword);
 
-		public string Username
-		{
-			get => _username;
-			private set
+			_authService.ObserveCurrentUser().Subscribe(user =>
 			{
-				_username = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public string Email
-		{
-			get => _email;
-			private set
-			{
-				_email = value;
-				OnPropertyChanged();
-			}
-		}
-
-		private bool _initialized;
-		public override Task InitializeAsync()
-		{
-			if (_initialized)
-			{
-				return Task.CompletedTask;
-			}
-
-			_initialized = true;
-			
-			_authService.ObserveCurrentUser().Subscribe(user => Username = user?.Username ?? string.Empty);
-			
-			Email = _authService.GetCurrentUserData().Email;
-			
-			return Task.CompletedTask;
+				Username = user?.Username ?? string.Empty;
+				Email = user == null ? string.Empty : _authService.GetCurrentUserData().Email;
+			});
 		}
 
 		public ICommand SignOutCommand { get; }
@@ -80,8 +45,22 @@ namespace CommunityBikeSharing.ViewModels
 		public ICommand ShowLicensesCommand { get; }
 		public ICommand DeleteAccountCommand { get; }
 		public ICommand ChangePasswordCommand { get; }
+		
+		private string _username = string.Empty;
+		public string Username
+		{
+			get => _username;
+			private set => SetProperty(ref _username, value);
+		}
 
-		private async void SignOut()
+		private string _email = string.Empty;
+		public string Email
+		{
+			get => _email;
+			private set => SetProperty(ref _email, value);
+		}
+
+		private async Task SignOut()
 		{
 			await _authService.SignOut();
 
@@ -98,7 +77,7 @@ namespace CommunityBikeSharing.ViewModels
 				return;
 			}
 
-			var password = await _dialogService.ShowTextEditor("Passwort eingeben", "Bitte geben Sie Ihr Passwort ein");
+			var password = await _dialogService.ShowTextEditor("Passwort eingeben", "Bitte geben Sie Ihr Passwort ein:");
 
 			if (string.IsNullOrEmpty(password))
 			{
@@ -116,10 +95,10 @@ namespace CommunityBikeSharing.ViewModels
 			await _navigationService.NavigateToRoot<LoginViewModel>();
 		}
 
-		private async void ChangeUserName()
+		private async Task ChangeUserName()
 		{
 			var name = await _dialogService.ShowTextEditor("Benutzername eingeben",
-				"Bitte geben Sie Ihren neuen Benutzernamen ein.");
+				"Bitte geben Sie Ihren neuen Benutzernamen ein:");
 
 			if (string.IsNullOrEmpty(name))
 			{
@@ -135,7 +114,7 @@ namespace CommunityBikeSharing.ViewModels
 
 		private async Task ChangeEmail()
 		{
-			var password = await _dialogService.ShowTextEditor("Passwort eingeben", "Bitte geben Sie Ihr Passwort ein");
+			var password = await _dialogService.ShowTextEditor("Passwort eingeben", "Bitte geben Sie Ihr Passwort ein:");
 
 			if (string.IsNullOrEmpty(password))
 			{
@@ -144,7 +123,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			if (!await _authService.Reauthenticate(Email, password))
 			{
-				await _dialogService.ShowError("Verifizierung fehlgeschlagen", "Ihr Account konnte nicht verifiziert werden");
+				await _dialogService.ShowError("Verifizierung fehlgeschlagen", "Ihr Account konnte nicht verifiziert werden.");
 				return;
 			}
 			
@@ -197,7 +176,7 @@ namespace CommunityBikeSharing.ViewModels
 
 			if (!await _authService.Reauthenticate(Email, oldPassword))
 			{
-				await _dialogService.ShowError("Überprüfung fehlgeschlagen", "Das eingegebene Passwort ist ungültig.");
+				await _dialogService.ShowError("Überprüfung fehlgeschlagen", "Das eingegebene Passwort ist falsch.");
 				return;
 			}
 			
@@ -230,9 +209,6 @@ namespace CommunityBikeSharing.ViewModels
 			}
 		}
 
-		private async void ShowLicenses()
-		{
-			await _navigationService.NavigateTo<LicensesViewModel>();
-		}
+		private Task ShowLicenses() => _navigationService.NavigateTo<LicensesViewModel>();
 	}
 }

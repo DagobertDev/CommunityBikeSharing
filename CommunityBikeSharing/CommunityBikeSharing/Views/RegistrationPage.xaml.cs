@@ -1,5 +1,4 @@
 ﻿using CommunityBikeSharing.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace CommunityBikeSharing.Views
 {
@@ -9,7 +8,7 @@ namespace CommunityBikeSharing.Views
 		{
 			InitializeComponent();
 
-			BindingContext = Startup.ServiceProvider.GetService<RegistrationViewModel>();
+			BindingContext = App.GetViewModel<RegistrationViewModel>();
 		}
 
 		protected override async void OnAppearing()

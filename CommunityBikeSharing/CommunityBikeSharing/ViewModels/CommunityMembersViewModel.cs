@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -11,106 +9,67 @@ using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Users;
 using Xamarin.Essentials;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
 	public class CommunityMembersViewModel : BaseViewModel
 	{
 		private readonly string _communityId;
-		private CommunityMembership? _currentUserMembership;
 		private readonly IMembershipService _membershipService;
 		private readonly IDialogService _dialogService;
 		private readonly IUserService _userService;
-		private readonly IAuthService _authService;
-
-		private User? _currentUser;
-
-		private CommunityMembership? CurrentUserMembership
-		{
-			get => _currentUserMembership;
-			set
-			{
-				_currentUserMembership = value;
-				OnPropertyChanged();
-				OnPropertyChanged(nameof(AddMemberVisible));
-			}
-		}
-
-		private ObservableCollection<CommunityMembership>? _members;
-
-		[DisallowNull]
-		public ObservableCollection<CommunityMembership>? Members
-		{
-			get => _members;
-			set
-			{
-				if (_members != null)
-				{
-					_members.CollectionChanged -= _membersChanged;
-				}
-
-				_members = value;
-				_members.CollectionChanged += _membersChanged;
-
-				OnPropertyChanged();
-				_membersChanged(null, null);
-			}
-		}
-
-		private readonly NotifyCollectionChangedEventHandler _membersChanged;
-
-		public bool AddMemberVisible => CurrentUserMembership is {Role: CommunityRole.CommunityAdmin};
-
-		public IEnumerable<CommunityMembership> SortedMembers
-			=> Members?.OrderBy(m => m.Role)
-				   .ThenBy(m => m.Name)
-			   ?? Enumerable.Empty<CommunityMembership>();
-
-		public ICommand EditMembershipCommand => new Command<CommunityMembership>(EditMembership);
-
-		private void EditMembership(CommunityMembership membership)
-		{
-			var actions = new []
-			{
-				("Zum Community-Admin machen", PromoteCommunityAdminCommand),
-				("Nutzer entfernen", RemoveMemberCommand)
-			};
-
-			_dialogService.ShowActionSheet(membership.Name, "Abbrechen", actions, membership);
-		}
 
 		public CommunityMembersViewModel(
 			IMembershipService membershipService,
 			IDialogService dialogService,
 			IUserService userService,
-			IAuthService authService,
 			string communityId)
 		{
 			_membershipService = membershipService;
 			_dialogService = dialogService;
 			_userService = userService;
-			_authService = authService;
 			_communityId = communityId;
 
-			_membersChanged = (sender, args) =>
+			AddMemberCommand = CreateCommand(AddMember);
+			PromoteCommunityAdminCommand = CreateCommand<CommunityMembership>(PromoteCommunityAdmin, CanPromoteCommunityAdmin);
+			RemoveMemberCommand = CreateCommand<CommunityMembership>(RemoveMember, CanRemoveMember);
+			EditMembershipCommand = CreateCommand<CommunityMembership>(EditMembership);
+			
+			PropertyChanged += (_, args) =>
 			{
-				OnPropertyChanged(nameof(SortedMembers));
-				CurrentUserMembership = Members?.SingleOrDefault(m => m.UserId == _currentUser?.Id);
+				if (args.PropertyName == nameof(CurrentUserMembership))
+				{
+					OnPropertyChanged(nameof(AddMemberVisible));
+				}
 			};
-		}
 
-		public override Task InitializeAsync()
-		{
-			_authService.ObserveCurrentUser().Subscribe(user => _currentUser = user);
 			Members = _membershipService.ObserveMembershipsFromCommunity(_communityId);
-
-			return Task.CompletedTask;
+			Members.CollectionChanged += (_, _) => OnPropertyChanged(nameof(SortedMembers));
+			
+			membershipService.Observe(_communityId).Subscribe(
+				membership => CurrentUserMembership = membership,
+				exception => CurrentUserMembership = null);
 		}
 
-		public ICommand AddMemberCommand => new Command(AddMember);
+		public ICommand AddMemberCommand { get; }
+		public ICommand PromoteCommunityAdminCommand { get; }
+		public ICommand RemoveMemberCommand { get; }
+		public ICommand EditMembershipCommand { get; }
+		
+		private CommunityMembership? _currentUserMembership;
+		private CommunityMembership? CurrentUserMembership
+		{
+			get => _currentUserMembership;
+			set => SetProperty(ref _currentUserMembership, value);
+		}
 
-		private async void AddMember()
+		public ObservableCollection<CommunityMembership> Members { get; }
+		public IEnumerable<CommunityMembership> SortedMembers => 
+			Members.OrderBy(m => m.Role).ThenBy(m => m.Name);
+
+		public bool AddMemberVisible => CurrentUserMembership is {Role: CommunityRole.CommunityAdmin};
+
+		private async Task AddMember()
 		{
 			var email = await _dialogService.ShowTextEditor("Nutzer hinzufügen",
 				"Geben Sie die Email-Adresse des neuen Mitgliedes ein:",
@@ -132,7 +91,7 @@ namespace CommunityBikeSharing.ViewModels
 
 				if (sendMail)
 				{
-					SendInvitationMail(email);
+					await SendInvitationMail(email);
 				}
 
 				return;
@@ -148,20 +107,24 @@ namespace CommunityBikeSharing.ViewModels
 			await _membershipService.Add(user, _communityId);
 		}
 
-		public ICommand PromoteCommunityAdminCommand => new Command<CommunityMembership>(
-			PromoteCommunityAdmin, CanPromoteCommunityAdmin);
-		public ICommand RemoveMemberCommand => new Command<CommunityMembership>(
-			RemoveMember, CanRemoveMember);
-
-		private async void PromoteCommunityAdmin(CommunityMembership membership)
+		private void EditMembership(CommunityMembership membership)
 		{
-			await _membershipService.PromoteToCommunityAdmin(membership);
+			var actions = new []
+			{
+				("Zum Community-Admin machen", PromoteCommunityAdminCommand),
+				("Nutzer entfernen", RemoveMemberCommand)
+			};
+
+			_dialogService.ShowActionSheet(membership.Name, "Abbrechen", actions, membership);
 		}
+
+		private Task PromoteCommunityAdmin(CommunityMembership membership)
+			=> _membershipService.PromoteToCommunityAdmin(membership);
 
 		private bool CanPromoteCommunityAdmin(CommunityMembership membership) =>
 			membership.Role == CommunityRole.User && UserIsAdminAndEditsOtherUser(membership);
 
-		private async void RemoveMember(CommunityMembership membership)
+		private async Task RemoveMember(CommunityMembership membership)
 		{
 			await _membershipService.Delete(membership);
 		}
@@ -171,7 +134,7 @@ namespace CommunityBikeSharing.ViewModels
 		private bool UserIsAdminAndEditsOtherUser(CommunityMembership membership) =>
 			CurrentUserMembership is {Role: CommunityRole.CommunityAdmin} && CurrentUserMembership.Id != membership.Id;
 
-		private async void SendInvitationMail(string mailAddress)
+		private async Task SendInvitationMail(string mailAddress)
 		{
 			try
 			{

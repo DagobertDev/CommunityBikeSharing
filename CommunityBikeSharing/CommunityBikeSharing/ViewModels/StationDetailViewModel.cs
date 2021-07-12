@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
@@ -32,36 +31,35 @@ namespace CommunityBikeSharing.ViewModels
 			_dialogService = dialogService;
 			_communityId = communityId;
 			_stationId = stationId;
+
+			PropertyChanged += (_, args) =>
+			{
+				if (args.PropertyName == nameof(Station))
+				{
+					OnPropertyChanged(nameof(Name));
+					OnPropertyChanged(nameof(Description));
+				}
+			};
+		}
+		
+		public override async Task InitializeAsync()
+		{
+			Station = await _stationService.Get(_communityId, _stationId);
+			Bikes = _bikeService.ObserveBikesFromStation(Station);
 		}
 
 		private Station? _station;
 		private Station? Station
 		{
 			get => _station;
-			set
-			{
-				_station = value;
-				OnPropertyChanged();
-				OnPropertyChanged(nameof(Name));
-				OnPropertyChanged(nameof(Description));
-			}
+			set => SetProperty(ref _station, value);
 		}
 
-		private ObservableCollection<Bike> _bikes = new ObservableCollection<Bike>();
-		public ObservableCollection<Bike> Bikes
+		private ObservableCollection<Bike>? _bikes;
+		public ObservableCollection<Bike>? Bikes
 		{
 			get => _bikes;
-			set
-			{
-				_bikes = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public override async Task InitializeAsync()
-		{
-			Station = await _stationService.Get(_communityId, _stationId);
-			Bikes = _bikeService.ObserveBikesFromStation(Station);
+			set => SetProperty(ref _bikes, value);
 		}
 
 		public string Name => Station?.Name ?? string.Empty;
@@ -71,7 +69,7 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			var bikeVM = App.GetViewModel<BikeViewModel>();
 			
-			var actions = new (string, ICommand) []
+			var actions = new[]
 			{
 				("Fahrrad ausleihen", bikeVM.LendBikeCommand),
 				("Fahrrad zurückgeben", bikeVM.ReturnBikeCommand),

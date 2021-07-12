@@ -6,7 +6,6 @@ using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Stations;
-using Xamarin.Forms;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -27,48 +26,21 @@ namespace CommunityBikeSharing.ViewModels
 			_stationService = stationService;
 			_navigationService = navigationService;
 			CommunityId = communityId;
-		}
 
-		private ObservableCollection<Station>? _stations;
-		public ObservableCollection<Station>? Stations
-		{
-			get => _stations;
-			set
+			AddStationCommand = CreateCommand(AddStation);
+			EditStationCommand = CreateCommand<Station>(EditStation, CanEditStation);
+
+			PropertyChanged += (_, args) =>
 			{
-				_stations = value;
-				OnPropertyChanged();
-			}
+				switch (args.PropertyName)
+				{
+					case nameof(CurrentUserMembership):
+						OnPropertyChanged(nameof(AddStationVisible));
+						break;
+				}
+			};
 		}
-
-		private CommunityMembership? _currentUserMembership;
-
-		private CommunityMembership? CurrentUserMembership
-		{
-			get => _currentUserMembership;
-			set
-			{
-				_currentUserMembership = value;
-				OnPropertyChanged();
-				OnPropertyChanged(nameof(AddStationVisible));
-			}
-		}
-
-		public ICommand AddStationCommand => new Command(AddStation);
-		private async void AddStation()
-		{
-			await _navigationService.NavigateTo<EditStationViewModel>(CommunityId);
-		}
-		public bool AddStationVisible => CurrentUserMembership is {Role: CommunityRole.CommunityAdmin};
-
-		public ICommand EditStationCommand => new Command<Station>(EditStation, CanEditStation);
-
-		private async void EditStation(Station station)
-		{
-			await _navigationService.NavigateTo<EditStationViewModel>(CommunityId, station.Id);
-		}
-
-		private bool CanEditStation(Station station) => CurrentUserMembership is {Role: CommunityRole.CommunityAdmin};
-
+		
 		public override Task InitializeAsync()
 		{
 			_stationService.ObserveStationsFromCommunity(CommunityId)
@@ -82,5 +54,29 @@ namespace CommunityBikeSharing.ViewModels
 
 			return Task.CompletedTask;
 		}
+		
+		public ICommand AddStationCommand { get; }
+		public ICommand EditStationCommand { get; }
+
+		private ObservableCollection<Station>? _stations;
+		public ObservableCollection<Station>? Stations
+		{
+			get => _stations;
+			set => SetProperty(ref _stations, value);
+		}
+
+		private CommunityMembership? _currentUserMembership;
+		private CommunityMembership? CurrentUserMembership
+		{
+			get => _currentUserMembership;
+			set => SetProperty(ref _currentUserMembership, value);
+		}
+
+		private Task AddStation() => _navigationService.NavigateTo<EditStationViewModel>(CommunityId);
+		public bool AddStationVisible => CurrentUserMembership is {Role: CommunityRole.CommunityAdmin};
+		
+		private Task EditStation(Station station)
+			=> _navigationService.NavigateTo<EditStationViewModel>(CommunityId, station.Id);
+		private bool CanEditStation(Station station) => CurrentUserMembership is {Role: CommunityRole.CommunityAdmin};
 	}
 }

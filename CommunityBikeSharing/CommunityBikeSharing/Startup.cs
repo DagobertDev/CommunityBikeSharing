@@ -11,9 +11,9 @@ using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Stations;
 using CommunityBikeSharing.Services.Data.Users;
 using CommunityBikeSharing.ViewModels;
-using CommunityBikeSharing.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Xamarin.Forms;
 
 namespace CommunityBikeSharing
 {
@@ -41,6 +41,7 @@ namespace CommunityBikeSharing
 				.AddSingleton<IDialogService, DialogService>()
 				.AddSingleton<ILocationPicker, LocationPicker>()
 				.AddSingleton<ILocationService, LocationService>()
+				.AddSingleton(MessagingCenter.Instance)
 				.AddSingleton<INavigationService, NavigationService>()
 				.AddSingleton<IQRCodeScanner, QRCodeScanner>()
 
@@ -95,8 +96,8 @@ namespace CommunityBikeSharing
 				.AddTransient<CommunitiesViewModel>()
 				.AddTransient<CommunityBikesViewModel>()
 				.AddTransient<CommunityMembersViewModel>()
-				.AddTransient<CommunityOverviewPage>()
-				.AddTransient<CommunityStationsPage>()
+				.AddTransient<CommunityOverviewViewModel>()
+				.AddTransient<CommunityStationsViewModel>()
 				.AddTransient<EditBikeViewModel>()
 				.AddTransient<EditStationViewModel>()
 				.AddTransient<LicenseDetailViewModel>()
