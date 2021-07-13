@@ -23,8 +23,8 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		public ObservableCollection<Bike> ObserveBikesFromCommunity(string communityId)
 			=> ObserveBikes(Bikes(communityId), communityId);
 
-		public ObservableCollection<Bike> ObserveBikesFromStation(Station station)
-			=> ObserveBikes(Bikes(station.CommunityId)
+		public IObservable<ICollection<Bike>> ObserveBikesFromStation(Station station)
+			=> ObservableBikes(Bikes(station.CommunityId)
 					.WhereEqualsTo(FieldPath.GetMappingName<Bike>(nameof(Bike.StationId)), station.Id),
 				station.CommunityId);
 
@@ -75,6 +75,18 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 					});
 
 			return result;
+		}
+		
+		private static IObservable<ICollection<Bike>> ObservableBikes(IQuery query, string community)
+		{
+			return query.AsObservable().Select(snapshot => snapshot.ToObjects<Bike>()
+					.Select(bike => 
+					{ 
+						bike.CommunityId = community; 
+						return bike; 
+					})
+					.ToList())
+				.Catch<ICollection<Bike>>(Observable.Return(Array.Empty<Bike>()));
 		}
 
 		protected override IDocumentReference GetDocument(Bike bike) => Bikes(bike.CommunityId).Document(bike.Id);

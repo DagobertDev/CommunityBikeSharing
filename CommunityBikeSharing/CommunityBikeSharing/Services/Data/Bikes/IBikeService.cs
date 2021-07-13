@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
@@ -18,7 +19,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 		Task ReturnBike(Bike bike);
 		IObservable<Bike?> Observe(string community, string bike);
 		ObservableCollection<Bike> ObserveBikesFromCommunity(string communityId);
-		ObservableCollection<Bike> ObserveBikesFromStation(Station station);
+		IObservable<ICollection<Bike>> ObserveBikesFromStation(Station station);
 		ObservableCollection<Bike> GetAvailableBikes();
 
 		bool CanLendBike(Bike bike) => !bike.Lent;

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -47,8 +46,8 @@ namespace CommunityBikeSharing.Services.Data.Memberships
 			return doc.ToObjects<CommunityMembership>().ToList();
 		}
 
-		public ObservableCollection<CommunityMembership> ObserveMembershipsFromCommunity(string communityId)
-			=> ObserveCommunities(Memberships.WhereEqualsTo(nameof(CommunityMembership.CommunityId), communityId));
+		public IObservable<ICollection<CommunityMembership>> ObserveMembershipsFromCommunity(string communityId)
+			=> ObservableCommunities(Memberships.WhereEqualsTo(nameof(CommunityMembership.CommunityId), communityId));
 
 		public ObservableCollection<CommunityMembership> ObserveMembershipsFromUser(string userId)
 			=> ObserveCommunities(Memberships.WhereEqualsTo(nameof(CommunityMembership.UserId), userId));
@@ -73,6 +72,13 @@ namespace CommunityBikeSharing.Services.Data.Memberships
 
 			return result;
 		}
+		
+		private static IObservable<ICollection<CommunityMembership>> ObservableCommunities(IQuery query) 
+			=> query.AsObservable()
+				.Select(snapshot => snapshot.ToObjects<CommunityMembership>().ToList())
+				.Catch<ICollection<CommunityMembership>>(Observable.Return(Array.Empty<CommunityMembership>()));
+		
+
 
 		protected override IDocumentReference GetDocument(CommunityMembership membership) => Memberships.Document(membership.Id);
 		protected override IDocumentReference GetNewDocument(CommunityMembership membership) => Memberships.Document(membership.Id);

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ namespace CommunityBikeSharing.Services.Data.Memberships
 		Task<CommunityMembership> Get(string community, string user);
 		IObservable<CommunityMembership> Observe(string community);
 		Task<ICollection<CommunityMembership>> GetMembershipsFromCommunity(string community);
-		ObservableCollection<CommunityMembership> ObserveMembershipsFromCommunity(string communityId);
+		IObservable<ICollection<CommunityMembership>> ObserveMembershipsFromCommunity(string communityId);
 		ObservableCollection<CommunityMembership> ObserveMemberships();
 		Task<CommunityMembership> Add(User user, string community);
 		Task PromoteToCommunityAdmin(CommunityMembership membership);

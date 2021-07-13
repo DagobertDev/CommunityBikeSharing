@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -8,6 +7,7 @@ using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Memberships;
 using CommunityBikeSharing.Services.Data.Users;
+using Xamarin.CommunityToolkit.ObjectModel;
 using Xamarin.Essentials;
 
 namespace CommunityBikeSharing.ViewModels
@@ -43,9 +43,12 @@ namespace CommunityBikeSharing.ViewModels
 				}
 			};
 
-			Members = _membershipService.ObserveMembershipsFromCommunity(_communityId);
-			Members.CollectionChanged += (_, _) => OnPropertyChanged(nameof(SortedMembers));
-			
+			_membershipService.ObserveMembershipsFromCommunity(_communityId).Subscribe(members =>
+			{
+				Members.ReplaceRange(members);
+				OnPropertyChanged(nameof(SortedMembers));
+			});
+
 			membershipService.Observe(_communityId).Subscribe(
 				membership => CurrentUserMembership = membership,
 				exception => CurrentUserMembership = null);
@@ -63,7 +66,7 @@ namespace CommunityBikeSharing.ViewModels
 			set => SetProperty(ref _currentUserMembership, value);
 		}
 
-		public ObservableCollection<CommunityMembership> Members { get; }
+		public ObservableRangeCollection<CommunityMembership> Members { get; } = new();
 		public IEnumerable<CommunityMembership> SortedMembers => 
 			Members.OrderBy(m => m.Role).ThenBy(m => m.Name);
 

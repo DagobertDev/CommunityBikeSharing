@@ -1,9 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
 using System.Threading.Tasks;
 using CommunityBikeSharing.Models;
 using CommunityBikeSharing.Services;
 using CommunityBikeSharing.Services.Data.Bikes;
 using CommunityBikeSharing.Services.Data.Stations;
+using Xamarin.CommunityToolkit.ObjectModel;
 
 namespace CommunityBikeSharing.ViewModels
 {
@@ -45,7 +46,7 @@ namespace CommunityBikeSharing.ViewModels
 		public override async Task InitializeAsync()
 		{
 			Station = await _stationService.Get(_communityId, _stationId);
-			Bikes = _bikeService.ObserveBikesFromStation(Station);
+			_bikeService.ObserveBikesFromStation(Station).Subscribe(bikes => Bikes.ReplaceRange(bikes));
 		}
 
 		private Station? _station;
@@ -55,12 +56,7 @@ namespace CommunityBikeSharing.ViewModels
 			set => SetProperty(ref _station, value);
 		}
 
-		private ObservableCollection<Bike>? _bikes;
-		public ObservableCollection<Bike>? Bikes
-		{
-			get => _bikes;
-			set => SetProperty(ref _bikes, value);
-		}
+		public ObservableRangeCollection<Bike> Bikes { get; } = new();
 
 		public string Name => Station?.Name ?? string.Empty;
 		public string? Description => Station?.Description;

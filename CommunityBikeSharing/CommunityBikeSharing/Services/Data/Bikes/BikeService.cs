@@ -56,7 +56,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 			_lockService = lockService;
 		}
 
-		public ObservableCollection<Bike> ObserveBikesFromStation(Station station) =>
+		public IObservable<ICollection<Bike>> ObserveBikesFromStation(Station station) =>
 			_bikeRepository.ObserveBikesFromStation(station);
 
 		public ObservableCollection<Bike> GetAvailableBikes()

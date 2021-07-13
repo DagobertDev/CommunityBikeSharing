@@ -9,7 +9,7 @@ namespace CommunityBikeSharing.Services.Data.Bikes
 	public interface IBikeRepository : IRepository<Bike>
 	{
 		public ObservableCollection<Bike> ObserveBikesFromCommunity(string communityId);
-		public ObservableCollection<Bike> ObserveBikesFromStation(Station station);
+		public IObservable<ICollection<Bike>> ObserveBikesFromStation(Station station);
 		public Task<IList<Bike>> GetBikesFromStation(Station station);
 		public IObservable<Bike?> Observe(string community, string bike);
 	}
