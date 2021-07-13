@@ -64,7 +64,11 @@ namespace CommunityBikeSharing.ViewModels
 		{
 			await _authService.SignOut();
 
-			await _navigationService.NavigateToRoot<RegistrationViewModel>();
+			// TODO: Allow logout without restarting the app
+			await _dialogService.ShowMessage(
+				"App wird beendet", 
+				"Die App wird beendet, um die Abmeldung abzuschließen.");
+			throw new ApplicationException("Restart app. This is intentional");
 		}
 
 		private async Task DeleteAccount()
