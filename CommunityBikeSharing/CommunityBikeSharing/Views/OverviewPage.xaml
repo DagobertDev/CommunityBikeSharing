@@ -38,7 +38,7 @@
             <behaviors:StationBikeTemplateSelector.StationTemplate>
                 <DataTemplate x:DataType="models:Station">
                     <StackLayout Orientation="Horizontal"
-                                 Spacing="30">
+                                 Spacing="20">
                         <Label Text="{x:Static fa:FontAwesomeIcons.Home}"
                                FontFamily="{x:Static assets:Fonts.SolidIcons}"/>
                         <Label Text="{Binding Name}"
@@ -61,7 +61,7 @@
             <behaviors:StationBikeTemplateSelector.BikeTemplate>
                 <DataTemplate x:DataType="models:Bike">
                     <StackLayout Orientation="Horizontal"
-                                 Spacing="30">
+                                 Spacing="20">
                         <Label Text="{x:Static fa:FontAwesomeIcons.Biking}"
                                FontFamily="{x:Static assets:Fonts.SolidIcons}"/>
                         <Label Text="{Binding Name}"
@@ -112,7 +112,7 @@
                                 SelectionMode="Single"
                                 SelectionChanged="OnItemSelected"
                                 VerticalScrollBarVisibility="Default"
-                                Margin="30, 10">
+                                Margin="20, 10">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Vertical" ItemSpacing="20"/>
                     </CollectionView.ItemsLayout>
