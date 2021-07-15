@@ -38,10 +38,19 @@ namespace CommunityBikeSharing.ViewModels
 
 			PropertyChanged += (_, args) =>
 			{
-				if (args.PropertyName == nameof(ShowMap)) 
+				switch (args.PropertyName)
 				{
-					OnPropertyChanged(nameof(ToggleMapText));
-					Preferences.Set("ShowMap", ShowMap);
+					case nameof(ShowMap):
+						OnPropertyChanged(nameof(ToggleMapText));
+						Preferences.Set("ShowMap", ShowMap);
+						break;
+					case nameof(UserLocation):
+						OnPropertyChanged(nameof(GroupedItems));
+						break;
+					case nameof(AllBikes) or nameof(AllStations):
+						OnPropertyChanged(nameof(MapItems));
+						OnPropertyChanged(nameof(GroupedItems));
+						break;
 				}
 			};
 			
@@ -49,18 +58,14 @@ namespace CommunityBikeSharing.ViewModels
 			bikes.CollectionChanged += (_, _) =>
 			{
 				AllBikes.ReplaceRange(bikes);
-
-				OnPropertyChanged(nameof(MapItems));
-				OnPropertyChanged(nameof(GroupedItems));
+				OnPropertyChanged(nameof(AllBikes));
 			};
 
 			var stations = stationService.GetAvailableStations();
 			stations.CollectionChanged += (_, _) =>
 			{
 				AllStations.ReplaceRange(stations);
-				
-				OnPropertyChanged(nameof(MapItems));
-				OnPropertyChanged(nameof(GroupedItems));
+				OnPropertyChanged(nameof(AllStations));
 			};
 		}
 
@@ -97,12 +102,20 @@ namespace CommunityBikeSharing.ViewModels
 			{
 				var result = new List<ItemGroup>();
 
-				if (AllStations.Count > 0)
+				var stations = AllStations
+					.OrderBy(station => station.Location.CalculateDistance(UserLocation, DistanceUnits.Kilometers))
+					.ToList();
+
+				if (stations.Count > 0)
 				{
-					result.Add(new ItemGroup("Stationen", AllStations));
+					result.Add(new ItemGroup("Stationen", stations));
 				}
 
-				var bikes = AllBikes.Where(bike => bike.StationId is null).ToList();
+				var bikes = AllBikes.Where(bike => bike.StationId is null)
+					.OrderBy(bike => !bike.Lent)
+					.ThenBy(bike => !bike.Reserved)
+					.ThenBy(bike => bike.Location?.CalculateDistance(UserLocation, DistanceUnits.Kilometers) ?? -1)
+					.ToList();
 
 				if (bikes.Count > 0)
 				{

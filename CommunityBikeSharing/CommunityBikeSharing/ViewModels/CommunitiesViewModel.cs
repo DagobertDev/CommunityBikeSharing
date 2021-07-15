@@ -44,7 +44,7 @@ namespace CommunityBikeSharing.ViewModels
 			
 			var supportEmail = await _dialogService.ShowTextEditor("Support-Email",
 				"Bitte geben Sie eine Email-Adresse ein, an welche sich Mitglieder der Community bei Problemen wenden können, "
-				+ "etwa wenn ein Fahrrad repariert werden muss.");
+				+ "etwa wenn ein Fahrrad repariert werden muss:", keyboard: IDialogService.KeyboardType.Email);
 
 			if (string.IsNullOrEmpty(supportEmail))
 			{

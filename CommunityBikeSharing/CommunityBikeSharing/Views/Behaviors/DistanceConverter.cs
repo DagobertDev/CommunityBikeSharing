@@ -18,8 +18,15 @@ namespace CommunityBikeSharing.Views.Behaviors
 				return string.Empty;
 			}
 
-			return $"{firstValue.CalculateDistance(secondValue, DistanceUnits.Kilometers):0.00}km";
-	}
+			var distance = firstValue.CalculateDistance(secondValue, DistanceUnits.Kilometers);
+
+			return distance switch
+			{
+				< 1 => $"{distance * 1000 :F0} m",
+				< 10 => $"{distance :F1} km",
+				_ => $"{distance :F0} km"
+			};
+		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
 			=> throw new NotImplementedException("Going back to what you had isn't supported.");
