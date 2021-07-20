@@ -81,8 +81,8 @@
                             <Label.Text>
                                 <MultiBinding Converter="{StaticResource DistanceConverter}">
                                     <Binding Path="Location"/>
-                                    <Binding Source="{x:Reference Page}"
-                                             Path="BindingContext.UserLocation"/>
+                                    <Binding Path="UserLocation" 
+                                             Source="{RelativeSource AncestorType={x:Type viewModels:OverviewViewModel}}"/>
                                 </MultiBinding>
                             </Label.Text>
                         </Label>
