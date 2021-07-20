@@ -34,4 +34,10 @@
     <EmbeddedResource Include="Licenses\**\LICENSE" />
     <None Remove="Licenses\**\LICENSE" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Xamarin.CommunityToolkit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\.nuget\packages\xamarin.communitytoolkit\1.2.0\lib\xamarinios10\Xamarin.CommunityToolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

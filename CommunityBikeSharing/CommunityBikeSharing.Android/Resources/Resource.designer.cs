@@ -4099,6 +4099,7 @@ namespace CommunityBikeSharing.Droid
 			global::Xamarin.Essentials.Resource.Id.text2 = global::CommunityBikeSharing.Droid.Resource.Id.text2;
 			global::Xamarin.Essentials.Resource.Id.time = global::CommunityBikeSharing.Droid.Resource.Id.time;
 			global::Xamarin.Essentials.Resource.Id.title = global::CommunityBikeSharing.Droid.Resource.Id.title;
+			global::Xamarin.Essentials.Resource.Id.view_tree_lifecycle_owner = global::CommunityBikeSharing.Droid.Resource.Id.view_tree_lifecycle_owner;
 			global::Xamarin.Essentials.Resource.Integer.status_bar_notification_info_maxnum = global::CommunityBikeSharing.Droid.Resource.Integer.status_bar_notification_info_maxnum;
 			global::Xamarin.Essentials.Resource.Layout.browser_actions_context_menu_page = global::CommunityBikeSharing.Droid.Resource.Layout.browser_actions_context_menu_page;
 			global::Xamarin.Essentials.Resource.Layout.browser_actions_context_menu_row = global::CommunityBikeSharing.Droid.Resource.Layout.browser_actions_context_menu_row;
@@ -25828,28 +25829,31 @@ namespace CommunityBikeSharing.Droid
 			public const int view_offset_helper = 2131231040;
 			
 			// aapt resource value: 0x7F080141
-			public const int view_tree_saved_state_registry_owner = 2131231041;
+			public const int view_tree_lifecycle_owner = 2131231041;
 			
 			// aapt resource value: 0x7F080142
-			public const int visible = 2131231042;
+			public const int view_tree_saved_state_registry_owner = 2131231042;
 			
 			// aapt resource value: 0x7F080143
-			public const int visible_removing_fragment_view_tag = 2131231043;
+			public const int visible = 2131231043;
 			
 			// aapt resource value: 0x7F080144
-			public const int wide = 2131231044;
-			
-			// aapt resource value: 0x7F080146
-			public const int withinBounds = 2131231046;
+			public const int visible_removing_fragment_view_tag = 2131231044;
 			
 			// aapt resource value: 0x7F080145
-			public const int withText = 2131231045;
+			public const int wide = 2131231045;
 			
 			// aapt resource value: 0x7F080147
-			public const int wrap_content = 2131231047;
+			public const int withinBounds = 2131231047;
+			
+			// aapt resource value: 0x7F080146
+			public const int withText = 2131231046;
 			
 			// aapt resource value: 0x7F080148
-			public const int zero_corner_chip = 2131231048;
+			public const int wrap_content = 2131231048;
+			
+			// aapt resource value: 0x7F080149
+			public const int zero_corner_chip = 2131231049;
 			
 			static Id()
 			{

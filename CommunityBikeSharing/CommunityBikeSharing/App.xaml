@@ -3,12 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:behaviors="clr-namespace:CommunityBikeSharing.Views.Behaviors;assembly=CommunityBikeSharing"
              xmlns:iOsSpecific="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
+             xmlns:ctk="http://xamarin.com/schemas/2020/toolkit"
              x:Class="CommunityBikeSharing.App">
     <Application.Resources>
         <behaviors:LocationsToDistanceConverter x:Key="DistanceConverter" />
         <behaviors:PositionToLocationConverter x:Key="PositionConverter" />
-        <behaviors:BoolInverter x:Key="BoolInverter" />
-        <behaviors:IsNotNullConverter x:Key="IsNotNull" />
+        <ctk:InvertedBoolConverter x:Key="BoolInverter" />
+        <ctk:IsNotNullOrEmptyConverter x:Key="IsNotNull" />
         <behaviors:LockStateIconConverter x:Key="LockStateIconConverter" />
         
         <Style TargetType="Page" ApplyToDerivedTypes="True">
