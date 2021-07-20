@@ -11,7 +11,7 @@
         <StackLayout>
             <Entry  x:Name="SearchField"
                     Placeholder="Nach Ort suchen"
-                    Margin="30, 0, 30, 0"/>
+                    Margin="30, 0"/>
             <Button Text="Suchen"
                     Clicked="OnSearchButtonClicked"
                     Margin="30, 0"/>
@@ -24,6 +24,20 @@
                     <maps:Pin x:Name="Pin"
                               Label="Ausgewählter Standort"/>
                 </maps:Map.Pins>
+                <x:Arguments>
+                    <maps:MapSpan>
+                        <x:Arguments>
+                            <maps:Position>
+                                <x:Arguments>
+                                    <x:Double>50.0</x:Double>
+                                    <x:Double>10.0</x:Double>
+                                </x:Arguments>
+                            </maps:Position>
+                            <x:Double>10</x:Double>
+                            <x:Double>10</x:Double>
+                        </x:Arguments>
+                    </maps:MapSpan>
+                </x:Arguments>
             </maps:Map>
 
             <Button Text="Bestätigen"
@@ -31,7 +45,7 @@
                     Margin="30, 0" />
             <Button Text="Abbrechen"
                     Command="{Binding CancelCommand }"
-                    Margin="30, 0, 30, 10" />
+                    Margin="30, 0" />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
