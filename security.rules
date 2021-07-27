@@ -1,0 +1,290 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+  	// Users
+    match /users/{userId} {
+    	allow create, update: 
+      	if isSelf()
+          
+        && request.resource.data.Username is string
+       	&& request.resource.data.Username == request.auth.token.name
+          
+        && request.resource.data.keys().hasOnly(
+        	['Username'])
+        
+      	&& existsAfter(/databases/$(database)/documents/users_email/$(request.auth.token.email));
+          
+      allow delete: 
+      	if isSelf();
+      allow get:
+      	if request.auth != null;
+      allow list:
+      	if request.auth.token.name == resource.data.Username
+      
+      function isSelf() {
+      	return request.auth.uid == userId;
+      }
+    }
+    
+    // User Emails
+    match /users_email/{emailId} {
+  		allow create: 
+      	if request.auth.token.email == emailId
+        && request.auth.uid == request.resource.data.UserId
+       	&& request.resource.data.keys().hasOnly(
+          ['UserId'])
+        
+        && existsAfter(/databases/$(database)/documents/users/$(request.resource.data.UserId));
+    
+    	allow delete: 
+      	if request.auth.uid == resource.data.UserId;
+    	
+      allow get:
+      	if request.auth != null;
+    }
+    
+    // Communities
+    match /communities/{communityId} {
+    	allow create:
+      	if isValidCommunity()
+      	&& isCreatingCommunity();
+          
+      allow update:
+      	if isValidCommunity()
+        && isCommunityAdmin();
+      
+      allow delete:
+      	if isCommunityAdmin();
+      
+      allow read:
+      	if resource == null
+        || isCommunityMember();
+     
+     
+    	function isValidCommunity() {
+      	return request.resource.data.Name is string
+        && request.resource.data.Name.size() <= 256
+        
+        && request.resource.data.ShowCurrentUser is bool
+        
+        && 
+        (
+        	request.resource.data.get('ReserveTime', null) == null
+        	|| request.resource.data.ReserveTime is number
+        )
+        
+        && 
+        (
+        	request.resource.data.get('SupportEmail', null) == null
+        	|| request.resource.data.SupportEmail is string
+        )
+        
+        && request.resource.data.keys().hasOnly(
+          ['Name', 'ReserveTime', 'ShowCurrentUser', 'SupportEmail'])
+      }
+      
+      function isCreatingCommunity() {
+      	return getAfter(/databases/$(database)/documents/communities_users/
+        	$(request.auth.uid + '_' + communityId)).data.Role == 'CommunityAdmin';
+      }
+      
+      function isCommunityAdmin() {
+      	return isAdminOfCommunity(communityId);
+      }
+      
+      function isCommunityMember() {
+      	return isMemberOfCommunity(communityId);
+      }
+      
+      
+      // Communities/Bikes
+      match /bikes/{bike_id} {
+      	allow create:
+        	if isValidBike()
+          && isCommunityAdmin();
+          
+        allow update:
+        	if isValidBike()
+          && 
+          (
+            (
+              doesntChange(['Name'])
+            	&& 
+              	(
+                	// User rents the bike
+                	request.resource.data.CurrentUser == request.auth.uid
+                  || 
+                  // User returns the bike
+                  (
+                  	resource.data.CurrentUser == request.auth.uid
+                  	&& request.resource.data.get('CurrentUser', null) == null
+                    //&& 
+                   // (
+                    // Either location or station is set
+                    //	request.resource.data.get('Location', null) != null
+                     // || request.resource.data.get('StationId', null) != null
+                    //)
+                  )
+                )
+              && isCommunityMember()
+            )
+            ||
+            (
+              isCommunityAdmin()
+            )
+          );
+        
+        allow delete:
+        	if isCommunityAdmin();
+        
+        allow read:
+        	if resource == null
+          || isCommunityMember()
+          || !exists(/databases/$(database)/documents/communities/$(communityId));
+          
+        
+        function isValidBike() {
+        	return request.resource.data.Name is string   
+        	&& request.resource.data.Name.size() <= 256
+                    
+          && 
+          (
+          	request.resource.data.get('CurrentUser', null) == null
+          	|| request.resource.data.CurrentUser is string
+          	&& request.resource.data.CurrentUser.size() <= 256
+          )
+          
+          && 
+          (
+          	request.resource.data.get('Location', null) == null
+          	|| request.resource.data.Location is latlng
+          )
+          
+          && 
+          (
+          	request.resource.data.get('StationId', null) == null
+            || request.resource.data.StationId is string
+          )
+         
+         	&&
+          (
+          	request.resource.data.get('ReservedUntil', null) == null
+          	|| request.resource.data.ReservedUntil is timestamp
+          )
+          
+          &&
+          (
+          	request.resource.data.get('LockId', null) == null
+          	|| request.resource.data.LockId is string
+          )
+          
+          && request.resource.data.LockState is string     
+
+        	&& request.resource.data.keys().hasOnly(
+          ['Name', 'CurrentUser', 'Location', 'StationId', 'ReservedUntil', 'LockId', 'LockState']);
+        }
+    	}
+      
+      match /stations/{stationId} {
+      	allow write;
+        allow read:	
+        	if resource == null
+          || isCommunityMember()
+          || !exists(/databases/$(database)/documents/communities/$(communityId));
+      }
+      
+    	match /locks/{lockId} {
+      	allow read:	
+        	if isCommunityMember()
+        allow write:	
+        	if isCommunityAdmin()
+      }
+    }
+    
+    function isMemberOfCommunity(communityId) {
+      return exists(/databases/$(database)/documents/communities_users/
+        $(request.auth.uid + '_' + communityId));
+    }
+    
+    function isAdminOfCommunity(communityId) {
+    	return get(/databases/$(database)/documents/communities_users/
+        $(request.auth.uid + '_' + communityId)).data.Role == 'CommunityAdmin';
+    }
+    
+    
+    // Memberships
+    match /communities_users/{id} {
+    	allow create:
+      	if isValidMembership()
+        && (
+        	isAdminOfCommunity(request.resource.data.CommunityId)
+        	|| isCreatingCommunity()
+        );
+        
+      
+      allow update:
+      	if isValidMembership()
+        && (
+          updateByMember()
+        	|| updateByAdmin()
+        );
+      
+      allow delete:
+      	if resource.data.UserId == request.auth.uid
+        || isAdminOfCommunity(resource.data.CommunityId)
+        
+      allow read:
+      	if resource == null
+        || resource.data.UserId == request.auth.uid
+       	|| isMemberOfCommunity(resource.data.CommunityId)
+        || !exists(/databases/$(database)/documents/communities/$(resource.data.CommunityId));
+
+      
+      function isValidMembership() {
+      	return existsAfter(/databases/$(database)/documents/communities/$(request.resource.data.CommunityId))
+        
+        && request.resource.data.Name is string
+        
+        && isValidRole()
+        
+        && request.resource.data.UserId is string
+
+        && request.resource.data.keys().hasOnly(
+          ['CommunityId', 'Name', 'Role', 'UserId']);
+      }
+      
+      function isValidRole() {
+      	return request.resource.data.Role in ['User', 'CommunityAdmin']
+      }
+      
+      function isCreatingCommunity() {
+      	return !exists(/databases/$(database)/documents/communities/$(request.resource.data.CommunityId))
+        && existsAfter(/databases/$(database)/documents/communities/$(request.resource.data.CommunityId))
+      	&& request.resource.data.Role == 'CommunityAdmin'
+        && request.resource.data.UserId == request.auth.uid
+        && request.resource.data.Name == request.auth.token.name;
+      }
+      
+      function updateByMember() {
+    	  return onlyChanges(['Name'])
+        	&& resource.data.UserId == request.auth.uid;
+      }
+      
+      function updateByAdmin() {
+        return onlyChanges(['Role'])
+        && isAdminOfCommunity(resource.data.CommunityId)
+      }
+    }
+  }
+  
+  function doesntChange(values) {
+    return (!request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(values));
+  }
+  
+  function onlyChanges(values) {
+  	return (request.resource.data.diff(resource.data).affectedKeys()
+      	.hasOnly(values));
+  }
+}
