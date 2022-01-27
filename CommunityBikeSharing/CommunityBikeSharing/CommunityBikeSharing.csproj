@@ -18,7 +18,7 @@
     <PackageReference Include="Plugin.BluetoothLE" Version="6.3.0.19" />
     <PackageReference Include="Plugin.CloudFirestore" Version="4.1.0" />
     <PackageReference Include="Plugin.FirebaseAuth" Version="4.1.0" />
-    <PackageReference Include="Xamarin.CommunityToolkit" Version="1.2.0" />
+    <PackageReference Include="Xamarin.CommunityToolkit" Version="2.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
     <PackageReference Include="Xamarin.Forms.Maps" Version="5.0.0.2012" />
